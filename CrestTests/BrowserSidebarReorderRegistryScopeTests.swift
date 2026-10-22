@@ -14,13 +14,13 @@ final class BrowserSidebarReorderRegistryScopeTests: XCTestCase {
     /// Eleven foreign tiles and two of its own is past the cap, and four of the
     /// foreign ones sit on the pointer's own line, to its left. Counted
     /// together, the grid has no room at all, and the slot the pointer is over
-    /// is the sixth rather than the second.
+    /// would be a later one than the second.
     func testAForeignSpacesPinnedRowsNeitherFillNorReorderThisDragsGrid() {
         let fixture = ReorderRegistryFixture(ownPinCount: 2)
         let state = fixture.sidebarInteraction.sidebarReorderState
         fixture.register(in: state)
 
-        fixture.liftTheJoiner(in: state, to: CGPoint(x: 144, y: 92))
+        fixture.liftTheJoiner(in: state, to: CGPoint(x: 70, y: 80))
 
         XCTAssertEqual(
             state.resolvedTarget?.kind,

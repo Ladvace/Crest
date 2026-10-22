@@ -4309,6 +4309,10 @@
     "space-switcher-bare-icons": {
       "category": "improved",
       "message": "On Mac, the Spaces at the bottom of the sidebar are plain icons, the current one brightest. They shrink as you narrow the sidebar, and when space runs out every Space but the current one becomes a dot."
+    },
+    "compact-pinned-sites": {
+      "category": "improved",
+      "message": "Pinned sites take less room: tiles are shorter and closer together, and with the Balanced layout as many fit on a row as the sidebar allows, so a few pins no longer stretch into wide tiles."
     }
   }
 }

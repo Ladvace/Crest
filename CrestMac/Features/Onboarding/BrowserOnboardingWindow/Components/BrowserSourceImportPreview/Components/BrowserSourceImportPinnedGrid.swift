@@ -9,7 +9,7 @@ struct BrowserSourceImportPinnedGrid: View {
     let setIncluded: (UUID, Bool) -> Void
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 8) {
+        LazyVGrid(columns: columns, spacing: BrowserPinnedTabReorderLayout.spacing) {
             ForEach(tabs) { tab in
                 let included = review.includedTabIDs.contains(tab.id)
                 let overflows = overflowTabIDs.contains(tab.id) && included
@@ -23,7 +23,7 @@ struct BrowserSourceImportPinnedGrid: View {
                         size: 20
                     )
                     .frame(maxWidth: .infinity)
-                    .frame(height: 47)
+                    .frame(height: BrowserPinnedTabReorderLayout.cellHeight)
                     .background(
                         duplicate
                             ? BrowserOnboardingPalette.match.opacity(0.2)
@@ -70,7 +70,7 @@ struct BrowserSourceImportPinnedGrid: View {
 
     private var columns: [GridItem] {
         Array(
-            repeating: GridItem(.flexible(), spacing: 8),
+            repeating: GridItem(.flexible(), spacing: BrowserPinnedTabReorderLayout.spacing),
             count: PinnedTabGridLayout.columnCount(for: tabs.count)
         )
     }

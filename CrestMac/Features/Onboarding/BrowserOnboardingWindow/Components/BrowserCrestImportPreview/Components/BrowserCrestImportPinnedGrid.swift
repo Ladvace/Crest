@@ -7,7 +7,7 @@ struct BrowserCrestImportPinnedGrid: View {
     let highlightedTabID: UUID?
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 8) {
+        LazyVGrid(columns: columns, spacing: BrowserPinnedTabReorderLayout.spacing) {
             ForEach(space.pinnedTabs) { tab in
                 let isMatched = matchedTabIDs.contains(tab.id)
                 TabStateFaviconView(
@@ -17,7 +17,7 @@ struct BrowserCrestImportPinnedGrid: View {
                     size: 19
                 )
                 .frame(maxWidth: .infinity)
-                .frame(height: 47)
+                .frame(height: BrowserPinnedTabReorderLayout.cellHeight)
                 .background(
                     isMatched
                         ? BrowserOnboardingPalette.match.opacity(0.2)
@@ -51,7 +51,7 @@ struct BrowserCrestImportPinnedGrid: View {
 
     private var columns: [GridItem] {
         Array(
-            repeating: GridItem(.flexible(), spacing: 8),
+            repeating: GridItem(.flexible(), spacing: BrowserPinnedTabReorderLayout.spacing),
             count: PinnedTabGridLayout.columnCount(for: space.pinnedTabs.count)
         )
     }

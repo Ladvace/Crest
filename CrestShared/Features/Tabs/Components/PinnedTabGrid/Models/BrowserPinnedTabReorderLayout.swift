@@ -5,8 +5,13 @@ import CoreGraphics
 struct BrowserPinnedTabReorderLayout: Equatable {
     // MARK: - Static Variables
 
-    static let cellHeight: CGFloat = 47
-    static let spacing = CrestSpacing.small
+    static let cellHeight: CGFloat = 38
+    static let spacing: CGFloat = 6
+
+    /// The most tiles a row holds, and the width below which the automatic
+    /// layout starts a new row.
+    static let maximumColumns = 6
+    static let automaticTileWidth: CGFloat = 44
 
     // MARK: - Types
 
@@ -36,18 +41,19 @@ struct BrowserPinnedTabReorderLayout: Equatable {
         return result
     }
 
+    /// How many tiles a row holds. The automatic layout fits as many compact
+    /// tiles as the sidebar allows and keeps that width however few pins
+    /// there are, so a short row doesn't stretch. A chosen count fills rows
+    /// to it.
     var columns: Int {
-        let automaticCapacity = Int(
-            (Double(PinnedTabGridLayout.maximumColumns) / BrowserSidebarDensity(tabScale).scale).rounded())
-        let requested = preferredColumns == 0 ? min(max(automaticCapacity, 1), 6) : min(max(preferredColumns, 1), 6)
         let width =
             availableWidth.isFinite ? min(max(0, availableWidth), 10_000) : BrowserChromeLayout.sidebarIdealWidth
-        let fitting = max(1, Int((width + tileSpacing) / (minimumTileWidth + tileSpacing)))
-        let capacity = min(requested, fitting)
-        // A chosen count is what the person asked for, so rows fill to it.
-        // Only the automatic layout balances rows, which can land below it.
-        guard preferredColumns == 0 else { return min(max(slots.count, 1), capacity) }
-        return PinnedTabGridLayout.columnCount(for: slots.count, maximumColumns: capacity)
+        guard preferredColumns == 0 else {
+            let fitting = max(1, Int((width + tileSpacing) / (minimumTileWidth + tileSpacing)))
+            return min(max(slots.count, 1), min(max(preferredColumns, 1), Self.maximumColumns), fitting)
+        }
+        let tileWidth = max(minimumTileWidth, Self.automaticTileWidth * BrowserSidebarDensity(tabScale).scale)
+        return min(Self.maximumColumns, max(1, Int((width + tileSpacing) / (tileWidth + tileSpacing))))
     }
 
     var height: CGFloat {
