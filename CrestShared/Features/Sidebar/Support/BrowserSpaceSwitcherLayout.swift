@@ -64,6 +64,28 @@ enum BrowserSpaceSwitcherLayout {
         )
     }
 
+    /// The icon sizes the strip steps down through as the sidebar narrows,
+    /// largest first, and the room around each icon.
+    static let iconSizes: [CGFloat] = [24, 20, 16]
+    static let iconSlotPadding: CGFloat = 8
+
+    /// The dot an unselected Space shrinks to once even the smallest icons
+    /// don't fit, and the room around it.
+    static let dotSize: CGFloat = 6
+    static let dotSlotWidth: CGFloat = 14
+
+    /// How the strip draws `spaceCount` Spaces in `width`: the largest icon
+    /// that fits every Space, or, when none does, the smallest icon for the
+    /// selected Space and a dot for each other. A row that still doesn't fit
+    /// scrolls.
+    static func iconRowLayout(width: CGFloat, spaceCount: Int) -> BrowserSpaceSwitcherIconRowLayout {
+        let count = CGFloat(max(1, spaceCount))
+        for size in iconSizes where count * (size + iconSlotPadding) <= width {
+            return BrowserSpaceSwitcherIconRowLayout(iconSize: size, collapsesUnselected: false)
+        }
+        return BrowserSpaceSwitcherIconRowLayout(iconSize: iconSizes.last ?? 16, collapsesUnselected: true)
+    }
+
     /// The active Space is the semantic scroll target. Falling back to the
     /// first surviving identity keeps a transient removal repair navigable
     /// without introducing a second selection model in the view.
@@ -103,4 +125,14 @@ struct BrowserSpaceSwitcherCompactAllocation: Equatable, Sendable {
         max(0, pickerViewportWidth - (usesOverflow ? 2 * overflowButtonWidth : 0))
     }
 
+}
+
+/// How the strip draws its Spaces: each as an icon of `iconSize`, or, when
+/// `collapsesUnselected`, only the selected one as an icon and every other as
+/// a dot.
+struct BrowserSpaceSwitcherIconRowLayout: Equatable, Sendable {
+    let iconSize: CGFloat
+    let collapsesUnselected: Bool
+
+    var iconSlotWidth: CGFloat { iconSize + BrowserSpaceSwitcherLayout.iconSlotPadding }
 }

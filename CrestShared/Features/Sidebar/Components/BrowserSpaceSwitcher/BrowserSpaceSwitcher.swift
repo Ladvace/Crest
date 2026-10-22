@@ -28,7 +28,6 @@ struct BrowserSpaceSwitcher: View {
                 spaces: spaces,
                 selectedSpaceID: selectedSpaceID,
                 reorderState: sidebarInteraction.sidebarReorderState,
-                metrics: metrics,
                 selectSpace: selectSpace,
                 accessories: accessories,
                 downloads: downloads

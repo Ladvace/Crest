@@ -1,11 +1,10 @@
 import SwiftUI
 
-/// A centred, horizontally scrolling Space picker with the shell's accessories
-/// held clear at either edge.
+/// A centred row of Space icons with the shell's accessories held clear at
+/// either edge.
 ///
-/// The picker gets an explicit viewport from the actual strip width and the
-/// larger occupied utility side. Its segments keep their native size and
-/// identity, so overflow scrolls and the active Space can always be revealed.
+/// The row gets an explicit width from the actual strip width and the larger
+/// occupied utility side, and sizes its icons to fit it.
 ///
 /// The sidebar toggle keeps to the window's edge and the lists to the page
 /// side, where they fan out, whichever side the sidebar is docked on.
@@ -15,7 +14,6 @@ struct BrowserSpaceSwitcherCompactStrip: View {
     let spaces: [BrowserSpaceIdentity]
     let selectedSpaceID: UUID
     let reorderState: BrowserSidebarReorderState
-    let metrics: BrowserSpacePickerMetrics
     let selectSpace: (UUID) -> Void
     let accessories: BrowserSpaceSwitcherAccessories
     let downloads: BrowserSpaceSwitcherDownloads
@@ -56,13 +54,12 @@ struct BrowserSpaceSwitcherCompactStrip: View {
                     BrowserSpaceSwitcherLayout.compactStripHorizontalInset
                 )
 
-                BrowserSpaceSwitcherCompactPicker(
+                BrowserSpaceSwitcherIconRow(
                     spaces: spaces,
                     selectedSpaceID: selectedSpaceID,
                     reorderState: reorderState,
-                    metrics: metrics,
                     selectSpace: selectSpace,
-                    allocation: allocation
+                    width: allocation.pickerViewportWidth
                 )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

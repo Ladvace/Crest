@@ -4305,6 +4305,10 @@
     "sidebars-gradient-or-solid": {
       "category": "improved",
       "message": "A Space's sidebar is now a gradient or a solid color, and setup no longer asks you to pick a look. A Space that wore a patterned banner shows a gradient of its colors instead."
+    },
+    "space-switcher-bare-icons": {
+      "category": "improved",
+      "message": "On Mac, the Spaces at the bottom of the sidebar are plain icons, the current one brightest. They shrink as you narrow the sidebar, and when space runs out every Space but the current one becomes a dot."
     }
   }
 }
