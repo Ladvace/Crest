@@ -120,7 +120,6 @@ struct BrowserSpaceSidebarPreview: View {
     private var accessibilitySummary: String {
         let branding = branding
         let colors = branding.colors.map { String(localized: $0.title) }.joined(separator: ", ")
-        return
-            "\(String(localized: branding.themeMode.title)), \(colors), \(String(localized: branding.iconStyle.title))"
+        return "\(String(localized: branding.themeMode.title)), \(colors)"
     }
 }

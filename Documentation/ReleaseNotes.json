@@ -4297,6 +4297,10 @@
     "address-bar-swipes-through-tabs": {
       "category": "new",
       "message": "On iPhone, swiping left or right on the address bar moves through the tabs of your Space in sidebar order, and the page slides along with your finger. In a Split View, the other cards sit beside the address bar, and the swipe moves card by card before carrying on to the next tab."
+    },
+    "spaces-wear-icons-not-crests": {
+      "category": "improved",
+      "message": "Spaces now show a plain icon, an SF Symbol or emoji, instead of a heraldic crest. Crest Studio keeps its templates, icon and sidebar choices, and a Space that wore a crest shows its icon instead."
     }
   }
 }

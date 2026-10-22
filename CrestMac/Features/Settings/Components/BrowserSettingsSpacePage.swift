@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// One Space's settings: its crest and name over a tab bar of its pages.
+/// One Space's settings: its icon and name over a tab bar of its pages.
 struct BrowserSettingsSpacePage: View {
     let browser: BrowserStore
     let pages: BrowserPagePool
@@ -13,7 +13,6 @@ struct BrowserSettingsSpacePage: View {
     @State private var downloads = BrowserSpaceDownloadSettingsModel()
     @State private var passwordSearchText = ""
     @State private var pendingDeletionID: UUID?
-    @State private var showsArtworkCredits = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -38,12 +37,9 @@ struct BrowserSettingsSpacePage: View {
         }
         .background(BrowserSettingsCanvas.background)
         .browserSpaceDeletionConfirmation($pendingDeletionID, browser: browser, dataDeleter: dataDeleter)
-        .sheet(isPresented: $showsArtworkCredits) {
-            BrowserCrestArtworkCredits()
-        }
     }
 
-    /// The template this Space's crest started from, as the template draws it.
+    /// The template this Space's look started from, as the template draws it.
     private var startingAppearance: SpaceBranding? {
         SpaceHouse.startingPoint(of: space.settings.look)?.look
     }
@@ -72,7 +68,6 @@ struct BrowserSettingsSpacePage: View {
                 Divider()
                 Button("Reset Appearance") { resetAppearance() }
                     .disabled(startingAppearance == nil || startingAppearance == space.settings.look)
-                Button("Artwork Credits") { showsArtworkCredits = true }
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
@@ -163,29 +158,6 @@ struct BrowserSettingsSpacePage: View {
     }
 }
 
-/// Who drew the crest artwork.
-private struct BrowserCrestArtworkCredits: View {
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Artwork Credits").font(.headline)
-            ScrollView {
-                Text(BrowserCrestStudioAppearance.credits)
-                    .font(.callout)
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            HStack {
-                Spacer()
-                Button("Done") { dismiss() }.keyboardShortcut(.defaultAction)
-            }
-        }
-        .padding(20)
-        .frame(width: 420, height: 360)
-    }
-}
-
 /// What can be done to a Space from its sidebar row or its page.
 struct BrowserSettingsSpaceMenu: View {
     let browser: BrowserStore
@@ -197,7 +169,7 @@ struct BrowserSettingsSpaceMenu: View {
     var body: some View {
         let order = BrowserSpaceOrderActions(browser: browser, spaceID: space.id)
         Button("Rename") { openSpace(space.id, intent: .rename) }
-        Button("Edit Crest…") { openSpace(space.id, tab: .appearance) }
+        Button("Edit Appearance…") { openSpace(space.id, tab: .appearance) }
         Divider()
         Button("Move Up", action: order.moveUp).disabled(!order.canMoveUp)
         Button("Move Down", action: order.moveDown).disabled(!order.canMoveDown)

@@ -1,13 +1,10 @@
 import SwiftUI
 
-/// What a first run changes on a heraldic Space: the template it starts
-/// from, its emblem, its colors and its sidebar.
+/// What a first run changes on a banner Space: the template it starts from,
+/// its icon, its colors and its sidebar.
 struct BrowserOnboardingHeraldicSheet: View {
     @Binding var branding: SpaceBranding
     @Binding var symbol: String
-    @State private var browsesEmblems = false
-    @State private var emblemSearch = ""
-    @State private var showsAllEmblems = false
     @State private var choosesEmoji = false
 
     private var context: BrowserCrestStudioContext {
@@ -16,18 +13,13 @@ struct BrowserOnboardingHeraldicSheet: View {
             previewBranding: nil)
     }
 
-    private var isIcon: Bool { branding.iconStyle == .simpleSymbol }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 30) {
             startFrom
-            emblem
+            icon
             colors
             sidebar
             Spacer(minLength: 0)
-            Text("Shape, field, band, border and finish: Settings › Spaces.")
-                .font(CrestTypography.sans(12, weight: .medium))
-                .foregroundStyle(CrestBrandTheme.textDisplay.opacity(0.5))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -41,83 +33,17 @@ struct BrowserOnboardingHeraldicSheet: View {
                     BrowserOnboardingMakeTile(title: house.title, isSelected: house.isWorn(by: branding)) {
                         branding = house.applying(to: branding)
                     } artwork: {
-                        crest(house.applying(to: branding))
+                        houseArtwork(house.applying(to: branding))
                     }
                 }
             }
         }
     }
 
-    private var emblem: some View {
-        BrowserOnboardingMakeSection("Emblem") {
-            Picker("Identity", selection: context.setting(\.iconStyle).binding) {
-                Text("Crest").tag(SpaceIconStyle.layeredCrest)
-                Text("Icon").tag(SpaceIconStyle.simpleSymbol)
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            .controlSize(.small)
-            .fixedSize()
-            .accessibilityIdentifier("space-forge-identity")
-        } content: {
-            if isIcon {
-                iconChoices
-            } else {
-                figureStrip
-            }
+    private var icon: some View {
+        BrowserOnboardingMakeSection("Icon") {
+            iconChoices
         }
-    }
-
-    /// The first few heraldic figures, the crest's own among them, and a way
-    /// to every other.
-    private var figureStrip: some View {
-        BrowserOnboardingMakeStrip {
-            ForEach(offeredFigures, id: \.self) { figure in
-                BrowserOnboardingMakeTile(
-                    title: figure.title, isSelected: branding.crest.resolvedCharge == .heraldic(figure)
-                ) {
-                    context.branding.editorUpdate {
-                        $0.crest.symbol = figure
-                        $0.crest.charge = nil
-                        $0.hasCustomAppearance = true
-                    }
-                } artwork: {
-                    crest(
-                        context.preview {
-                            $0.crest.symbol = figure
-                            $0.crest.charge = nil
-                        })
-                }
-            }
-            BrowserOnboardingMakeTile(title: "More emblems", isSelected: false) {
-                browsesEmblems = true
-            } artwork: {
-                Image(systemName: "ellipsis")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(CrestBrandTheme.textDisplay)
-            }
-            .popover(isPresented: $browsesEmblems, arrowEdge: .bottom) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 12) {
-                        BrowserCrestStudioHeraldicEmblemControls(
-                            context: context, search: $emblemSearch, showsAll: $showsAllEmblems)
-                    }
-                    .padding(20)
-                }
-                .frame(width: 520, height: 480)
-                .presentationCompactAdaptation(.popover)
-            }
-        }
-    }
-
-    /// The figures the strip shows: the first of the offered ones, with the
-    /// crest's own in place of the last when it is further down.
-    private var offeredFigures: [CrestSymbol] {
-        var figures = Array(CrestSymbol.selectable.prefix(8))
-        if !figures.contains(branding.crest.symbol), figures.count == 8 {
-            figures[7] = branding.crest.symbol
-        }
-        return figures
     }
 
     private var iconChoices: some View {
@@ -150,13 +76,9 @@ struct BrowserOnboardingHeraldicSheet: View {
     private var colors: some View {
         BrowserOnboardingMakeSection("Colors") {
             HStack(spacing: 0) {
-                ForEach(BrowserCrestForgeLayer.all) { layer in
-                    BrowserOnboardingMakeSwatch(
-                        title: layer.title, color: branding.forgeColor(of: layer), isDrawn: layer.isDrawn(by: branding)
-                    ) { color in
-                        branding.setForgeColor(color, of: layer)
-                        branding = branding.normalized()
-                    }
+                BrowserOnboardingMakeSwatch(title: "Icon", color: branding.resolvedSymbolColor) { color in
+                    branding.setForgeIconColor(color)
+                    branding = branding.normalized()
                 }
                 Divider()
                     .frame(height: BrowserOnboardingMakeMetrics.swatchSize)
@@ -201,11 +123,12 @@ struct BrowserOnboardingHeraldicSheet: View {
 
     // MARK: - Artwork
 
-    private func crest(_ look: SpaceBranding) -> some View {
-        BrowserSpaceCrestIcon(
-            branding: look, size: BrowserOnboardingMakeMetrics.tileArtworkSize, rasterizesLayers: false
-        )
-        .equatable()
+    /// A template's tile: its sidebar under the Space's icon in its colors.
+    private func houseArtwork(_ look: SpaceBranding) -> some View {
+        let size = BrowserOnboardingMakeMetrics.tileArtworkSize
+        return BrowserCrestStudioMark(branding: look, symbol: symbol, size: size * 0.7)
+            .frame(width: size, height: size)
+            .background { field(look) }
     }
 
     private func field(_ look: SpaceBranding) -> some View {

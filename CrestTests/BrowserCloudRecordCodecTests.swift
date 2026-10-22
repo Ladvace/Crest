@@ -88,7 +88,6 @@ final class BrowserCloudRecordCodecTests: XCTestCase {
         branding.themeMode = .gradient
         branding.gradientAngle = 217
         branding.showsTexture = true
-        branding.iconStyle = .layeredCrest
         branding.symbolColor = .ember
         branding.folderColorIntensity = 0.71
         branding.textColorMode = .light
@@ -101,8 +100,12 @@ final class BrowserCloudRecordCodecTests: XCTestCase {
             finish: .sheen, ordinaryWidth: 1.2, trimWeight: 1.3, trimDetail: 18, chargeScale: 1.1, chargeOffset: -0.12,
             chargeWeight: .light, sheenAngle: 125, sealTeeth: 16, showsOutline: true, depth: .lifted)
         let charges =
-            CrestSymbol.all.map(CrestCharge.heraldic)
-            + [.system("hammer.fill"), .emoji("🐉"), .monogram("PD", .serif), .none]
+            CrestSymbol.all.map { CrestCharge(kind: .heraldic, symbol: $0, text: nil, style: nil) } + [
+                CrestCharge(kind: .system, symbol: nil, text: "hammer.fill", style: nil),
+                CrestCharge(kind: .emoji, symbol: nil, text: "🐉", style: nil),
+                CrestCharge(kind: .monogram, symbol: nil, text: "PD", style: .serif),
+                CrestCharge(kind: CrestChargeKind.none, symbol: nil, text: nil, style: nil),
+            ]
         for charge in charges {
             branding.crest.charge = charge
             sender.updateSpaceBranding(branding, in: spaceID)
@@ -122,10 +125,9 @@ final class BrowserCloudRecordCodecTests: XCTestCase {
 
         // Editing on the receiving device must produce a fresh Space record too.
         var returnedBranding = try XCTUnwrap(look(in: receiver))
-        returnedBranding.iconStyle = .simpleSymbol
         returnedBranding.symbolColor = .gold
         returnedBranding.crest.palette = nil
-        returnedBranding.crest.charge = .system("leaf.fill")
+        returnedBranding.crest.charge = CrestCharge(kind: .system, symbol: nil, text: "leaf.fill", style: nil)
         receiver.updateSpaceIdentity(spaceID, name: "Garden", symbol: "leaf.fill", accent: .teal)
         receiver.updateSpaceBranding(returnedBranding, in: spaceID)
         await receiver.flushPendingSyncPersistence()

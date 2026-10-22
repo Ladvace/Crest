@@ -12,7 +12,7 @@ struct MobileSpaceSettingsView: View {
     @State private var selectedSpaceID: UUID?
     @State private var editorSection = BrowserSpaceEditorSection.appearance
     @State private var editingAppearanceSpace: SpaceModel?
-    @State private var forgeStep = BrowserCrestStudioStep.shape
+    @State private var forgeStep = BrowserCrestStudioStep.icon
 
     var body: some View {
         Group {

@@ -79,12 +79,11 @@ struct BrowserOnboardingMakeTile<Artwork: View>: View {
 }
 
 /// One color, named by what it paints, which opens the templates' tinctures
-/// to pick from. A part the crest doesn't draw shows faintly.
+/// to pick from.
 struct BrowserOnboardingMakeSwatch: View {
     let title: LocalizedStringResource
     var caption: LocalizedStringResource? = nil
     let color: BrandColor
-    var isDrawn = true
     let select: (BrandColor) -> Void
     @State private var isOpen = false
 
@@ -99,7 +98,6 @@ struct BrowserOnboardingMakeSwatch: View {
                         width: BrowserOnboardingMakeMetrics.swatchSize, height: BrowserOnboardingMakeMetrics.swatchSize
                     )
                     .overlay { Circle().strokeBorder(CrestBrandPalette.paper.opacity(0.3), lineWidth: 1.5) }
-                    .opacity(isDrawn ? 1 : 0.3)
                 Text(title)
                     .font(CrestTypography.sans(10, weight: .semibold))
                     .foregroundStyle(CrestBrandTheme.textDisplay.opacity(0.65))

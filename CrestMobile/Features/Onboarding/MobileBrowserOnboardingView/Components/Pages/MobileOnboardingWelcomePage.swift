@@ -20,8 +20,9 @@ struct MobileOnboardingWelcomePage: View {
                     HStack(spacing: 16) {
                         ForEach(Array(SpaceHouse.all.prefix(3).enumerated()), id: \.element.name) {
                             index, preset in
-                            BrowserSpaceCrestIcon(
+                            BrowserCrestStudioMark(
                                 branding: preset.look,
+                                symbol: MobileOnboardingWelcomeMetrics.symbols[index],
                                 size: 72
                             )
                             .padding(.vertical, 24)
@@ -40,7 +41,7 @@ struct MobileOnboardingWelcomePage: View {
                         Label {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Set up your Spaces").font(.headline)
-                                Text("Choose a name, crest, and theme. Add more Spaces whenever you need them.")
+                                Text("Choose a name, icon, and theme. Add more Spaces whenever you need them.")
                                     .font(.subheadline).foregroundStyle(.secondary)
                             }
                         } icon: {
@@ -102,4 +103,9 @@ struct MobileOnboardingWelcomePage: View {
             withAnimation(reduceMotion ? nil : .spring(response: 0.7, dampingFraction: 0.8)) { hasAppeared = true }
         }
     }
+}
+
+private enum MobileOnboardingWelcomeMetrics {
+    /// The icons the welcome's three sample Spaces wear.
+    static let symbols = ["briefcase.fill", "house.fill", "book.fill"]
 }

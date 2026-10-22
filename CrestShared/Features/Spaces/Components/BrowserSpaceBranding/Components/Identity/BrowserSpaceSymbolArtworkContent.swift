@@ -30,12 +30,12 @@ struct BrowserSpaceSymbolArtworkContent: View {
 }
 
 #if DEBUG
-    #Preview("Symbol and layered crest") {
+    #Preview("Symbol and locked Space") {
         HStack(spacing: 24) {
             BrowserSpaceSymbolArtworkContent(
                 space: BrowserSpaceBrandingPreviewFixture.simpleSpace, size: 64, lockSize: 18)
             BrowserSpaceSymbolArtworkContent(
-                space: BrowserSpaceBrandingPreviewFixture.crestSpace, size: 96, lockSize: 24)
+                space: BrowserSpaceBrandingPreviewFixture.lockedSpace, size: 96, lockSize: 24)
         }.padding()
     }
 #endif

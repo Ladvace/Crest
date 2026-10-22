@@ -2,11 +2,9 @@ import SwiftUI
 import UIKit
 
 /// The Forge's steps as one native segmented control across the width it's
-/// given, whose steps an icon doesn't use are dimmed rather than removed, so
-/// nothing moves. The control fits its segments to that width itself.
+/// given. The control fits its segments to that width itself.
 struct BrowserPlatformCrestForgeStepBar: UIViewRepresentable {
     @Binding var step: BrowserCrestStudioStep
-    let disabledSteps: Set<BrowserCrestStudioStep>
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -21,9 +19,6 @@ struct BrowserPlatformCrestForgeStepBar: UIViewRepresentable {
 
     func updateUIView(_ control: UISegmentedControl, context: Context) {
         context.coordinator.parent = self
-        for (index, candidate) in BrowserCrestStudioStep.all.enumerated() {
-            control.setEnabled(!disabledSteps.contains(candidate), forSegmentAt: index)
-        }
         control.selectedSegmentIndex = BrowserCrestStudioStep.all.firstIndex(of: step) ?? 0
     }
 

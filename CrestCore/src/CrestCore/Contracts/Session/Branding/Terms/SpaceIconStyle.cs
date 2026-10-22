@@ -1,20 +1,19 @@
 namespace CrestCore.Contracts;
 
-/// Whether a Space's icon is a plain symbol or its layered crest.
+/// How a Space's icon is drawn: as its plain symbol. A Space stored with a
+/// layered crest, which Crest no longer draws, reads as its plain symbol.
 public sealed class SpaceIconStyle {
     #region Types
 
-    /// Each style is drawn by a different view, so the code that draws an icon switches over the kind.
-    public enum Kinds { SimpleSymbol, LayeredCrest }
+    public enum Kinds { SimpleSymbol }
 
     #endregion
 
     #region Variables
 
     public static readonly SpaceIconStyle SimpleSymbol = new(Kinds.SimpleSymbol, "simpleSymbol", "Icon");
-    public static readonly SpaceIconStyle LayeredCrest = new(Kinds.LayeredCrest, "layeredCrest", "Crest");
 
-    public static IReadOnlyList<SpaceIconStyle> All { get; } = [SimpleSymbol, LayeredCrest];
+    public static IReadOnlyList<SpaceIconStyle> All { get; } = [SimpleSymbol];
 
     public Kinds Kind { get; }
     public string Name { get; }

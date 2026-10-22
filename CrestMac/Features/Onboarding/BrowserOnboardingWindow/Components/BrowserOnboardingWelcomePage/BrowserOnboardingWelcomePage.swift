@@ -33,7 +33,7 @@ struct BrowserOnboardingWelcomePage: View {
                 BrowserOnboardingWindowPreview(
                     branding: SpaceHouse.winter.look, symbol: "house.fill", name: String(localized: "Personal")
                 ) {
-                    BrowserSpaceCrestIcon(branding: SpaceHouse.winter.look, size: 160)
+                    BrowserCrestStudioMark(branding: SpaceHouse.winter.look, symbol: "house.fill", size: 160)
                         .frame(width: 160, height: 160)
                 }
                 .frame(width: 680, height: 460)

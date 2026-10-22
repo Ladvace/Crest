@@ -73,7 +73,7 @@ On Mac, every Space has its own page. Select the Space in the Settings sidebar; 
 
 Each Space's page has these tabs:
 
-- **Appearance**: Crest Studio for the Space's crest, colors, and sidebar background.
+- **Appearance**: Crest Studio for the Space's icon, colors, and sidebar background.
 - **Browsing**: **Search with** and **Search suggestions**, which follow your default search until you choose for the Space, archiving old tabs with **Archive current tabs** and **Archive Now**, downloads (whether to ask where to save, and the download folder), and **Delete Space**.
 - **Privacy**: **Require Touch ID or password**, how long to keep History, Archived Tabs, and Download Records, content blocking, and saved site permissions.
 - **Passwords**: **Use Crest Passwords**, **Sync with iCloud Keychain**, and the Space's saved passwords, with **Import Passwords…** and **Export Passwords…**.

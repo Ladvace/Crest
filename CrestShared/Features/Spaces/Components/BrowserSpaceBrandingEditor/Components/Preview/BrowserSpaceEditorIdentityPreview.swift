@@ -7,33 +7,26 @@ struct BrowserSpaceEditorIdentityPreview: View {
 
     var body: some View {
         Group {
-            if branding.iconStyle == .layeredCrest {
-                BrowserSpaceCrestIcon(
-                    branding: branding,
-                    size: size
-                )
+            if let emoji = BrowserIconSymbol.emoji(from: symbol) {
+                Text(emoji)
+                    .font(.system(size: size * 0.68))
+                    .frame(
+                        width: size,
+                        height: size
+                    )
             } else {
-                if let emoji = BrowserIconSymbol.emoji(from: symbol) {
-                    Text(emoji)
-                        .font(.system(size: size * 0.68))
-                        .frame(
-                            width: size,
-                            height: size
+                Image(systemName: symbol)
+                    .font(
+                        .system(
+                            size: size * 0.56,
+                            weight: .semibold
                         )
-                } else {
-                    Image(systemName: symbol)
-                        .font(
-                            .system(
-                                size: size * 0.56,
-                                weight: .semibold
-                            )
-                        )
-                        .foregroundStyle(branding.primaryColor.color)
-                        .frame(
-                            width: size,
-                            height: size
-                        )
-                }
+                    )
+                    .foregroundStyle(branding.resolvedSymbolColor.color)
+                    .frame(
+                        width: size,
+                        height: size
+                    )
             }
         }
     }
@@ -42,7 +35,7 @@ struct BrowserSpaceEditorIdentityPreview: View {
 #if DEBUG
     #Preview("Component") {
         BrowserSpaceEditorIdentityPreview(
-            branding: BrowserSpaceBrandingPreviewFixture.crestBranding, symbol: "crown.fill"
+            branding: BrowserSpaceBrandingPreviewFixture.quarteredBranding, symbol: "crown.fill"
         ).padding()
     }
 #endif

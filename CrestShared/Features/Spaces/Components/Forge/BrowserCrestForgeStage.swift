@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The crest on the Space's own sidebar field, beside the colors it and the
+/// The Space's icon on its own sidebar field, beside the colors it and the
 /// sidebar wear, each labeled by what it paints.
 struct BrowserCrestForgeStage: View {
     @Binding var branding: SpaceBranding
@@ -11,10 +11,8 @@ struct BrowserCrestForgeStage: View {
     let canUndo: Bool
     let shuffle: () -> Void
     let undo: () -> Void
-    /// Shows a step of the Forge, for a color whose part the crest doesn't draw.
-    let openStep: (BrowserCrestStudioStep) -> Void
 
-    @State private var openLayer: BrowserCrestForgeLayer?
+    @State private var opensIconColor = false
     @State private var openSidebarColor: BrowserSpaceBrandColorRole?
 
     var body: some View {
@@ -26,7 +24,7 @@ struct BrowserCrestForgeStage: View {
             .accessibilityIdentifier("space-forge-stage")
     }
 
-    /// The crest beside its colors on the Mac; on iPhone and iPad, beside them
+    /// The icon beside its colors on the Mac; on iPhone and iPad, beside them
     /// where there's room for both and above them where there isn't.
     @ViewBuilder private var stage: some View {
         #if os(macOS)
@@ -42,7 +40,7 @@ struct BrowserCrestForgeStage: View {
     private var wideStage: some View {
         HStack(spacing: BrowserCrestForgeMetrics.stageSpacing) {
             VStack(spacing: 12) {
-                mark(size: BrowserCrestForgeMetrics.crestSize)
+                mark(size: BrowserCrestForgeMetrics.iconSize)
                 nameField
             }
             swatches(columnWidth: BrowserCrestForgeMetrics.swatchColumnWidth)
@@ -56,7 +54,7 @@ struct BrowserCrestForgeStage: View {
 
     private var compactStage: some View {
         VStack(spacing: 14) {
-            mark(size: BrowserCrestForgeMetrics.compactCrestSize)
+            mark(size: BrowserCrestForgeMetrics.compactIconSize)
             nameField
             swatches(
                 columnWidth: BrowserCrestForgeMetrics.compactSwatchColumnWidth,
@@ -71,10 +69,10 @@ struct BrowserCrestForgeStage: View {
 
     private func mark(size: CGFloat) -> some View {
         BrowserCrestStudioMark(branding: branding, symbol: symbol, size: size)
-            .accessibilityLabel("Crest preview")
+            .accessibilityLabel("Icon preview")
     }
 
-    /// The Space's name under its crest, where the page doesn't already
+    /// The Space's name under its icon, where the page doesn't already
     /// carry it.
     @ViewBuilder private var nameField: some View {
         if let name {
@@ -87,10 +85,8 @@ struct BrowserCrestForgeStage: View {
     /// wider ones where that keeps their names whole.
     private func swatches(columnWidth: CGFloat, sidebarColumnWidth: CGFloat? = nil) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            swatchGroup("Crest") {
-                ForEach(BrowserCrestForgeLayer.all) { layer in
-                    layerSwatch(layer, columnWidth: columnWidth)
-                }
+            swatchGroup("Icon") {
+                iconSwatch(columnWidth: columnWidth)
             }
             swatchGroup("Sidebar") {
                 ForEach(BrowserSpaceBrandColorRole.all) { role in
@@ -139,22 +135,15 @@ struct BrowserCrestForgeStage: View {
         }
     }
 
-    private func layerSwatch(_ layer: BrowserCrestForgeLayer, columnWidth: CGFloat) -> some View {
-        let isDrawn = layer.isDrawn(by: branding)
-        return BrowserCrestForgeSwatch(
-            title: layer.title, color: branding.forgeColor(of: layer), isDrawn: isDrawn,
-            hint: isDrawn ? nil : layer.enablingHint(for: branding), isOpen: openLayer == layer,
-            columnWidth: columnWidth
+    private func iconSwatch(columnWidth: CGFloat) -> some View {
+        BrowserCrestForgeSwatch(
+            title: "Icon", color: branding.resolvedSymbolColor, isOpen: opensIconColor, columnWidth: columnWidth
         ) {
-            // A part the crest doesn't draw opens the step that adds it.
-            if isDrawn { openLayer = layer } else { openStep(layer.enablingStep(for: branding)) }
+            opensIconColor = true
         }
-        .popover(
-            isPresented: Binding(get: { openLayer == layer }, set: { if !$0, openLayer == layer { openLayer = nil } }),
-            arrowEdge: .bottom
-        ) {
-            BrowserCrestForgePalette(title: layer.title, color: branding.forgeColor(of: layer)) { color in
-                branding.setForgeColor(color, of: layer)
+        .popover(isPresented: $opensIconColor, arrowEdge: .bottom) {
+            BrowserCrestForgePalette(title: "Icon", color: branding.resolvedSymbolColor) { color in
+                branding.setForgeIconColor(color)
                 branding = branding.normalized()
             }
             .presentationCompactAdaptation(.popover)
@@ -183,13 +172,10 @@ struct BrowserCrestForgeStage: View {
     }
 }
 
-/// One color on the stage, named by what it paints. A part the crest doesn't
-/// draw shows its color faintly, says on hover how to add it, and leads there.
+/// One color on the stage, named by what it paints.
 private struct BrowserCrestForgeSwatch: View {
     let title: LocalizedStringResource
     let color: BrandColor
-    var isDrawn = true
-    var hint: LocalizedStringResource? = nil
     let isOpen: Bool
     let columnWidth: CGFloat
     let open: () -> Void
@@ -203,13 +189,11 @@ private struct BrowserCrestForgeSwatch: View {
                     .frame(width: BrowserCrestForgeMetrics.swatchSize, height: BrowserCrestForgeMetrics.swatchSize)
                     .overlay { Circle().strokeBorder(.white.opacity(0.35), lineWidth: 1.5) }
                     .shadow(color: .black.opacity(0.3), radius: 1.5, y: 1)
-                    .opacity(isDrawn ? 1 : 0.3)
                 Text(title)
                     .font(.caption)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
-                    .opacity(isDrawn || isHovering ? 1 : 0.6)
             }
             .frame(width: columnWidth)
             .padding(.vertical, 6)
@@ -218,16 +202,15 @@ private struct BrowserCrestForgeSwatch: View {
         }
         .buttonStyle(.plain)
         .onHover { isHovering = $0 }
-        .help(hint.map { Text($0) } ?? Text(color.title))
+        .help(Text(color.title))
         .accessibilityLabel(Text(title))
         .accessibilityValue(Text(color.title))
-        .accessibilityHint(hint.map { Text($0) } ?? Text(""))
     }
 }
 
 enum BrowserCrestForgeMetrics {
-    static let crestSize: CGFloat = 188
-    static let compactCrestSize: CGFloat = 148
+    static let iconSize: CGFloat = 188
+    static let compactIconSize: CGFloat = 148
     static let stageHeight: CGFloat = 284
     static let stageSpacing: CGFloat = 28
     static let swatchSize: CGFloat = 28
@@ -235,7 +218,7 @@ enum BrowserCrestForgeMetrics {
     static let compactSwatchColumnWidth: CGFloat = 52
     static let compactSidebarSwatchColumnWidth: CGFloat = 76
     static let nameWidth: CGFloat = 240
-    static let tileCrestSize: CGFloat = 56
+    static let tileIconSize: CGFloat = 56
     /// A Space's pages are wider than other settings pages, for the stage.
     static let columnWidth: CGFloat = 720
 }

@@ -19,7 +19,7 @@ struct BrowserOnboardingModernSheet: View {
             fill
             icon
             Spacer(minLength: 0)
-            Text("Patterns and crests: Settings › Spaces.")
+            Text("Patterns: Settings › Spaces.")
                 .font(CrestTypography.sans(12, weight: .medium))
                 .foregroundStyle(CrestBrandTheme.textDisplay.opacity(0.5))
         }
@@ -69,7 +69,7 @@ struct BrowserOnboardingModernSheet: View {
                 BrowserSystemSymbolPicker(
                     selection: Binding(
                         get: { BrowserIconSymbol.emoji(from: symbol) == nil ? symbol : "" },
-                        set: { wearIcon($0) }))
+                        set: { symbol = $0 }))
                 BrowserArtworkPickerButton(
                     title: "Emoji",
                     detail: BrowserIconSymbol.emoji(from: symbol) == nil
@@ -88,21 +88,9 @@ struct BrowserOnboardingModernSheet: View {
                     .init(
                         isPresented: $choosesEmoji, title: "Space Icon",
                         currentEmoji: BrowserIconSymbol.emoji(from: symbol),
-                        setEmoji: { wearIcon(BrowserIconSymbol.symbol(forEmoji: $0)) }))
+                        setEmoji: { symbol = BrowserIconSymbol.symbol(forEmoji: $0) }))
             }
             .frame(maxWidth: 520)
-        }
-    }
-
-    /// Gives the Space `symbol` as a plain icon, which a Space that came with
-    /// a crest then shows in its place.
-    private func wearIcon(_ symbol: String) {
-        self.symbol = symbol
-        if branding.iconStyle != .simpleSymbol {
-            $branding.editorUpdate {
-                $0.iconStyle = .simpleSymbol
-                $0.hasCustomAppearance = true
-            }
         }
     }
 

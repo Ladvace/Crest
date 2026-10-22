@@ -1,14 +1,10 @@
 import Foundation
 
 enum BrowserSpaceBrandingPreviewFixture {
-    /// The Winter house look, drawn with its simple symbol.
-    static let bannerBranding: SpaceBranding = {
-        var look = SpaceHouse.winter.look
-        look.iconStyle = .simpleSymbol
-        return look
-    }()
+    /// The Winter house look.
+    static let bannerBranding = SpaceHouse.winter.look
 
-    /// The Storm house look as a textured gradient, drawn with its simple symbol.
+    /// The Storm house look as a textured gradient.
     static let gradientBranding: SpaceBranding = {
         var look = SpaceHouse.storm.look
         look.bannerStrength = 0.82
@@ -16,24 +12,13 @@ enum BrowserSpaceBrandingPreviewFixture {
         look.themeMode = .gradient
         look.gradientAngle = 127
         look.showsTexture = true
-        look.iconStyle = .simpleSymbol
         return look
     }()
 
-    /// The Lion house look quartered, under a crowned crest.
-    static let crestBranding: SpaceBranding = {
+    /// The Lion house look, quartered.
+    static let quarteredBranding: SpaceBranding = {
         var look = SpaceHouse.lion.look
         look.bannerPattern = .quartered
-        look.crest.backplate = .shield
-        look.crest.fieldDivision = .quarterly
-        look.crest.ordinary = .bend
-        look.crest.trim = .laurel
-        look.crest.symbol = .crown
-        look.crest.chargeLayout = .trio
-        (look.crest.backplateColorIndex, look.crest.secondaryFieldColorIndex) = (1, 0)
-        (look.crest.ordinaryColorIndex, look.crest.trimColorIndex) = (2, 2)
-        (look.crest.symbolColorIndex, look.crest.edgeColorIndex) = (2, 2)
-        (look.crest.trimWeight, look.crest.chargeScale) = (1, 1)
         return look
     }()
 
@@ -48,14 +33,14 @@ enum BrowserSpaceBrandingPreviewFixture {
         accessPolicy: .open
     )
 
-    /// A guarded Space wearing the layered crest, as the core resolves it.
-    @MainActor static let crestSpace = makeSpace(
+    /// A guarded Space wearing the quartered look, as the core resolves it.
+    @MainActor static let lockedSpace = makeSpace(
         idByte: 0x12,
         profileByte: 0x22,
         name: "Lion",
         symbol: "crown.fill",
         accent: .orange,
-        branding: crestBranding,
+        branding: quarteredBranding,
         accessPolicy: .deviceOwnerAuthentication
     )
 

@@ -2,7 +2,7 @@
 title: Customize and arrange Spaces
 description: Design a Space in Crest Studio, customize its folders, and choose its browsing and cleanup settings.
 slug: /customize-spaces
-keywords: [Crest Studio, Space Forge, theme, gradient, crest, emoji, monogram, folders, cleanup, reorder, Appearance, add Space, rename Space]
+keywords: [Crest Studio, Space Forge, theme, gradient, icon, emoji, SF Symbol, folders, cleanup, reorder, Appearance, add Space, rename Space]
 ---
 
 # Customize and arrange Spaces
@@ -13,17 +13,19 @@ Open a Space’s context menu to edit it, or open its page in Settings. On Mac, 
 
 Crest offers two presentation styles:
 
-- **Banner** uses Crest Studio: begin with a template, then choose a shape, field division, pattern, trim, and heraldic artwork. Use independent colors for the parts of your design, or make an identity with an emoji, monogram, or searchable SF Symbol.
+- **Banner** begins with a template, then lets you choose a pattern and colors for the sidebar.
 - **Traditional Gradient** blends one to three colors with direction, intensity, and optional texture.
+
+Either way, the Space's icon is an emoji or a searchable SF Symbol.
 
 The result appears in the Space picker and browser chrome on Mac, iPad, and iPhone.
 
-Crest Studio is on the Space’s Appearance page. The crest sits on the Space’s own sidebar background, with its colors named by what they paint:
+Crest Studio is on the Space’s Appearance page. The Space’s icon sits on its own sidebar background, with its colors named by what they paint:
 
-- **Crest:** Field, Second field, Band, Emblem, Border and Edge. A color for a part the crest doesn’t draw is dimmed.
+- **Icon:** the color of the Space’s icon. It follows the Space’s colors unless you choose one.
 - **Sidebar:** Background, Accent (selected tabs, pins, the address field and the Space picker) and Pattern.
 
-Click or tap a color to choose one of the templates’ tinctures or a custom color. Below the crest, work through **Start from**, **Shape**, **Field**, **Band**, **Emblem**, **Border**, **Finish** and **Sidebar**; each step shows your crest with each choice applied. On iPhone, the steps are a list showing what each has chosen; tap one to open it. Choose **Icon** at the top of **Emblem** to use an SF Symbol or emoji instead of a crest. **Shuffle** suggests a new crest in the templates’ colors, and **Undo** steps back through your changes. **Reset Appearance** and **Artwork Credits** are in the **…** menu on the Space’s page.
+Click or tap a color to choose one of the templates’ tinctures or a custom color. Below the icon, work through **Start from**, **Icon** and **Sidebar**. On iPhone, the steps are a list showing what each has chosen; tap one to open it. **Shuffle** suggests new sidebar and icon colors from the templates, and **Undo** steps back through your changes. **Reset Appearance** is in the **…** menu on the Space’s page.
 
 ## Customize folders
 
@@ -37,7 +39,7 @@ Choose an app icon palette here too. These controls change the browser on this d
 
 ## Add and arrange Spaces
 
-On Mac, click **+** next to the Spaces heading in the Settings sidebar to add a Space. Its Appearance page opens with the name ready to type. Right-click a Space there, or use the **…** menu on its page, to rename it, edit its crest, lock it, or delete it. Crest needs at least one Space.
+On Mac, click **+** next to the Spaces heading in the Settings sidebar to add a Space. Its Appearance page opens with the name ready to type. Right-click a Space there, or use the **…** menu on its page, to rename it, edit its appearance, lock it, or delete it. Crest needs at least one Space.
 
 Drag a Space in the picker to reorder it. In the Mac Settings sidebar, click the pencil next to the Spaces heading, drag Spaces by their handles, then click the checkmark; or right-click a Space and choose **Move Up** or **Move Down**. On iPhone and iPad, use the order controls in **Settings → Spaces**. Position matters for **Control-1** through **Control-9**, so put frequently used Spaces first.
 

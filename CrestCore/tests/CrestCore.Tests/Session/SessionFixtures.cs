@@ -124,7 +124,7 @@ public sealed partial class BrowserContractsTests {
     private const string SavedBranding = """
         {"renderingVersion":5,"bannerPattern":"diagonal","colors":[{"green":0.055,"red":0.235,"blue":0.102,"alpha":1},
         {"green":0.125,"red":0.447,"blue":0.188,"alpha":1}],"gradientAngle":0,"themeMode":"banner","bannerStrength":1,
-        "iconStyle":"layeredCrest","readabilityFade":0.45,"textColorMode":"automatic","hasCustomAppearance":false,
+        "iconStyle": "simpleSymbol","readabilityFade":0.45,"textColorMode":"automatic","hasCustomAppearance":false,
         "crest":{"ordinaryColorIndex":1,"divisionCount":4,"symbolColorIndex":1,"chargeWeight":"bold","depth":"none","edgeWidth":0,
         "showsOutline":false,"plateScale":1,"sealTeeth":12,"sheenAngle":45,"symbol":"lion","backplateColorIndex":0,"trimColorIndex":1,
         "edgeColorIndex":1,"trimWeight":0.75,"ordinaryWidth":1,"fieldDivision":"plain","secondaryFieldColorIndex":1,"chargeScale":1.2,

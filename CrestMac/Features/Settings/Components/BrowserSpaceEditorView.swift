@@ -8,7 +8,7 @@ struct BrowserSpaceEditorView: View {
     @Environment(\.browserSettingsUsesLiveSidebar) private var usesLiveSidebar
     @Environment(\.browserSettingsTabState) private var tabState
     @State private var standaloneScroll = BrowserNativeScrollState()
-    @State private var standaloneStep = BrowserCrestStudioStep.shape
+    @State private var standaloneStep = BrowserCrestStudioStep.icon
 
     private var scrollState: BrowserNativeScrollState {
         tabState?.scroll(forKey: "space-\(space.id)-appearance") ?? standaloneScroll

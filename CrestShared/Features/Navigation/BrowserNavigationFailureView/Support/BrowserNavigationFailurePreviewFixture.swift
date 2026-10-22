@@ -6,7 +6,6 @@ enum BrowserNavigationFailurePreviewFixture {
         var look = SpaceAccent.indigo.house
         look.colors = ColorPalette(colors: SpaceAccent.indigo.legacyColors)
         look.readabilityFade = SpaceBranding.legacyReadabilityFade
-        look.iconStyle = .simpleSymbol
         return look
     }()
     static let offline = makeFailure(

@@ -49,12 +49,6 @@ struct BrowserSpaceBrandingEditor: View {
             }
             presets
             identity
-            if branding.iconStyle == .layeredCrest {
-                BrowserCrestStudioColors(context: context, symbol: symbol)
-                BrowserCrestStudioComposition(context: context, symbol: symbol)
-                BrowserCrestStudioEmblem(context: context, symbol: symbol)
-                BrowserCrestStudioOrnaments(context: context, symbol: symbol)
-            }
             BrowserCrestStudioBackground(context: context, symbol: symbol)
             Text("Tab, address bar, and sidebar sizing are in Look and Feel. These choices belong to this Space.")
                 .font(.caption).foregroundStyle(.secondary)
@@ -66,18 +60,14 @@ struct BrowserSpaceBrandingEditor: View {
                 .buttonStyle(.borderless).disabled(branding == defaults)
                 Spacer()
             }
-            DisclosureGroup("Artwork credits") {
-                Text(BrowserCrestStudioAppearance.credits).font(.caption).foregroundStyle(.secondary).textSelection(
-                    .enabled)
-            }.font(.caption)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .onAppear { if initialAppearance == nil { initialAppearance = branding } }
         .environment(
             \.crestStudioEditingChanged,
             BrowserCrestStudioEditingAction { editing in
-                // The actual crest and browser stay live. Choice thumbnails don't
-                // need to rebuild their entire compositions for every drag sample.
+                // The actual Space and browser stay live. Choice thumbnails don't
+                // need to rebuild for every drag sample.
                 gesturePreview = editing ? branding : nil
             }
         )
@@ -93,10 +83,11 @@ struct BrowserSpaceBrandingEditor: View {
                         branding = house.applying(to: branding)
                         beforeShuffle = nil
                     } artwork: {
-                        BrowserSpaceCrestIcon(
-                            branding: house.applying(to: gesturePreview ?? branding), size: 52, rasterizesLayers: false
-                        )
-                        .equatable()
+                        let look = house.applying(to: gesturePreview ?? branding)
+                        BrowserCrestStudioMark(branding: look, symbol: symbol, size: 36)
+                            .frame(width: 52, height: 52)
+                            .background { BrowserSpaceBannerBackground(branding: look) }
+                            .clipShape(.rect(cornerRadius: 8))
                     }
                 }
             }
@@ -113,38 +104,32 @@ struct BrowserSpaceBrandingEditor: View {
                 BrowserCrestStudioTextField(
                     title: "Space name", symbol: "rectangle.and.pencil.and.ellipsis", text: editableName)
             }
-            Picker("Identity style", selection: context.setting(\.iconStyle).binding) {
-                Text("Crest").tag(SpaceIconStyle.layeredCrest)
-                Text("Icon").tag(SpaceIconStyle.simpleSymbol)
-            }.pickerStyle(.segmented)
-            if branding.iconStyle == .simpleSymbol {
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 12) {
-                        identitySymbolPicker.frame(minWidth: 220)
-                        identityEmojiPicker.frame(minWidth: 220)
-                    }
-                    VStack(alignment: .leading, spacing: 12) {
-                        identitySymbolPicker
-                        identityEmojiPicker
-                    }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    identitySymbolPicker.frame(minWidth: 220)
+                    identityEmojiPicker.frame(minWidth: 220)
                 }
-                Toggle(
-                    "Follow Space color",
-                    isOn: Binding(
-                        get: { branding.symbolColor == nil },
+                VStack(alignment: .leading, spacing: 12) {
+                    identitySymbolPicker
+                    identityEmojiPicker
+                }
+            }
+            Toggle(
+                "Follow Space color",
+                isOn: Binding(
+                    get: { branding.symbolColor == nil },
+                    set: {
+                        context.setting(\.symbolColor).binding.wrappedValue = $0 ? nil : branding.primaryColor
+                    })
+            ).toggleStyle(.switch)
+            if branding.symbolColor != nil {
+                ColorPicker(
+                    "Icon color",
+                    selection: Binding(
+                        get: { branding.resolvedSymbolColor.color },
                         set: {
-                            context.setting(\.symbolColor).binding.wrappedValue = $0 ? nil : branding.primaryColor
-                        })
-                ).toggleStyle(.switch)
-                if branding.symbolColor != nil {
-                    ColorPicker(
-                        "Icon color",
-                        selection: Binding(
-                            get: { branding.resolvedSymbolColor.color },
-                            set: {
-                                context.setting(\.symbolColor).binding.wrappedValue = BrandColor(color: $0)
-                            }), supportsOpacity: false)
-                }
+                            context.setting(\.symbolColor).binding.wrappedValue = BrandColor(color: $0)
+                        }), supportsOpacity: false)
             }
         }
     }
@@ -182,13 +167,13 @@ struct BrowserSpaceBrandingEditor: View {
 
     private func shuffle() {
         beforeShuffle = branding
-        branding = BrowserCrestStudioAppearance.shuffle(branding)
+        branding = BrowserCrestForge.shuffledLook(branding)
     }
 
 }
 
 #Preview("Crest Studio") {
-    @Previewable @State var branding = BrowserSpaceBrandingPreviewFixture.crestBranding
+    @Previewable @State var branding = BrowserSpaceBrandingPreviewFixture.quarteredBranding
     @Previewable @State var symbol = BrowserSpaceSimpleSymbol.work.symbol
     ScrollView { BrowserSpaceBrandingEditor(branding: $branding, symbol: $symbol).padding(20) }
         .frame(width: 560, height: 720)

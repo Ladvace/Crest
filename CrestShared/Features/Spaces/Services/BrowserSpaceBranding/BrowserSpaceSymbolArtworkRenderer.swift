@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// The one way Crest draws a Space's icon as an image: its crest, or its
-/// symbol when it wears no crest, with the lock of a Space that asks for
-/// authentication, as the Space switcher draws it.
+/// The one way Crest draws a Space's icon as an image: its symbol or emoji,
+/// with the lock of a Space that asks for authentication, as the Space
+/// switcher draws it.
 ///
 /// It draws synchronously, when a view or menu asks, so the icon a menu
 /// captures is the Space's own the first time the menu opens, never a stand-in

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct BrowserSpaceSymbolArtworkIdentity: Equatable, Sendable {
     private enum Artwork: Equatable, Sendable {
-        case crest(SpaceCrest, colors: ColorPalette)
         case symbol(color: BrandColor)
         case emoji
     }
@@ -24,11 +23,7 @@ struct BrowserSpaceSymbolArtworkIdentity: Equatable, Sendable {
         colorScheme: ColorScheme,
         displayScale: CGFloat
     ) {
-        if branding.iconStyle == .layeredCrest {
-            var crest = branding.crest
-            crest.startingPresetID = nil
-            artwork = .crest(crest, colors: crest.layerColors(spaceColors: branding.colors))
-        } else if BrowserIconSymbol.emoji(from: symbol) != nil {
+        if BrowserIconSymbol.emoji(from: symbol) != nil {
             artwork = .emoji
         } else {
             artwork = .symbol(color: branding.resolvedSymbolColor)

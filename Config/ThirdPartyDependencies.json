@@ -18,14 +18,6 @@
       "source": "https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt"
     },
     {
-      "identity": "game-icons-heraldry",
-      "name": "Game-icons.net Heraldic Artwork",
-      "version": "2026-09-11",
-      "license": "CC BY 3.0",
-      "notice": "CrestShared/Resources/HeraldicArtworkCredits.txt",
-      "source": "https://github.com/game-icons/icons"
-    },
-    {
       "identity": "sf-symbol-names",
       "name": "SFSafeSymbols Name Catalog",
       "version": "cb2e670a213ff42ae08528ee2c401bfb1d799675",

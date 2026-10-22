@@ -33,7 +33,7 @@ struct BrowserSpaceIdentityLabel: View {
     #Preview("Space identities") {
         VStack(alignment: .leading, spacing: 20) {
             BrowserSpaceIdentityLabel(space: BrowserSpaceBrandingPreviewFixture.simpleSpace)
-            BrowserSpaceIdentityLabel(space: BrowserSpaceBrandingPreviewFixture.crestSpace)
+            BrowserSpaceIdentityLabel(space: BrowserSpaceBrandingPreviewFixture.lockedSpace)
         }.padding()
     }
 #endif

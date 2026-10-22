@@ -26,7 +26,7 @@ public sealed partial class BrowserContractsTests {
         // takes the next accent and wears that accent's house palette.
         var space = core.Current.Spaces[^1];
         Assert.Equal((created, profile, "Space 2", SpaceAccent.Orange), (space.Id, space.ProfileId, space.Settings.Name, space.Settings.Accent));
-        Assert.Equal(CrestSymbol.Sun, space.Settings.Branding!.Crest.Symbol);
+        Assert.Equal(SpaceHouse.Sun.Look.SymbolColor, space.Settings.Branding!.SymbolColor);
         Assert.Equal((tab, TabPlacement.Current, (string?)null), (Assert.Single(space.Tabs).Id, space.Tabs[0].Placement, space.Tabs[0].Url));
         Assert.Equal(SpaceAccessPolicy.Open, space.Settings.AccessPolicy);
         Assert.Equal((created, tab), (device.Space(window), device.Tab(window, created)));

@@ -46,7 +46,7 @@ struct BrowserQuickWindowSpacePickerRow: View {
             BrowserQuickWindowSpacePickerRow(
                 space: BrowserSpaceBrandingPreviewFixture.simpleSpace.identity, isSelected: true, select: {})
             BrowserQuickWindowSpacePickerRow(
-                space: BrowserSpaceBrandingPreviewFixture.crestSpace.identity, isSelected: false, select: {})
+                space: BrowserSpaceBrandingPreviewFixture.lockedSpace.identity, isSelected: false, select: {})
         }.padding().frame(width: 320)
     }
 #endif

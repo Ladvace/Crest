@@ -28,10 +28,10 @@ struct BrowserOnboardingMakePage: View {
                     Spacer()
                     if look.kind == .heraldic {
                         Button("Shuffle", systemImage: "shuffle") {
-                            branding = BrowserCrestForge.shuffled(branding)
+                            branding = BrowserCrestForge.shuffledLook(branding)
                         }
                         .buttonStyle(.crestSecondary)
-                        .help("A new crest and sidebar for this Space")
+                        .help("A new sidebar for this Space")
                         .accessibilityIdentifier("space-forge-shuffle")
                     }
                     if let picker {

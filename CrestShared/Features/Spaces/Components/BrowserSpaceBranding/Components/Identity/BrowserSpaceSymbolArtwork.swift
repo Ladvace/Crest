@@ -2,8 +2,7 @@ import SwiftUI
 
 /// A single original-color platform image used anywhere SwiftUI bridges a Space
 /// icon into a native control. Without this boundary, menus and pickers can
-/// flatten a layered crest into one template symbol or interpret its layers as
-/// separate control elements.
+/// flatten a colored icon into one template symbol.
 ///
 /// The image is drawn as the view is, never after it: a menu captures its
 /// labels once, when it opens, so an icon drawn later would never reach it.

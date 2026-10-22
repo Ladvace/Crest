@@ -31,7 +31,7 @@ struct BrowserSettingsPrivateSpaceIdentity: View {
 
 #if DEBUG
     #Preview("Component") {
-        BrowserSettingsPrivateSpaceIdentity(space: BrowserSpaceBrandingPreviewFixture.crestSpace).padding().frame(
+        BrowserSettingsPrivateSpaceIdentity(space: BrowserSpaceBrandingPreviewFixture.lockedSpace).padding().frame(
             width: 360)
     }
 #endif

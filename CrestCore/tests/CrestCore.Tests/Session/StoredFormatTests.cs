@@ -71,6 +71,16 @@ public sealed class StoredFormatTests {
     }
 
     [Fact]
+    public void ASpaceStoredWithALayeredCrestIsWrittenBackWithItsPlainIcon() {
+        var session = Fixture("maximal-session.json");
+        var branding = session["spaces"]![0]!["branding"]!;
+        branding["iconStyle"] = "layeredCrest";
+        var written = Written(Load(session))["spaces"]![0]!["branding"]!;
+        Assert.Equal("simpleSymbol", written["iconStyle"]!.GetValue<string>());
+        Assert.True(JsonNode.DeepEquals(branding["crest"], written["crest"]));
+    }
+
+    [Fact]
     public void CommandAnswersMatchWhatThePreviousCoreAnswered() {
         var session = Fixture("maximal-session.json");
         var expected = Fixture("session-answers.json");

@@ -11,21 +11,8 @@ struct BrowserCrestStudioContext {
 
     func preview(_ mutation: (inout SpaceBranding) -> Void) -> SpaceBranding {
         var candidate = previewBranding ?? value
-        candidate.iconStyle = .layeredCrest
         mutation(&candidate)
         return candidate.normalized()
-    }
-
-    func crest<Value: Equatable>(_ path: WritableKeyPath<SpaceCrest, Value>) -> CrestSettingValue<Value> {
-        CrestSettingValue(
-            Binding(
-                get: { value.crest[keyPath: path] },
-                set: { next in
-                    branding.editorUpdate {
-                        $0.crest[keyPath: path] = next
-                        $0.hasCustomAppearance = true
-                    }
-                }), default: defaults.crest[keyPath: path])
     }
 
     func setting<Value: Equatable>(_ path: WritableKeyPath<SpaceBranding, Value>) -> CrestSettingValue<Value> {
@@ -38,38 +25,6 @@ struct BrowserCrestStudioContext {
                         $0.hasCustomAppearance = true
                     }
                 }), default: defaults[keyPath: path])
-    }
-
-    func slider(
-        _ title: LocalizedStringKey, _ path: WritableKeyPath<SpaceCrest, Double>,
-        range: ClosedRange<Double> = 0...1, readout: CrestSettingSliderReadout = .percent
-    ) -> some View {
-        BrowserCrestStudioSlider(title: title, value: crest(path), range: range, readout: readout)
-    }
-
-    func count(_ title: LocalizedStringKey, _ path: WritableKeyPath<SpaceCrest, Int>, range: ClosedRange<Int>)
-        -> some View
-    {
-        let value = crest(path)
-        return CrestSettingRow(title, setting: value.resettable(title)) {
-            Stepper(value: value.binding, in: range) { Text(value.wrappedValue.formatted()).monospacedDigit() }
-                .fixedSize()
-        }
-    }
-
-    func picker<Option: Hashable & BrowserSpaceHeraldicTerm>(
-        _ title: LocalizedStringKey, _ path: WritableKeyPath<SpaceCrest, Option>, options: [Option]
-    ) -> some View {
-        let value = crest(path)
-        return CrestSettingRow(title, setting: value.resettable(title)) {
-            Picker(title, selection: value.binding) {
-                ForEach(options, id: \.self) { Text($0.title).tag($0) }
-            }
-            .labelsHidden()
-            #if os(macOS)
-                .fixedSize()
-            #endif
-        }
     }
 }
 
@@ -107,7 +62,7 @@ struct BrowserCrestStudioGroup<Content: View>: View {
         self.content = content()
     }
 
-    /// The group for one step of making a crest, named and marked as the step is.
+    /// The group for one step of making a look, named and marked as the step is.
     init(
         step: BrowserCrestStudioStep, preview: SpaceBranding? = nil, symbol: String = "sparkles",
         @ViewBuilder content: () -> Content
@@ -145,37 +100,6 @@ struct BrowserCrestStudioGroup<Content: View>: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(Text(title))
-    }
-}
-
-/// Each choice renders the current composition with just this property changed.
-struct BrowserCrestStudioGallery<Option: Hashable & BrowserSpaceHeraldicTerm>: View {
-    let context: BrowserCrestStudioContext
-    let title: LocalizedStringKey
-    let path: WritableKeyPath<SpaceCrest, Option>
-    let options: [Option]
-
-    var body: some View {
-        let value = context.crest(path)
-        VStack(alignment: .leading, spacing: 10) {
-            CrestSettingRow(title, setting: value.resettable(title)) {
-                Text(value.wrappedValue.title).foregroundStyle(.secondary)
-            }
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 84), spacing: 10)], spacing: 10) {
-                ForEach(options, id: \.self) { option in
-                    BrowserCrestStudioChoice(title: option.title, selected: option == value.wrappedValue) {
-                        value.binding.wrappedValue = option
-                    } artwork: {
-                        BrowserSpaceCrestIcon(
-                            branding: context.preview {
-                                $0.crest[keyPath: path] = option
-                            }, size: 52, rasterizesLayers: false
-                        )
-                        .equatable()
-                    }
-                }
-            }
-        }
     }
 }
 

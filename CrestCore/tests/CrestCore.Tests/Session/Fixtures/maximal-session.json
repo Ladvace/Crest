@@ -78,7 +78,7 @@
         "gradientAngle" : 135,
         "themeMode" : "gradient",
         "bannerStrength" : 0.8,
-        "iconStyle" : "layeredCrest",
+        "iconStyle" : "simpleSymbol",
         "readabilityFade" : 0.4,
         "textColorMode" : "light",
         "hasCustomAppearance" : true,

@@ -1,11 +1,9 @@
 import AppKit
 import SwiftUI
 
-/// The Forge's steps as one native segmented control, whose steps an icon
-/// doesn't use are dimmed rather than removed, so nothing moves.
+/// The Forge's steps as one native segmented control.
 struct BrowserPlatformCrestForgeStepBar: NSViewRepresentable {
     @Binding var step: BrowserCrestStudioStep
-    let disabledSteps: Set<BrowserCrestStudioStep>
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -22,9 +20,6 @@ struct BrowserPlatformCrestForgeStepBar: NSViewRepresentable {
 
     func updateNSView(_ control: NSSegmentedControl, context: Context) {
         context.coordinator.parent = self
-        for (index, candidate) in BrowserCrestStudioStep.all.enumerated() {
-            control.setEnabled(!disabledSteps.contains(candidate), forSegment: index)
-        }
         control.selectedSegment = BrowserCrestStudioStep.all.firstIndex(of: step) ?? 0
     }
 

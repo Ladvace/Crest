@@ -46,10 +46,9 @@ public sealed partial class BrowserContractsTests {
         var session = SavedSession().Document["session"]!;
         using var device = new TestDevice(session);
         var seeded = device.Authority.Current.Spaces[0];
-        static (SpaceThemeMode, SpaceIconStyle) Worn(SpaceCustomization customization) =>
-            (customization.Branding.ThemeMode, customization.Branding.IconStyle);
-        var heraldic = (SpaceThemeMode.Banner, SpaceIconStyle.LayeredCrest);
-        var modern = (SpaceThemeMode.Gradient, SpaceIconStyle.SimpleSymbol);
+        static SpaceThemeMode Worn(SpaceCustomization customization) => customization.Branding.ThemeMode;
+        var heraldic = SpaceThemeMode.Banner;
+        var modern = SpaceThemeMode.Gradient;
 
         // Setup opens in Crest's own look; the person may choose the modern one.
         Assert.Equal(SetupLook.Heraldic, Flowing(device.Send(new StartSetup(device.Workspace, SetupEntry.FirstRun))).Look);

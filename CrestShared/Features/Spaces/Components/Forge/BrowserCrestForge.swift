@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// A Space's Crest Studio: the crest on the Space's own sidebar field, and
-/// one step of its making at a time, beside the window's live sidebar.
+/// A Space's Crest Studio: the Space's icon on its own sidebar field, and one
+/// step of its look at a time, beside the window's live sidebar.
 struct BrowserCrestForge: View {
     @Binding var branding: SpaceBranding
     @Binding var symbol: String
@@ -9,7 +9,7 @@ struct BrowserCrestForge: View {
     /// The Space's name, for a page that doesn't already let a person edit it.
     var name: Binding<String>? = nil
     /// Whether the page lists the steps, each opening on a page of its own,
-    /// in place of the step bar: a phone has no room for eight segments.
+    /// in place of the step bar.
     var listsSteps = false
     /// Whether the stage carries the step bar; a step's own page has none.
     var showsStepBar = true
@@ -26,13 +26,6 @@ struct BrowserCrestForge: View {
             branding: $branding,
             defaults: SpaceHouse.startingPoint(of: branding)?.look ?? initialAppearance ?? branding,
             compact: false, previewBranding: editingStart)
-    }
-
-    private var isIcon: Bool { branding.iconStyle == .simpleSymbol }
-
-    /// The step shown: the one chosen, unless an icon has no use for it.
-    private var shownStep: BrowserCrestStudioStep {
-        isIcon && step.isCrestOnly ? .emblem : step
     }
 
     var body: some View {
@@ -96,7 +89,6 @@ struct BrowserCrestForge: View {
                         }
                     }
                 }
-                .disabled(isIcon && step.isCrestOnly)
                 .accessibilityIdentifier("space-forge-step-\(step.name)")
             }
         } header: {
@@ -106,21 +98,11 @@ struct BrowserCrestForge: View {
 
     @ViewBuilder
     private var stepSections: some View {
-        switch shownStep.kind {
+        switch step.kind {
         case .start:
             startSections
-        case .shape:
-            shapeSections
-        case .field:
-            fieldSections
-        case .band:
-            bandSections
-        case .emblem:
-            emblemSections
-        case .border:
-            borderSections
-        case .finish:
-            finishSections
+        case .icon:
+            iconSections
         case .sidebar:
             sidebarSections
         }
@@ -133,81 +115,7 @@ struct BrowserCrestForge: View {
             BrowserCrestStudioChoice(title: house.title, selected: house.isWorn(by: branding), tint: .accentColor) {
                 branding = house.applying(to: branding)
             } artwork: {
-                crest(house.applying(to: editingStart ?? branding))
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var shapeSections: some View {
-        crestGallery(\.backplate, CrestBackplate.all)
-        Section {
-            context.slider("Edge", \.edgeWidth, range: CrestMeasure.edgeWidth.range)
-            context.slider("Size", \.plateScale, range: CrestMeasure.plateScale.range)
-            if branding.crest.backplate.hasTeeth {
-                context.count("Teeth", \.sealTeeth, range: CrestMeasure.sealTeeth.countRange)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var fieldSections: some View {
-        crestGallery(\.fieldDivision, CrestFieldDivision.all)
-        Section {
-            context.count("Repeats", \.divisionCount, range: CrestMeasure.divisionCount.countRange)
-                .disabled(!branding.crest.fieldDivision.isCounted)
-        }
-    }
-
-    @ViewBuilder
-    private var bandSections: some View {
-        crestGallery(\.ordinary, CrestOrdinary.all)
-        Section {
-            context.slider("Width", \.ordinaryWidth, range: CrestMeasure.ordinaryWidth.range)
-                .disabled(branding.crest.ordinary == .none)
-        }
-    }
-
-    @ViewBuilder
-    private var emblemSections: some View {
-        Section {
-            identityRow
-        } header: {
-            stageHeader
-        }
-        if isIcon {
-            iconSections
-        } else {
-            Section {
-                BrowserCrestStudioEmblem(context: context, symbol: symbol, isEmbedded: true)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var borderSections: some View {
-        crestGallery(\.trim, CrestTrim.all)
-        Section {
-            context.slider("Weight", \.trimWeight, range: CrestMeasure.trimWeight.range)
-                .disabled(branding.crest.trim == .none)
-            context.count("Details", \.trimDetail, range: CrestMeasure.trimDetail.countRange)
-                .disabled(!branding.crest.trim.isCounted)
-        }
-    }
-
-    @ViewBuilder
-    private var finishSections: some View {
-        crestGallery(\.finish, CrestFinish.all)
-        Section {
-            segmented("Shadow", context.crest(\.depth), options: CrestDepth.all)
-            let outline = context.crest(\.showsOutline)
-            CrestSettingRow("Outline", setting: outline.resettable("Outline")) {
-                Toggle("Outline", isOn: outline.binding).labelsHidden()
-            }
-            if branding.crest.finish.hasAngle {
-                context.slider(
-                    "Sheen angle", \.sheenAngle, range: CrestMeasure.sheenAngle.range,
-                    readout: .init { "\(Int($0))°" })
+                houseArtwork(house.applying(to: editingStart ?? branding))
             }
         }
     }
@@ -218,23 +126,6 @@ struct BrowserCrestForge: View {
         sidebarSection
     }
 
-    private var identityRow: some View {
-        let style = context.setting(\.iconStyle)
-        return CrestSettingRow("Identity", setting: style.resettable("Identity")) {
-            Picker("Identity", selection: style.binding) {
-                Text("Crest").tag(SpaceIconStyle.layeredCrest)
-                Text("Icon").tag(SpaceIconStyle.simpleSymbol)
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            #if os(macOS)
-                .fixedSize()
-            #endif
-            .accessibilityIdentifier("space-forge-identity")
-        }
-    }
-
-    @ViewBuilder
     private var iconSections: some View {
         Section {
             BrowserSystemSymbolPicker(
@@ -259,6 +150,18 @@ struct BrowserCrestForge: View {
                     isPresented: $choosesEmoji, title: "Space Icon",
                     currentEmoji: BrowserIconSymbol.emoji(from: symbol),
                     setEmoji: { symbol = BrowserIconSymbol.symbol(forEmoji: $0) }))
+            let color = context.setting(\.symbolColor)
+            CrestSettingRow("Follow Space color", setting: color.resettable("Icon color")) {
+                Toggle(
+                    "Follow Space color",
+                    isOn: Binding(
+                        get: { branding.symbolColor == nil },
+                        set: { color.binding.wrappedValue = $0 ? nil : branding.resolvedSymbolColor })
+                )
+                .labelsHidden()
+            }
+        } header: {
+            stageHeader
         }
     }
 
@@ -337,19 +240,6 @@ struct BrowserCrestForge: View {
 
     // MARK: - Galleries
 
-    private func crestGallery<Option: Hashable & BrowserSpaceHeraldicTerm>(
-        _ path: WritableKeyPath<SpaceCrest, Option>, _ options: [Option]
-    ) -> some View {
-        let value = context.crest(path)
-        return gallery(options, id: \.self) { option in
-            BrowserCrestStudioChoice(title: option.title, selected: option == value.wrappedValue, tint: .accentColor) {
-                value.binding.wrappedValue = option
-            } artwork: {
-                crest(context.preview { $0.crest[keyPath: path] = option })
-            }
-        }
-    }
-
     private func gallery<Item, ID: Hashable, Tile: View>(
         _ items: [Item], id: KeyPath<Item, ID>, @ViewBuilder tile: @escaping (Item) -> Tile
     ) -> some View {
@@ -367,40 +257,26 @@ struct BrowserCrestForge: View {
     }
 
     /// The stage and the steps head the page's first section, outside the
-    /// grouped boxes, so the crest sits on the Space's field alone.
+    /// grouped boxes, so the icon sits on the Space's field alone.
     private var stageHeader: some View {
         VStack(spacing: 16) {
             BrowserCrestForgeStage(
                 branding: $branding, symbol: symbol, name: name, canUndo: !history.isEmpty, shuffle: shuffle,
-                undo: undo, openStep: { step = $0 })
+                undo: undo)
             if showsStepBar && !listsSteps {
-                BrowserPlatformCrestForgeStepBar(
-                    step: Binding(get: { shownStep }, set: { step = $0 }),
-                    disabledSteps: isIcon ? Set(BrowserCrestStudioStep.all.filter(\.isCrestOnly)) : [])
+                BrowserPlatformCrestForgeStepBar(step: $step)
             }
         }
         .textCase(nil)
         .padding(.bottom, 4)
     }
 
-    private func crest(_ look: SpaceBranding) -> some View {
-        BrowserSpaceCrestIcon(branding: look, size: BrowserCrestForgeMetrics.tileCrestSize, rasterizesLayers: false)
-            .equatable()
-    }
-
-    private func segmented<Option: Hashable & BrowserSpaceHeraldicTerm>(
-        _ title: LocalizedStringKey, _ value: CrestSettingValue<Option>, options: [Option]
-    ) -> some View {
-        CrestSettingRow(title, setting: value.resettable(title)) {
-            Picker(title, selection: value.binding) {
-                ForEach(options, id: \.self) { Text($0.title).tag($0) }
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            #if os(macOS)
-                .fixedSize()
-            #endif
-        }
+    /// A house's tile: its sidebar field under the Space's icon in its colors.
+    private func houseArtwork(_ look: SpaceBranding) -> some View {
+        BrowserCrestStudioMark(branding: look, symbol: symbol, size: BrowserCrestForgeMetrics.tileIconSize * 0.7)
+            .frame(width: BrowserCrestForgeMetrics.tileIconSize, height: BrowserCrestForgeMetrics.tileIconSize)
+            .background { BrowserSpaceBannerBackground(branding: look) }
+            .clipShape(.rect(cornerRadius: 8))
     }
 
     // MARK: - History
@@ -417,58 +293,26 @@ struct BrowserCrestForge: View {
     }
 
     private func shuffle() {
-        branding = Self.shuffled(branding)
+        branding = Self.shuffledLook(branding)
     }
 
     // MARK: - Looks
 
-    /// A new crest and sidebar, every part chosen afresh, in the templates'
-    /// tinctures: a dark color for the field, a second for its division, and
-    /// light ones for the charges on it, so a light color always sits on a
-    /// dark one; the sidebar in dark ones.
-    static func shuffled(_ branding: SpaceBranding) -> SpaceBranding {
+    /// A new sidebar and icon color, chosen afresh in the templates'
+    /// tinctures: dark ones for the sidebar, so its text stays light over
+    /// every band of the pattern, and a light one for the icon on it.
+    static func shuffledLook(_ branding: SpaceBranding) -> SpaceBranding {
         let tinctures = Tincture.all.map(\.color)
         let darks = tinctures.filter { $0.luminance < 0.3 }.shuffled()
         let lights = tinctures.filter { $0.luminance > 0.42 }.shuffled()
-        guard darks.count > 2, lights.count > 1 else { return branding }
-        let chance = { (odds: Double) in Double.random(in: 0..<1) < odds }
+        guard darks.count > 2, let light = lights.first else { return branding }
 
         var look = branding
-        look.iconStyle = .layeredCrest
-        var crest = look.crest
-        crest.backplate = CrestBackplate.all.filter { $0 != .none }.randomElement() ?? .shield
-        crest.plateScale = 1
-        crest.sealTeeth = Int.random(in: 10...18)
-        crest.fieldDivision = chance(0.4) ? .plain : CrestFieldDivision.all.filter { $0 != .plain }.randomElement()!
-        crest.divisionCount = Int.random(in: CrestMeasure.divisionCount.countRange.lowerBound...6)
-        crest.ordinary = chance(0.5) ? .none : CrestOrdinary.all.filter { $0 != .none }.randomElement()!
-        crest.ordinaryWidth = Double.random(in: 0.8...1.2)
-        crest.symbol = CrestSymbol.selectable.randomElement() ?? .dragon
-        crest.charge = nil
-        crest.chargeLayout = chance(0.75) ? .single : [.paired, .trio].randomElement()!
-        crest.chargeScale = crest.chargeLayout == .single ? Double.random(in: 1.05...1.3) : Double.random(in: 0.9...1.1)
-        crest.chargeOffset = 0
-        crest.trim = CrestTrim.all.randomElement() ?? .none
-        crest.trimWeight = Double.random(in: 0.6...1.1)
-        crest.trimDetail = Int.random(in: 10...18)
-        crest.edgeWidth = chance(0.5) ? 0 : Double.random(in: 0.2...0.45)
-        crest.showsOutline = chance(0.2)
-        crest.finish = [.flat, .flat, .sheen, .embossed].randomElement()!
-        crest.depth = CrestDepth.all.randomElement() ?? .soft
-        let field = darks[0]
-        let second = darks[1]
-        let metal = lights[0]
-        let border = chance(0.6) ? metal : lights[1]
-        crest.palette = [field, second, metal, metal, border, darks[2]]
-        for layer in BrowserCrestForgeLayer.all { crest[keyPath: layer.index] = layer.slot }
-        look.crest = crest
-
-        look.themeMode = chance(0.15) ? .gradient : .banner
+        look.themeMode = Double.random(in: 0..<1) < 0.15 ? .gradient : .banner
         look.bannerPattern = SpaceBannerPattern.all.randomElement() ?? .diagonal
         look.gradientAngle = Double(Int.random(in: 0..<8) * 45)
-        // The sidebar keeps to dark tinctures, as the templates do, so its
-        // text stays light over every band of the pattern.
-        look.colors = [darks[2], field, second]
+        look.colors = [darks[0], darks[1], darks[2]]
+        look.symbolColor = light
         look.hasCustomAppearance = true
         return look.normalized()
     }
