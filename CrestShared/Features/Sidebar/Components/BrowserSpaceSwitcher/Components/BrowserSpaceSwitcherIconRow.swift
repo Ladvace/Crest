@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// The Spaces as a row of bare icons, the selected one at full strength and
-/// the others dimmed. The icons shrink as the sidebar narrows; once even the
-/// smallest don't fit, every Space but the selected one becomes a dot, and a
-/// row that still doesn't fit scrolls.
+/// The Spaces as a row of bare icons in the sidebar's text color, so each
+/// reads against whatever Space's sidebar is behind it, the selected one at
+/// full strength and the others dimmed. The icons shrink as the sidebar
+/// narrows; once even the smallest don't fit, every Space but the selected
+/// one becomes a dot, and a row that still doesn't fit scrolls.
 struct BrowserSpaceSwitcherIconRow: View {
     let spaces: [BrowserSpaceIdentity]
     let selectedSpaceID: UUID
@@ -65,8 +66,7 @@ private struct BrowserSpaceSwitcherIconButton: View {
                         .fill(.primary)
                         .frame(width: BrowserSpaceSwitcherLayout.dotSize, height: BrowserSpaceSwitcherLayout.dotSize)
                 } else {
-                    BrowserSpaceSymbolArtwork(
-                        identity: space, size: layout.iconSize, lockSize: max(5, layout.iconSize / 4))
+                    BrowserSpaceSwitcherGlyph(space: space, size: layout.iconSize)
                 }
             }
             .frame(
@@ -76,12 +76,39 @@ private struct BrowserSpaceSwitcherIconButton: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .opacity(isSelected ? 1 : isHovering ? 0.8 : 0.45)
+        .opacity(isSelected ? 1 : isHovering ? 0.8 : 0.55)
         .onHover { isHovering = $0 }
         .modifier(BrowserSpaceSwitcherDropZone(space: space, reorderState: reorderState))
         .help(space.name)
         .accessibilityLabel(Text(space.name))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
+/// A Space's icon in the sidebar's text color, or its emoji in its own
+/// colors, with the lock of a Space that asks for authentication.
+private struct BrowserSpaceSwitcherGlyph: View {
+    let space: BrowserSpaceIdentity
+    let size: CGFloat
+
+    var body: some View {
+        Group {
+            if let emoji = BrowserIconSymbol.emoji(from: space.symbol) {
+                Text(emoji).font(.system(size: size * 0.8))
+            } else {
+                Image(systemName: space.symbol)
+                    .font(.system(size: size * 0.72, weight: .semibold))
+                    .foregroundStyle(.primary)
+            }
+        }
+        .frame(width: size, height: size)
+        .overlay(alignment: .bottomTrailing) {
+            if space.requiresAuthentication {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: max(5, size / 4), weight: .bold))
+                    .foregroundStyle(.primary)
+            }
+        }
     }
 }
 

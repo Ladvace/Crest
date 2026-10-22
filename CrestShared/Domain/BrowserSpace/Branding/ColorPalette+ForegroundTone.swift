@@ -25,13 +25,40 @@ extension ColorPalette {
         return lightContrast >= darkContrast ? .light : .dark
     }
 
+    /// The lowest contrast `color` has against any color of this palette
+    /// drawn at `strength` under `readabilityFade`, over the base a sidebar
+    /// whose text reads in `tone` sits on.
+    func minimumContrast(
+        of color: BrandColor,
+        under tone: BrowserSpaceForegroundTone,
+        strength: Double,
+        readabilityFade: Double
+    ) -> Double {
+        let luminance =
+            0.2126 * Self.linearComponent(color.red)
+            + 0.7152 * Self.linearComponent(color.green)
+            + 0.0722 * Self.linearComponent(color.blue)
+        return minimumContrast(
+            textLuminance: luminance, baseChannel: tone == .light ? 0 : 1, strength: strength,
+            readabilityFade: readabilityFade)
+    }
+
     private func minimumContrast(
         for tone: BrowserSpaceForegroundTone,
         strength: Double,
         readabilityFade: Double
     ) -> Double {
-        let baseChannel = tone == .light ? 0.0 : 1.0
-        let textLuminance = tone == .light ? 1.0 : 0.0
+        minimumContrast(
+            textLuminance: tone == .light ? 1 : 0, baseChannel: tone == .light ? 0 : 1, strength: strength,
+            readabilityFade: readabilityFade)
+    }
+
+    private func minimumContrast(
+        textLuminance: Double,
+        baseChannel: Double,
+        strength: Double,
+        readabilityFade: Double
+    ) -> Double {
         let readabilityOverlay = Swift.min(readabilityFade * 0.55, 0.7)
 
         return map { color in
