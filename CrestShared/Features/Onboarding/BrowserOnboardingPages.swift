@@ -7,7 +7,6 @@ import SwiftUI
 @MainActor
 protocol BrowserOnboardingPages {
     associatedtype WelcomePage: View
-    associatedtype LookPage: View
     associatedtype FeatureSpacesPage: View
     associatedtype FeatureTabsPage: View
     associatedtype FeatureSyncPage: View
@@ -17,7 +16,6 @@ protocol BrowserOnboardingPages {
     associatedtype CompletePage: View
 
     func welcomePage() -> WelcomePage
-    func lookPage() -> LookPage
     func featureSpacesPage() -> FeatureSpacesPage
     func featureTabsPage() -> FeatureTabsPage
     func featureSyncPage() -> FeatureSyncPage

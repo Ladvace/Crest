@@ -52,18 +52,16 @@ enum BrowserPerformanceSoakFixture {
         runID: String
     ) -> SessionState.Seed? {
         let palettes = SpaceHouse.all
-        let patterns = SpaceBannerPattern.all.shuffled()
-        // Each house look, in a banner pattern of its own and a light fade.
+        // Each house look, alternately as a gradient and solid, with a light fade.
         var appearances = palettes.enumerated().map { index, palette in
             var look = palette.look
-            look.bannerPattern = patterns[index % patterns.count]
+            look.themeMode = index.isMultiple(of: 2) ? .gradient : .banner
             look.readabilityFade = 0.12
             return (name: palette.name, branding: look)
         }
         // A bright control beside the original palettes exercises both foreground tones.
         var daylight = SpaceBranding.neutral
         daylight.colors = [.sand, .gold, Tincture.winterIce.color]
-        daylight.bannerPattern = .chevron
         daylight.readabilityFade = 0
         daylight.textColorMode = .dark
         appearances.insert((name: "Daylight", branding: daylight), at: 0)

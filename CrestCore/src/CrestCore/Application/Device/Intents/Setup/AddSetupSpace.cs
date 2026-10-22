@@ -11,7 +11,7 @@ public sealed record AddSetupSpace() : SetupDraftIntent {
     #region Actions - Device
 
     internal override void Apply(Device device, DeviceTurn turn) =>
-        device.ReviseSetup(turn.Changes, draft => draft.Adding(turn.Ids.Next, device.SetupLook));
+        device.ReviseSetup(turn.Changes, draft => draft.Adding(turn.Ids.Next));
 
     #endregion
 }

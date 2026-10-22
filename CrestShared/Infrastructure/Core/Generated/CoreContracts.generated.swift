@@ -1507,10 +1507,6 @@ struct ChooseQuickWindowArchivePolicy: Intent, LinkIntent, Equatable, Sendable {
     let policy: QuickWindowArchivePolicy
 }
 
-struct ChooseSetupLook: Intent, SetupFlowIntent, Equatable, Sendable {
-    let look: SetupLook
-}
-
 struct ChooseShareSource: PageRequest, Equatable, Sendable {
     typealias Answer = Bool
 
@@ -5717,7 +5713,6 @@ struct SetupFlowState: Equatable, Sendable {
     let summary: SetupSummary?
     let opensGuide: Bool
     let opensCrestFromWelcome: Bool
-    let look: SetupLook
 }
 
 struct SetupImportQueue: Equatable, Sendable {
@@ -16963,55 +16958,6 @@ struct SetupFailureReason: Hashable, Sendable {
     }
 }
 
-/// The members of the core's `SetupLook`. A member's wire tag is its index in `all`.
-/// Core-only behavior, not emitted: `newSpaceLook`, `applying`.
-struct SetupLook: Hashable, Sendable {
-    enum Kinds: Sendable {
-        case heraldic
-        case modern
-    }
-
-    let tag: Int
-    var kind: Kinds { facts.kind }
-    var name: String { facts.name }
-    var title: LocalizedStringResource { facts.title }
-    private let facts: Facts
-
-    private init(tag: Int, kind: Kinds, name: String, title: LocalizedStringResource) {
-        self.tag = tag
-        facts = Facts(kind: kind, name: name, title: title)
-    }
-
-    static let heraldic = SetupLook(tag: 0, kind: .heraldic, name: "heraldic", title: LocalizedStringResource("Banner"))
-    static let modern = SetupLook(tag: 1, kind: .modern, name: "modern", title: LocalizedStringResource("Modern"))
-
-    static let all: [SetupLook] = [heraldic, modern]
-
-    static func named(_ name: String?) -> SetupLook? {
-        all.first { $0.name == name }
-    }
-
-    static func == (lhs: SetupLook, rhs: SetupLook) -> Bool {
-        lhs.tag == rhs.tag
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(tag)
-    }
-
-    private final class Facts: Sendable {
-        let kind: Kinds
-        let name: String
-        let title: LocalizedStringResource
-
-        init(kind: Kinds, name: String, title: LocalizedStringResource) {
-            self.kind = kind
-            self.name = name
-            self.title = title
-        }
-    }
-}
-
 /// The members of the core's `SetupPhase`. A member's wire tag is its index in `all`.
 struct SetupPhase: Hashable, Sendable {
     let tag: Int
@@ -17066,10 +17012,9 @@ struct SetupStep: Hashable, Sendable {
         case review
         case manualSetup
         case complete
-        case look
     }
 
-    static let progressCount = 6
+    static let progressCount = 5
 
     let tag: Int
     var kind: Kinds { facts.kind }
@@ -17086,11 +17031,10 @@ struct SetupStep: Hashable, Sendable {
     static let featureSpaces = SetupStep(tag: 1, kind: .featureSpaces, name: "featureSpaces", progressPosition: 0)
     static let featureTabs = SetupStep(tag: 2, kind: .featureTabs, name: "featureTabs", progressPosition: 0)
     static let featureSync = SetupStep(tag: 3, kind: .featureSync, name: "featureSync", progressPosition: 0)
-    static let importBrowser = SetupStep(tag: 4, kind: .importBrowser, name: "importBrowser", progressPosition: 2)
-    static let review = SetupStep(tag: 5, kind: .review, name: "review", progressPosition: 3)
-    static let manualSetup = SetupStep(tag: 6, kind: .manualSetup, name: "manualSetup", progressPosition: 4)
-    static let complete = SetupStep(tag: 7, kind: .complete, name: "complete", progressPosition: 5)
-    static let look = SetupStep(tag: 8, kind: .look, name: "look", progressPosition: 1)
+    static let importBrowser = SetupStep(tag: 4, kind: .importBrowser, name: "importBrowser", progressPosition: 1)
+    static let review = SetupStep(tag: 5, kind: .review, name: "review", progressPosition: 2)
+    static let manualSetup = SetupStep(tag: 6, kind: .manualSetup, name: "manualSetup", progressPosition: 3)
+    static let complete = SetupStep(tag: 7, kind: .complete, name: "complete", progressPosition: 4)
 
     static let all: [SetupStep] = [
         welcome,
@@ -17100,8 +17044,7 @@ struct SetupStep: Hashable, Sendable {
         importBrowser,
         review,
         manualSetup,
-        complete,
-        look
+        complete
     ]
 
     static func named(_ name: String?) -> SetupStep? {
@@ -20239,12 +20182,12 @@ struct SpaceAccent: Hashable, Sendable {
                     BrandColor(red: 0.525, green: 0.678, blue: 0.769, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.diagonal,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
-            themeMode: SpaceThemeMode.banner,
-            gradientAngle: 0,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
             symbolColor: BrandColor(red: 0.341, green: 0.384, blue: 0.427, alpha: 1),
@@ -20303,7 +20246,7 @@ struct SpaceAccent: Hashable, Sendable {
                     BrandColor(red: 0.816, green: 0.62, blue: 0.396, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.diagonal,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
@@ -20367,12 +20310,12 @@ struct SpaceAccent: Hashable, Sendable {
                     BrandColor(red: 0.737, green: 0.655, blue: 0.4, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.lozenges,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
-            themeMode: SpaceThemeMode.banner,
-            gradientAngle: 0,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
             symbolColor: BrandColor(red: 0.871, green: 0.729, blue: 0.318, alpha: 1),
@@ -20431,12 +20374,12 @@ struct SpaceAccent: Hashable, Sendable {
                     BrandColor(red: 0.788, green: 0.635, blue: 0.329, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.chevron,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
-            themeMode: SpaceThemeMode.banner,
-            gradientAngle: 0,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
             symbolColor: BrandColor(red: 0.851, green: 0.682, blue: 0.318, alpha: 1),
@@ -20665,12 +20608,12 @@ struct SpaceHouse: Hashable, Sendable {
                     BrandColor(red: 0.525, green: 0.678, blue: 0.769, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.diagonal,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
-            themeMode: SpaceThemeMode.banner,
-            gradientAngle: 0,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
             symbolColor: BrandColor(red: 0.341, green: 0.384, blue: 0.427, alpha: 1),
@@ -20724,12 +20667,12 @@ struct SpaceHouse: Hashable, Sendable {
                     BrandColor(red: 0.788, green: 0.635, blue: 0.329, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.chevron,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
-            themeMode: SpaceThemeMode.banner,
-            gradientAngle: 0,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
             symbolColor: BrandColor(red: 0.851, green: 0.682, blue: 0.318, alpha: 1),
@@ -20783,12 +20726,12 @@ struct SpaceHouse: Hashable, Sendable {
                     BrandColor(red: 0.69, green: 0.561, blue: 0.29, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.quartered,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
-            themeMode: SpaceThemeMode.banner,
-            gradientAngle: 0,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
             symbolColor: BrandColor(red: 0.835, green: 0.655, blue: 0.231, alpha: 1),
@@ -20842,12 +20785,12 @@ struct SpaceHouse: Hashable, Sendable {
                     BrandColor(red: 0.745, green: 0.267, blue: 0.22, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.bands,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
-            themeMode: SpaceThemeMode.banner,
-            gradientAngle: 0,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
             symbolColor: BrandColor(red: 0.749, green: 0.18, blue: 0.137, alpha: 1),
@@ -20901,12 +20844,12 @@ struct SpaceHouse: Hashable, Sendable {
                     BrandColor(red: 0.737, green: 0.655, blue: 0.4, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.lozenges,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
-            themeMode: SpaceThemeMode.banner,
-            gradientAngle: 0,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
             symbolColor: BrandColor(red: 0.871, green: 0.729, blue: 0.318, alpha: 1),
@@ -20960,12 +20903,12 @@ struct SpaceHouse: Hashable, Sendable {
                     BrandColor(red: 0.612, green: 0.592, blue: 0.506, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.stripes,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
-            themeMode: SpaceThemeMode.banner,
-            gradientAngle: 0,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
             symbolColor: BrandColor(red: 0.796, green: 0.651, blue: 0.302, alpha: 1),
@@ -21019,12 +20962,12 @@ struct SpaceHouse: Hashable, Sendable {
                     BrandColor(red: 0.659, green: 0.361, blue: 0.255, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.split,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
-            themeMode: SpaceThemeMode.banner,
-            gradientAngle: 0,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
             symbolColor: BrandColor(red: 0.851, green: 0.871, blue: 0.894, alpha: 1),
@@ -21078,7 +21021,7 @@ struct SpaceHouse: Hashable, Sendable {
                     BrandColor(red: 0.816, green: 0.62, blue: 0.396, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.diagonal,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
@@ -21137,12 +21080,12 @@ struct SpaceHouse: Hashable, Sendable {
                     BrandColor(red: 0.482, green: 0.514, blue: 0.549, alpha: 1)
                 ]
             ),
-            bannerPattern: SpaceBannerPattern.checkered,
+            bannerPattern: SpaceBannerPattern.solid,
             bannerStrength: 1,
             readabilityFade: 0.45,
             keepsControlsReadable: true,
-            themeMode: SpaceThemeMode.banner,
-            gradientAngle: 0,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
             symbolColor: BrandColor(red: 0.812, green: 0.82, blue: 0.831, alpha: 1),
@@ -21338,7 +21281,7 @@ struct SpaceThemeMode: Hashable, Sendable {
         facts = Facts(kind: kind, name: name, title: title)
     }
 
-    static let banner = SpaceThemeMode(tag: 0, kind: .banner, name: "banner", title: LocalizedStringResource("Banner"))
+    static let banner = SpaceThemeMode(tag: 0, kind: .banner, name: "banner", title: LocalizedStringResource("Solid"))
     static let gradient = SpaceThemeMode(
         tag: 1,
         kind: .gradient,

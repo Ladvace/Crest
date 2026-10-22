@@ -14,7 +14,7 @@ public sealed record ShowSetupStep(SetupStep Step) : SetupFlowIntent {
         var idle = Device.Idle(flow);
         if (Step == SetupStep.Review && flow.Review is null) return flow;
         if (Step == SetupStep.ManualSetup)
-            device.BeginSetup(flow.WorkspaceId, session, startsOver: false, flow.Look, turn.Changes, turn.Ids);
+            device.BeginSetup(flow.WorkspaceId, session, startsOver: false, turn.Changes, turn.Ids);
         return idle with { Step = Step, Phase = Step == SetupStep.Review ? SetupPhase.Reviewing : SetupPhase.Idle };
     });
 

@@ -1,6 +1,6 @@
 namespace CrestCore.Contracts;
 
-/// Whether a Space's sidebar wears its banner or a gradient.
+/// Whether a Space's sidebar is one solid color or a gradient of its colors.
 public sealed class SpaceThemeMode {
     #region Types
 
@@ -11,7 +11,7 @@ public sealed class SpaceThemeMode {
 
     #region Variables
 
-    public static readonly SpaceThemeMode Banner = new(Kinds.Banner, "banner", "Banner");
+    public static readonly SpaceThemeMode Banner = new(Kinds.Banner, "banner", "Solid");
     public static readonly SpaceThemeMode Gradient = new(Kinds.Gradient, "gradient", "Gradient");
 
     public static IReadOnlyList<SpaceThemeMode> All { get; } = [Banner, Gradient];

@@ -80,7 +80,7 @@ extension BrowserSpaceAppearance {
 #if DEBUG
     #Preview("Component") {
         BrowserCrestStudioPreview(
-            branding: BrowserSpaceBrandingPreviewFixture.quarteredBranding, symbol: "crown.fill", name: "Work"
+            branding: BrowserSpaceBrandingPreviewFixture.solidBranding, symbol: "crown.fill", name: "Work"
         ).padding().frame(width: 420, height: 580)
     }
 #endif

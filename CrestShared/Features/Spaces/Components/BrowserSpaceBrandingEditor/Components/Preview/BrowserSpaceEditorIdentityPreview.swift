@@ -35,7 +35,7 @@ struct BrowserSpaceEditorIdentityPreview: View {
 #if DEBUG
     #Preview("Component") {
         BrowserSpaceEditorIdentityPreview(
-            branding: BrowserSpaceBrandingPreviewFixture.quarteredBranding, symbol: "crown.fill"
+            branding: BrowserSpaceBrandingPreviewFixture.solidBranding, symbol: "crown.fill"
         ).padding()
     }
 #endif

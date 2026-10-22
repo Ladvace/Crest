@@ -64,7 +64,7 @@ public sealed partial class BrowserContractsTests {
         var gradient = spaces[1];
         Assert.Equal(("chevron.left.forwardslash.chevron.right", SpaceAccent.Orange), (gradient.Settings.Symbol, gradient.Settings.Accent));
         Assert.Equal([TabPlacement.Pinned, TabPlacement.Pinned], gradient.Tabs.Select(tab => tab.Placement));
-        Assert.Equal((SpaceBannerPattern.Diagonal, SpaceThemeMode.Gradient, 3),
+        Assert.Equal((SpaceBannerPattern.Solid, SpaceThemeMode.Gradient, 3),
             (gradient.Settings.Branding!.BannerPattern, gradient.Settings.Branding.ThemeMode, gradient.Settings.Branding.Colors.Colors.Count));
         Assert.Equal(("globe.americas.fill", SpaceAccent.Teal), (spaces[2].Settings.Symbol, spaces[2].Settings.Accent));
     }
@@ -116,7 +116,7 @@ public sealed partial class BrowserContractsTests {
         ], TabsOf(work));
         Assert.Equal([("Reading", null), ("Inner", "Reading")], FoldersOf(work));
         var theme = work.Settings.Branding!;
-        Assert.Equal((SpaceBannerPattern.Bands, SpaceThemeMode.Gradient, 3, 0.4, true),
+        Assert.Equal((SpaceBannerPattern.Solid, SpaceThemeMode.Gradient, 3, 0.4, true),
             (theme.BannerPattern, theme.ThemeMode, theme.Colors.Colors.Count, theme.BannerStrength, theme.ShowsTexture));
         Assert.Equal(["Shared Essential", "Play"], spaces[1].Tabs.Select(tab => tab.Title));
         Assert.Equal(SpaceAccent.Orange, spaces[1].Settings.Accent);

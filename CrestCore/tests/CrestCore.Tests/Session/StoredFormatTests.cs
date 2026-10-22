@@ -81,6 +81,17 @@ public sealed class StoredFormatTests {
     }
 
     [Fact]
+    public void ASpaceStoredWithAPatternedBannerIsWrittenBackAsAGradientDownTheSidebar() {
+        var session = Fixture("maximal-session.json");
+        var branding = session["spaces"]![0]!["branding"]!;
+        (branding["themeMode"], branding["bannerPattern"], branding["gradientAngle"]) = ("banner", "chevron", 0);
+        var written = Written(Load(session))["spaces"]![0]!["branding"]!;
+        Assert.Equal(("gradient", "solid", 90.0), (written["themeMode"]!.GetValue<string>(),
+            written["bannerPattern"]!.GetValue<string>(), written["gradientAngle"]!.GetValue<double>()));
+        Assert.True(JsonNode.DeepEquals(branding["colors"], written["colors"]));
+    }
+
+    [Fact]
     public void CommandAnswersMatchWhatThePreviousCoreAnswered() {
         var session = Fixture("maximal-session.json");
         var expected = Fixture("session-answers.json");

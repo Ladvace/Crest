@@ -23,7 +23,7 @@ struct BrowserCrestStudioStep: Hashable, Identifiable, Sendable {
         summary: { $0.symbolColor == nil ? "Space color" : "Custom color" })
     static let sidebar = BrowserCrestStudioStep(
         kind: .sidebar, name: "sidebar", title: "Sidebar", symbol: "sidebar.left",
-        summary: { $0.themeMode == .gradient ? "Gradient" : $0.bannerPattern.title })
+        summary: { $0.themeMode == .gradient ? "Gradient" : "Solid" })
 
     /// Every step, in the step bar's order.
     static let all: [BrowserCrestStudioStep] = [start, icon, sidebar]

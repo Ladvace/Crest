@@ -31,7 +31,7 @@ public sealed partial record SpaceBranding(
     public const double LegacyReadabilityFade = 0.25;
 
     /// <summary>The quiet look a Space from another browser wears when that browser
-    /// gave it no colors: a gray solid banner that keeps controls readable, with a
+    /// gave it no colors: a solid gray sidebar that keeps controls readable, with a
     /// plain mountain crest.</summary>
     public static SpaceBranding Neutral { get; } = new(new([new(0.24, 0.25, 0.27)]), SpaceBannerPattern.Solid, BannerStrength: 1,
         ReadabilityFade: 0.34, KeepsControlsReadable: true, SpaceThemeMode.Banner, GradientAngle: 0, ShowsTexture: false,
@@ -51,9 +51,10 @@ public sealed partial record SpaceBranding(
         ? this
         : this with { BannerStrength = Math.Min(1, 0.72 + BannerStrength * 0.28), RenderingVersion = BaselineRenderingVersion };
 
-    /// <summary>The look a Space stored before branding existed wears: its accent's
+    /// <summary>The look a Space stored before branding existed wore: its accent's
     /// legacy colors in a diagonal banner at full strength that keeps controls readable,
-    /// with a plain shield crest whose figure its SF Symbol suggests.</summary>
+    /// with a plain shield crest whose figure its SF Symbol suggests. A Space keeps it
+    /// normalized, as a gradient.</summary>
     public static SpaceBranding Legacy(SpaceAccent accent, string symbol) {
         ArgumentNullException.ThrowIfNull(accent);
         ArgumentNullException.ThrowIfNull(symbol);

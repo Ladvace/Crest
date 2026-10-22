@@ -66,7 +66,8 @@ public sealed partial class BrowserContractsTests {
         Assert.Equal(3, space["branding"]!["colors"]!.AsArray().Count);
         Assert.Equal(0.12, space["branding"]!["colors"]![0]!["red"]!.GetValue<double>());
         Assert.Equal("book", space["branding"]!["crest"]!["symbol"]!.GetValue<string>());
-        Assert.Equal("diagonal", space["branding"]!["bannerPattern"]!.GetValue<string>());
+        Assert.Equal(("solid", "gradient"),
+            (space["branding"]!["bannerPattern"]!.GetValue<string>(), space["branding"]!["themeMode"]!.GetValue<string>()));
         Assert.Equal(2, space["branding"]!["renderingVersion"]!.GetValue<int>());
         Assert.Equal("google", space["browsingPreferences"]!["selectedSearchProviderID"]!.GetValue<string>());
         Assert.Equal("after12Hours", space["browsingPreferences"]!["currentTabCleanupPolicy"]!.GetValue<string>());
@@ -107,7 +108,7 @@ public sealed partial class BrowserContractsTests {
 
         Assert.Equal("mountain", branding["crest"]!["symbol"]!.GetValue<string>());
         Assert.Equal("none", branding["crest"]!["trim"]!.GetValue<string>());
-        Assert.Equal("diagonal", branding["bannerPattern"]!.GetValue<string>());
+        Assert.Equal("solid", branding["bannerPattern"]!.GetValue<string>());
         Assert.Equal(2, branding["colors"]!.AsArray().Count);
     }
 

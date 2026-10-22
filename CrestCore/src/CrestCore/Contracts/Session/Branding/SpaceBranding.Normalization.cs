@@ -14,6 +14,9 @@ public sealed partial record SpaceBranding {
     internal const int MaximumColorCount = 3;
     internal const int MaximumCrestPaletteCount = 6;
 
+    /// The angle a gradient runs at unless set: straight down the sidebar.
+    internal const double DownwardGradientAngle = 90;
+
     /// The Space color used when a branding record has none.
     internal static BrandColor DefaultColor { get; } = new(0.29, 0.25, 0.58);
 
@@ -22,7 +25,9 @@ public sealed partial record SpaceBranding {
     #region Actions - Normalization
 
     /// The branding with every rule the core owns applied, as every client
-    /// writes it: its banner strength in today's units, at most three colors
+    /// writes it: its banner strength in today's units, a sidebar that is a
+    /// gradient or a solid color, so a patterned banner, which Crest no longer
+    /// draws, runs as a gradient down the sidebar, at most three colors
     /// and never none, strengths, fades and color components within 0 through
     /// 1, the gradient angle within a turn, and crest layers addressing a color
     /// that exists. The crest's own palette is dropped when it holds no color,
@@ -38,7 +43,7 @@ public sealed partial record SpaceBranding {
         if (palette is { Length: 0 }) palette = null;
         int layers = LayerColorCount(palette?.Length, colors.Length);
         var crest = branding.Crest;
-        return Announced(branding with {
+        return Announced(branding.Unpatterned() with {
             Colors = new(colors),
             BannerStrength = Unit(branding.BannerStrength),
             ReadabilityFade = Unit(branding.ReadabilityFade),
@@ -67,6 +72,14 @@ public sealed partial record SpaceBranding {
             }
         });
     }
+
+    /// The branding as a sidebar Crest draws: a gradient or a solid color. A
+    /// patterned banner, which Crest no longer draws, runs as a gradient down
+    /// the sidebar, and no branding keeps a pattern.
+    internal SpaceBranding Unpatterned() =>
+        ThemeMode == SpaceThemeMode.Banner && BannerPattern != SpaceBannerPattern.Solid
+            ? this with { ThemeMode = SpaceThemeMode.Gradient, GradientAngle = DownwardGradientAngle, BannerPattern = SpaceBannerPattern.Solid }
+            : this with { BannerPattern = SpaceBannerPattern.Solid };
 
     /// `look` with the readability and rendering vocabulary it announces worked
     /// out from its values.

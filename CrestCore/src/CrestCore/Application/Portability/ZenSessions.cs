@@ -261,10 +261,10 @@ internal static class ZenSessions {
             ? new(Math.Clamp(red, 0, 1), Math.Clamp(green, 0, 1), Math.Clamp(blue, 0, 1)) : null;
     }
 
-    /// A gradient banner in bands of several colors, or a solid banner of
-    /// one, as strong as the theme's opacity and textured as it is.
+    /// A gradient of the theme's colors, as strong as its opacity and
+    /// textured as it is.
     private static SpaceBranding? Look(IReadOnlyList<BrandColor> colors, JsonElement? theme) => colors.Count == 0 ? null
-        : SpaceBranding.Painted(colors, colors.Count > 1 ? SpaceBannerPattern.Bands : SpaceBannerPattern.Solid,
+        : SpaceBranding.Painted(colors,
             Math.Clamp(ImportJson.Number(ImportJson.Member(theme, "opacity")) ?? DefaultOpacity, 0, 1), SpaceBranding.LegacyReadabilityFade,
             SpaceThemeMode.Gradient, gradientAngle: 45, showsTexture: (ImportJson.Integer(ImportJson.Member(theme, "texture")) ?? 0) != 0);
 

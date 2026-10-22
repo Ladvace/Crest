@@ -18,7 +18,7 @@ struct BrowserCrestStudioBackground: View {
                         removeColor: { context.branding.editorRemoveColor(for: role) })
                 }
             }
-            backgroundChoices
+            BrowserCrestStudioFillPicker(context: context)
             if context.value.themeMode == .gradient {
                 let angle = context.setting(\.gradientAngle)
                 CrestSettingRow("Gradient angle", setting: angle.resettable("Gradient angle")) {
@@ -48,37 +48,6 @@ struct BrowserCrestStudioBackground: View {
         }
     }
 
-    private var backgroundChoices: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 84), spacing: 10)], spacing: 10) {
-            ForEach(SpaceBannerPattern.all, id: \.self) { pattern in
-                BrowserCrestStudioChoice(
-                    title: pattern.title,
-                    selected: context.value.themeMode == .banner && context.value.bannerPattern == pattern
-                ) {
-                    context.branding.editorUpdate {
-                        $0.themeMode = .banner
-                        $0.bannerPattern = pattern
-                        $0.hasCustomAppearance = true
-                    }
-                } artwork: {
-                    BrowserSpaceBannerBackground(
-                        branding: context.preview {
-                            $0.themeMode = .banner
-                            $0.bannerPattern = pattern
-                        }
-                    )
-                    .frame(width: 56, height: 48).clipShape(.rect(cornerRadius: 8))
-                }
-            }
-            BrowserCrestStudioChoice(title: "Gradient", selected: context.value.themeMode == .gradient) {
-                context.setting(\.themeMode).binding.wrappedValue = .gradient
-            } artwork: {
-                BrowserSpaceBannerBackground(branding: context.preview { $0.themeMode = .gradient })
-                    .frame(width: 56, height: 48).clipShape(.rect(cornerRadius: 8))
-            }
-        }
-    }
-
     private func slider(
         _ title: LocalizedStringKey, _ path: WritableKeyPath<SpaceBranding, Double>,
         range: ClosedRange<Double> = 0...1, readout: CrestSettingSliderReadout = .percent
@@ -89,11 +58,11 @@ struct BrowserCrestStudioBackground: View {
 
 #if DEBUG
     #Preview("Interactive background controls") {
-        @Previewable @State var branding = BrowserSpaceBrandingPreviewFixture.quarteredBranding
+        @Previewable @State var branding = BrowserSpaceBrandingPreviewFixture.solidBranding
         Form {
             BrowserCrestStudioBackground(
                 context: BrowserCrestStudioContext(
-                    branding: $branding, defaults: BrowserSpaceBrandingPreviewFixture.quarteredBranding, compact: false),
+                    branding: $branding, defaults: BrowserSpaceBrandingPreviewFixture.solidBranding, compact: false),
                 symbol: "crown.fill")
         }.crestSettingsForm().frame(width: 480, height: 650)
     }

@@ -21,18 +21,16 @@ public sealed partial record SetupImportReview {
     /// launch's disposable Spaces are no destination, so everything comes in
     /// new in their place. `passwords` counts the saved passwords that belong
     /// with each Space, `extensions` lists the extensions each Space offers,
-    /// all of them left on, and `leftOut` is what the read could not bring. A
-    /// Space that comes in new wears `look`.
+    /// all of them left on, and `leftOut` is what the read could not bring.
     internal static SetupImportReview Started(ImportSource source, IReadOnlyList<SpaceState> spaces,
         IReadOnlyDictionary<Guid, int> passwords, IReadOnlyList<ImportSpaceExtensions> extensions, IReadOnlyList<ImportLeftOut> leftOut,
-        SessionState session, SetupLook look) {
+        SessionState session) {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(spaces);
         ArgumentNullException.ThrowIfNull(passwords);
         ArgumentNullException.ThrowIfNull(extensions);
         ArgumentNullException.ThrowIfNull(leftOut);
         ArgumentNullException.ThrowIfNull(session);
-        ArgumentNullException.ThrowIfNull(look);
         var destinations = session.ImportDestinations;
         var offers = extensions.GroupBy(entry => entry.SpaceId).ToDictionary(group => group.Key,
             group => (IReadOnlyList<ImportExtension>)[.. group.SelectMany(entry => entry.Extensions)
@@ -46,7 +44,7 @@ public sealed partial record SetupImportReview {
             bool included = match is not null || created < room;
             if (included && match is null) created++;
             reviews.Add(SetupReviewSpace.Started(space, match, included, passwords.GetValueOrDefault(space.Id),
-                offers.GetValueOrDefault(space.Id) ?? [], look));
+                offers.GetValueOrDefault(space.Id) ?? []));
         }
         return new SetupImportReview(source, reviews, [], spaces.FirstOrDefault()?.Id, leftOut, room).Analyzed(session);
     }
@@ -56,16 +54,14 @@ public sealed partial record SetupImportReview {
     #region Actions - Editing
 
     /// `review` with `sourceId` joining the existing Space `destinationId` and
-    /// taking its name and look, or coming in new with its own in `look` when
-    /// null. A destination the session does not hold changes nothing.
-    internal SetupImportReview ChoosingDestination(Guid sourceId, Guid? destinationId, SessionState session, SetupLook look) {
+    /// taking its name and look, or coming in new with its own when null. A destination the session does not hold changes nothing.
+    internal SetupImportReview ChoosingDestination(Guid sourceId, Guid? destinationId, SessionState session) {
         ArgumentNullException.ThrowIfNull(session);
-        ArgumentNullException.ThrowIfNull(look);
         var destination = destinationId is { } id ? session.ImportDestinations.FirstOrDefault(space => space.Id == id) : null;
         if (destinationId is not null && destination is null) return this;
         return Editing(sourceId, session, space => space with {
             DestinationId = destination?.Id,
-            Customization = destination?.Customization ?? look.Applying(space.Source.Customization)
+            Customization = destination?.Customization ?? space.Source.Customization.Normalized()
         });
     }
 

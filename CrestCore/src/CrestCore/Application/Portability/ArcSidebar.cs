@@ -242,9 +242,9 @@ internal static class ArcSidebar {
 
     private static double Unit(double value) => Math.Clamp(value, 0, 1);
 
-    /// A diagonal gradient banner of several colors, or a solid banner of one.
+    /// A diagonal gradient of several colors, or a solid sidebar of one.
     private static SpaceBranding? Look(IReadOnlyList<BrandColor> colors) => colors.Count == 0 ? null : SpaceBranding.Painted(colors,
-        colors.Count > 1 ? SpaceBannerPattern.Diagonal : SpaceBannerPattern.Solid, strength: 1, SpaceBranding.LegacyReadabilityFade,
+        strength: 1, SpaceBranding.LegacyReadabilityFade,
         colors.Count > 1 ? SpaceThemeMode.Gradient : SpaceThemeMode.Banner, gradientAngle: 45, showsTexture: false);
 
     #endregion

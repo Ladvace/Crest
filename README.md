@@ -31,7 +31,7 @@ Browse Mac releases by channel: [Stable](https://github.com/pauljoda/Crest/relea
 
 ## A browser with boundaries
 
-Most browsers put every login, tab, and distraction into one long-lived container. Crest begins with **Spaces** instead. Give work, home, research, or a private session its own banner; Crest gives each one its own cookies, website data, history, archive, tabs, credentials, settings, and sync identity.
+Most browsers put every login, tab, and distraction into one long-lived container. Crest begins with **Spaces** instead. Give work, home, research, or a private session its own colors; Crest gives each one its own cookies, website data, history, archive, tabs, credentials, settings, and sync identity.
 
 Switching Spaces changes more than the color of the window. It changes the browsing context.
 
@@ -50,7 +50,7 @@ supports.
 
 ## Crest Studio and Appearance
 
-**Crest Studio** puts each Space's icon on that Space's own sidebar background. Start from a template, choose an emoji or a symbol from a searchable SF Symbols picker, and set the sidebar's pattern and colors, each named by what it paints. Shuffle and Undo freely.
+**Crest Studio** puts each Space's icon on that Space's own sidebar background. Start from a template, choose an emoji or a symbol from a searchable SF Symbols picker, and set the sidebar's gradient or solid color, each color named by what it paints. Shuffle and Undo freely.
 
 **Appearance** lets you dock the sidebar on either edge, go borderless, adjust tab shape and scale, choose a pin layout, and tune tab and address-field colors, or let them follow each Space's accent. Start with a preset, see changes live, and reset individual settings. Choose an app icon palette, folder colors and icons, and a default page zoom from 50% to 300%.
 

@@ -34,4 +34,11 @@ public sealed record SpaceCustomization(string Name, string Symbol, SpaceAccent 
     internal static string ResolvedSymbol(string symbol) => string.IsNullOrWhiteSpace(symbol) ? DefaultSymbol : symbol.Trim();
 
     #endregion
+
+    #region Actions - Looks
+
+    /// The customization with its look within the ranges every device draws.
+    internal SpaceCustomization Normalized() => this with { Branding = SpaceBranding.Normalized(Branding) };
+
+    #endregion
 }

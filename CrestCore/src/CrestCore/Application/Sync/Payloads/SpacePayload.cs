@@ -56,7 +56,7 @@ internal sealed partial record SpacePayload(
         var (credentialsEnabled, credentialsModifiedAt) = value.OptionalFlag("credentialsEnabled") is { } enabled
             && value.OptionalTime("credentialsEnabledModifiedAt") is { } modifiedAt ? (enabled, modifiedAt) : ((bool?)null, (SyncTime?)null);
         return new(value.WrappedIdentity("id"), value.Identity("profileID"), name, symbol, accent,
-            value.OptionalNested("branding") is { } branding ? ReadBranding(branding) : SpaceBranding.Legacy(accent, symbol),
+            value.OptionalNested("branding") is { } branding ? ReadBranding(branding) : SpaceBranding.Legacy(accent, symbol).Unpatterned(),
             value.OptionalNested("browsingPreferences") is { } browsing ? ReadBrowsingPreferences(browsing)
                 : StoredSessionCodec.DefaultBrowsingPreferences,
             value.OptionalText("accessPolicy") is { } access

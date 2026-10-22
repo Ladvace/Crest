@@ -19,9 +19,6 @@ struct BrowserOnboardingModernSheet: View {
             fill
             icon
             Spacer(minLength: 0)
-            Text("Patterns: Settings › Spaces.")
-                .font(CrestTypography.sans(12, weight: .medium))
-                .foregroundStyle(CrestBrandTheme.textDisplay.opacity(0.5))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -133,5 +130,21 @@ private struct BrowserOnboardingModernPresetSwatch: View {
         .buttonStyle(.plain)
         .accessibilityLabel(Text(colors.map { String(localized: $0.title) }.joined(separator: ", ")))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
+/// The three colors a sidebar wears, each opening the tinctures.
+struct BrowserOnboardingSidebarSwatches: View {
+    @Binding var branding: SpaceBranding
+
+    var body: some View {
+        ForEach(BrowserSpaceBrandColorRole.all) { role in
+            BrowserOnboardingMakeSwatch(title: role.title, caption: role.caption, color: branding.forgeColor(of: role))
+            {
+                color in
+                branding.setForgeColor(color, of: role)
+                branding = branding.normalized()
+            }
+        }
     }
 }

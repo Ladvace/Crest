@@ -13,7 +13,6 @@ struct BrowserOnboardingManualSetupPage: View {
     var body: some View {
         if let draft = setup.space(selectedSpaceID) {
             BrowserOnboardingMakePage(
-                look: flow.look,
                 branding: setup.brandingBinding(for: draft.spaceID),
                 symbol: setup.symbolBinding(for: draft.spaceID),
                 name: setup.nameBinding(for: draft.spaceID),

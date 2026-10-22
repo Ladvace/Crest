@@ -15,7 +15,6 @@ extension SpaceHouse {
         var updated = branding
         updated.colors = look.colors
         updated.themeMode = look.themeMode
-        updated.bannerPattern = look.bannerPattern
         updated.gradientAngle = look.gradientAngle
         updated.symbolColor = look.symbolColor
         updated.crest = look.crest
@@ -28,7 +27,6 @@ extension SpaceHouse {
     func isWorn(by branding: SpaceBranding) -> Bool {
         branding.hasCustomAppearance != true && branding.colors == look.colors
             && branding.themeMode == look.themeMode
-            && (look.themeMode == .gradient || branding.bannerPattern == look.bannerPattern)
             && branding.symbolColor == look.symbolColor
     }
 

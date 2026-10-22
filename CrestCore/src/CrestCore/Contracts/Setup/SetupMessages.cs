@@ -36,12 +36,11 @@ public sealed record SetupFlowChanged(SetupFlowState? Flow) : Change;
 /// the browser it is on, the review of that browser, why setup could not go
 /// on, what it did last, and whether finishing opens the Getting Started
 /// guide. `OpensCrestFromWelcome` is whether the welcome offers to open Crest
-/// rather than set it up, as it does once setup is done. `Look` is the look
-/// the Spaces setup makes wear, which the stage and every preview follow.
+/// rather than set it up, as it does once setup is done.
 public sealed record SetupFlowState(Guid WorkspaceId, SetupEntry Entry, SetupStep Step, SetupStep? BackStep, SetupStep? NextStep,
     SetupPhase Phase, IReadOnlyList<ImportSource> Offered, IReadOnlyList<ImportSource> Selected, SetupImportQueue? Queue,
     ImportSource? Source, SetupImportReview? Review, SetupFailure? Failure, SetupSummary? Summary, bool OpensGuide,
-    bool OpensCrestFromWelcome, SetupLook Look);
+    bool OpensCrestFromWelcome);
 
 /// Why setup could not go on, the browser it concerns, and the words of what
 /// refused it, when something did.

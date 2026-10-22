@@ -4301,6 +4301,10 @@
     "spaces-wear-icons-not-crests": {
       "category": "improved",
       "message": "Spaces now show a plain icon, an SF Symbol or emoji, instead of a heraldic crest. Crest Studio keeps its templates, icon and sidebar choices, and a Space that wore a crest shows its icon instead."
+    },
+    "sidebars-gradient-or-solid": {
+      "category": "improved",
+      "message": "A Space's sidebar is now a gradient or a solid color, and setup no longer asks you to pick a look. A Space that wore a patterned banner shows a gradient of its colors instead."
     }
   }
 }

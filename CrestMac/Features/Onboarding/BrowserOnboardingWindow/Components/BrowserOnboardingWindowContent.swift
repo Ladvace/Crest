@@ -74,22 +74,21 @@ struct BrowserOnboardingWindowContent: View {
 
     /// The look the stage wears behind the step: on the welcome, the
     /// templates in turn; while a Space is being made or reviewed, that
-    /// Space's own; otherwise the look setup chose.
+    /// Space's own; otherwise the first template's.
     private var stageBranding: SpaceBranding {
+        let fallback = SpaceHouse.winter.look
         switch flow.step.kind {
         case .welcome:
             return SpaceHouse.all[welcomeHouse % SpaceHouse.all.count].look
         case .manualSetup:
-            return flow.manualSetup.space(selectedManualSpaceID)?.customization.branding ?? flow.look.previewBranding
+            return flow.manualSetup.space(selectedManualSpaceID)?.customization.branding ?? fallback
         case .review:
-            guard let review = flow.selectedReview(id: flow.shownReviewSpaceID) else {
-                return flow.look.previewBranding
-            }
-            return flow.previewDestinationSpace(for: review)?.settings.look ?? flow.look.previewBranding
+            guard let review = flow.selectedReview(id: flow.shownReviewSpaceID) else { return fallback }
+            return flow.previewDestinationSpace(for: review)?.settings.look ?? fallback
         case .complete:
-            return flow.manualSetup.spaces.first?.customization.branding ?? flow.look.previewBranding
-        case .look, .featureSpaces, .featureTabs, .featureSync, .importBrowser:
-            return flow.look.previewBranding
+            return flow.manualSetup.spaces.first?.customization.branding ?? fallback
+        case .featureSpaces, .featureTabs, .featureSync, .importBrowser:
+            return fallback
         }
     }
 

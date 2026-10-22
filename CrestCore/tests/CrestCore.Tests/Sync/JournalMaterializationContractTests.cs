@@ -40,7 +40,6 @@ public sealed partial class BrowserContractsTests {
     public void BrandingTravelsWithTheSpaceRecord() {
         var session = OneSpaceSession();
         var branding = JsonNode.Parse(SavedBranding)!.AsObject();
-        branding["bannerPattern"] = "quartered";
         branding["themeMode"] = "gradient";
         branding["gradientAngle"] = 226.0;
         branding["crest"]!["backplate"] = "hexagon";

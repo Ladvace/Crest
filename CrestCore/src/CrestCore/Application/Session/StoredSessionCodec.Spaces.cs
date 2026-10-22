@@ -21,14 +21,15 @@ internal static partial class StoredSessionCodec {
     #region Actions - Spaces
 
     /// A Space. An accent this build cannot name is indigo, missing preferences
-    /// are the defaults, and a Space without an access policy is open while one
+    /// are the defaults, a patterned banner reads as the gradient Crest draws
+    /// in its place, and a Space without an access policy is open while one
     /// whose policy this build cannot name asks for authentication.
     internal static SpaceState DecodeSpace(JsonNode? node) {
         var value = Object(node);
         return new(Identity(value[Key.Id]), Identity(value[Key.Profile]?[Key.Id]),
             new(Text(value[Key.Name]) ?? FallbackSpaceName, Text(value[Key.Symbol]) ?? FallbackSpaceSymbol,
                 DecodeAccent(value[Key.Accent]),
-                value[Key.Branding] is JsonObject branding ? DecodeBranding(branding) : null,
+                value[Key.Branding] is JsonObject branding ? DecodeBranding(branding).Unpatterned() : null,
                 value[Key.BrowsingPreferences] is JsonObject browsing ? DecodeBrowsingPreferences(browsing) : DefaultBrowsingPreferences,
                 value[Key.CredentialPreferences] is JsonObject credentials
                     ? DecodeCredentialPreferences(credentials) : DefaultCredentialPreferences,

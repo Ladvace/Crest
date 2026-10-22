@@ -12,7 +12,6 @@ struct BrowserImportSpaceCustomizationView: View {
     var body: some View {
         if let review {
             BrowserOnboardingMakePage(
-                look: flow.look,
                 branding: brandingBinding,
                 symbol: binding(get: \.symbol) { current, symbol in
                     SpaceCustomization(

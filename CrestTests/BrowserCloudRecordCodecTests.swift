@@ -82,7 +82,6 @@ final class BrowserCloudRecordCodecTests: XCTestCase {
         // Every member of a look set away from the house look's.
         var branding = SpaceAccent.indigo.house
         branding.colors = [.ink, .ocean, .gold]
-        branding.bannerPattern = .lozenges
         branding.bannerStrength = 0.63
         branding.readabilityFade = 0.37
         branding.themeMode = .gradient

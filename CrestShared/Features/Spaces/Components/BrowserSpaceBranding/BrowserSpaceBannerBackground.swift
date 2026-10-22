@@ -26,31 +26,28 @@ struct BrowserSpaceBannerBackground: View {
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            let colors = resolvedColors
-            ZStack {
-                BrowserPlatformSpaceBrandingStyle.backgroundColor
-                BrowserSpaceThemeField(
-                    themeMode: branding.themeMode,
-                    bannerPattern: branding.bannerPattern,
-                    gradientAngle: branding.gradientAngle,
-                    colors: colors,
-                    size: geometry.size
-                )
-                .opacity(fieldOpacity)
+        let colors = resolvedColors
+        ZStack {
+            BrowserPlatformSpaceBrandingStyle.backgroundColor
+            BrowserSpaceThemeField(
+                themeMode: branding.themeMode,
+                bannerPattern: branding.bannerPattern,
+                gradientAngle: branding.gradientAngle,
+                colors: colors
+            )
+            .opacity(fieldOpacity)
 
-                if readabilityOpacity > 0 {
-                    Color.black.opacity(readabilityOpacity)
-                }
-
-                if branding.themeMode == .gradient, branding.showsTexture {
-                    BrowserSpaceThemeTexture()
-                        .blendMode(.softLight)
-                        .opacity(effectiveReduceTransparency ? 0.24 : 0.38)
-                }
+            if readabilityOpacity > 0 {
+                Color.black.opacity(readabilityOpacity)
             }
-            .clipped()
+
+            if branding.themeMode == .gradient, branding.showsTexture {
+                BrowserSpaceThemeTexture()
+                    .blendMode(.softLight)
+                    .opacity(effectiveReduceTransparency ? 0.24 : 0.38)
+            }
         }
+        .clipped()
         .accessibilityHidden(true)
     }
 
@@ -83,9 +80,9 @@ struct BrowserSpaceBannerBackground: View {
 }
 
 #if DEBUG
-    #Preview("Banner and gradient") {
+    #Preview("House and gradient") {
         HStack(spacing: 16) {
-            BrowserSpaceBannerBackground(branding: BrowserSpaceBrandingPreviewFixture.bannerBranding)
+            BrowserSpaceBannerBackground(branding: BrowserSpaceBrandingPreviewFixture.houseBranding)
             BrowserSpaceBannerBackground(branding: BrowserSpaceBrandingPreviewFixture.gradientBranding)
         }.frame(width: 500, height: 360).padding()
     }

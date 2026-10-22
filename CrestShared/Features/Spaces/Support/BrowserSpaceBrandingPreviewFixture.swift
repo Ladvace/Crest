@@ -2,7 +2,7 @@ import Foundation
 
 enum BrowserSpaceBrandingPreviewFixture {
     /// The Winter house look.
-    static let bannerBranding = SpaceHouse.winter.look
+    static let houseBranding = SpaceHouse.winter.look
 
     /// The Storm house look as a textured gradient.
     static let gradientBranding: SpaceBranding = {
@@ -15,32 +15,32 @@ enum BrowserSpaceBrandingPreviewFixture {
         return look
     }()
 
-    /// The Lion house look, quartered.
-    static let quarteredBranding: SpaceBranding = {
+    /// The Lion house look, solid.
+    static let solidBranding: SpaceBranding = {
         var look = SpaceHouse.lion.look
-        look.bannerPattern = .quartered
+        look.themeMode = .banner
         return look
     }()
 
-    /// A Space wearing the banner look, as the core resolves it.
+    /// A Space wearing the Winter house look, as the core resolves it.
     @MainActor static let simpleSpace = makeSpace(
         idByte: 0x11,
         profileByte: 0x21,
         name: "Winter",
         symbol: "snowflake",
         accent: .indigo,
-        branding: bannerBranding,
+        branding: houseBranding,
         accessPolicy: .open
     )
 
-    /// A guarded Space wearing the quartered look, as the core resolves it.
+    /// A guarded Space wearing the solid look, as the core resolves it.
     @MainActor static let lockedSpace = makeSpace(
         idByte: 0x12,
         profileByte: 0x22,
         name: "Lion",
         symbol: "crown.fill",
         accent: .orange,
-        branding: quarteredBranding,
+        branding: solidBranding,
         accessPolicy: .deviceOwnerAuthentication
     )
 

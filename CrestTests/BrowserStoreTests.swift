@@ -668,7 +668,7 @@ final class BrowserStoreTests: XCTestCase {
         let spaceID = session.spaces[0].id
         var branding = try XCTUnwrap(store.spaceModel(spaceID)).settings.look
         branding.symbolColor = .gold
-        branding.bannerPattern = .lozenges
+        branding.readabilityFade = 0.31
         otherWindow.updateSpaceBranding(branding, in: spaceID)
         // The look as the core keeps it, announcing the vocabulary it now draws with.
         branding = branding.normalized()

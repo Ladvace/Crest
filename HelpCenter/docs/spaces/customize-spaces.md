@@ -11,12 +11,7 @@ Open a Space’s context menu to edit it, or open its page in Settings. On Mac, 
 
 ## Choose an identity
 
-Crest offers two presentation styles:
-
-- **Banner** begins with a template, then lets you choose a pattern and colors for the sidebar.
-- **Traditional Gradient** blends one to three colors with direction, intensity, and optional texture.
-
-Either way, the Space's icon is an emoji or a searchable SF Symbol.
+Each Space's sidebar is either a gradient of one to three colors, with a direction, intensity and optional texture, or a solid color. Start from a template, then make it yours. The Space's icon is an emoji or a searchable SF Symbol.
 
 The result appears in the Space picker and browser chrome on Mac, iPad, and iPhone.
 

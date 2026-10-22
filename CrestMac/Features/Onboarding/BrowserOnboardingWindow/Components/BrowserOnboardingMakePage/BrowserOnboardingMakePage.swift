@@ -4,7 +4,6 @@ import SwiftUI
 /// edited there, and one sheet of what the look lets a first run change. The
 /// full Forge waits in Settings.
 struct BrowserOnboardingMakePage: View {
-    let look: SetupLook
     @Binding var branding: SpaceBranding
     @Binding var symbol: String
     @Binding var name: String
@@ -26,14 +25,6 @@ struct BrowserOnboardingMakePage: View {
                 HStack(alignment: .center, spacing: 20) {
                     BrowserOnboardingHeadline("Make it yours")
                     Spacer()
-                    if look.kind == .heraldic {
-                        Button("Shuffle", systemImage: "shuffle") {
-                            branding = BrowserCrestForge.shuffledLook(branding)
-                        }
-                        .buttonStyle(.crestSecondary)
-                        .help("A new sidebar for this Space")
-                        .accessibilityIdentifier("space-forge-shuffle")
-                    }
                     if let picker {
                         BrowserOnboardingMakeChips(picker: picker)
                     }
@@ -87,13 +78,8 @@ struct BrowserOnboardingMakePage: View {
         }
     }
 
-    @ViewBuilder private var sheet: some View {
-        switch look.kind {
-        case .heraldic:
-            BrowserOnboardingHeraldicSheet(branding: $branding, symbol: $symbol)
-        case .modern:
-            BrowserOnboardingModernSheet(branding: $branding, symbol: $symbol)
-        }
+    private var sheet: some View {
+        BrowserOnboardingModernSheet(branding: $branding, symbol: $symbol)
     }
 }
 
@@ -192,8 +178,5 @@ enum BrowserOnboardingMakeMetrics {
     /// The most of the header the Space chips take once they scroll.
     static let chipsWidth: CGFloat = 520
     static let pageIconSize: CGFloat = 180
-    /// A choice tile on the sheet.
-    static let tileSize: CGFloat = 52
-    static let tileArtworkSize: CGFloat = 40
     static let swatchSize: CGFloat = 34
 }

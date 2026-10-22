@@ -22,12 +22,10 @@ public sealed partial class BrowserContractsTests {
         var manual = device.Send(new StartSetup(device.Workspace, SetupEntry.ManualSetup));
         Assert.Equal((SetupStep.ManualSetup, (SetupStep?)null), (Flowing(manual).Step, Flowing(manual).BackStep));
         Assert.Contains(manual, change => change is SetupDraftChanged { Draft: not null });
-        // A Mac asks which look its Spaces wear on the way from the welcome to import.
+        // A Mac goes from the welcome to import.
         var guided = Flowing(device.Send(new StartSetup(device.Workspace, SetupEntry.FirstRun)));
-        Assert.Equal((SetupStep.Welcome, SetupStep.Look, (SetupStep?)null), (guided.Step, guided.NextStep, guided.BackStep));
-        var look = Flowing(device.Send(new ShowSetupStep(SetupStep.Look)));
-        Assert.Equal((SetupStep.ImportBrowser, SetupStep.Welcome), (look.NextStep, look.BackStep));
-        Assert.Equal(SetupStep.Look, Flowing(device.Send(new ShowSetupStep(SetupStep.ImportBrowser))).BackStep);
+        Assert.Equal((SetupStep.Welcome, SetupStep.ImportBrowser, (SetupStep?)null), (guided.Step, guided.NextStep, guided.BackStep));
+        Assert.Equal(SetupStep.Welcome, Flowing(device.Send(new ShowSetupStep(SetupStep.ImportBrowser))).BackStep);
         var skipped = Flowing(device.Send(new ContinueImport()));
         Assert.Equal((SetupStep.ManualSetup, SetupStep.ImportBrowser), (skipped.Step, skipped.BackStep));
         Assert.Null(Flowing(device.Send(new StartSetup(device.Workspace, SetupEntry.ImportBrowser))).BackStep);
@@ -42,42 +40,23 @@ public sealed partial class BrowserContractsTests {
     }
 
     [Fact]
-    public void TheChosenLookDressesEverySpaceSetupMakesAndEachOneAnImportBringsInNew() {
+    public void ANewSpaceOfSetupWearsItsAccentsTemplateAndAnImportedOneAGradient() {
         var session = SavedSession().Document["session"]!;
         using var device = new TestDevice(session);
-        var seeded = device.Authority.Current.Spaces[0];
-        static SpaceThemeMode Worn(SpaceCustomization customization) => customization.Branding.ThemeMode;
-        var heraldic = SpaceThemeMode.Banner;
-        var modern = SpaceThemeMode.Gradient;
-
-        // Setup opens in Crest's own look; the person may choose the modern one.
-        Assert.Equal(SetupLook.Heraldic, Flowing(device.Send(new StartSetup(device.Workspace, SetupEntry.FirstRun))).Look);
-        Assert.Equal(SetupLook.Modern, Flowing(device.Send(new ChooseSetupLook(SetupLook.Modern))).Look);
-
-        // A new Space of the manual setup wears it, and so does the first
-        // launch's disposable Space, which the person has not made theirs.
+        device.Send(new StartSetup(device.Workspace, SetupEntry.FirstRun));
         device.Send(new ShowSetupStep(SetupStep.ImportBrowser));
-        var started = Drafted(device.Send(new ContinueImport()));
-        Assert.Equal([(seeded.Id, modern)], started.Spaces.Select(space => (space.SpaceId, Worn(space.Customization))));
-        var added = Drafted(device.Send(new AddSetupSpace())).Spaces[1];
-        Assert.Equal((modern, seeded.Settings.Name), (Worn(added.Customization), started.Spaces[0].ShownName));
-        // Choosing another look restyles the setup the device holds: a new
-        // Space not yet edited takes the look a new Space gets, the disposable
-        // one keeps its colors in the new mode.
-        var restyled = Drafted(device.Send(new ChooseSetupLook(SetupLook.Heraldic)));
-        Assert.Equal(heraldic, Worn(restyled.Spaces[0].Customization));
-        Assert.Equal(SpaceAccent.Orange.House, restyled.Spaces[1].Customization.Branding);
+        device.Send(new ContinueImport());
+        var added = Drafted(device.Send(new AddSetupSpace())).Spaces[^1];
+        Assert.Equal(added.Customization.Accent.House, added.Customization.Branding);
 
-        // A Space an import brings in new wears it; one joining an existing
-        // Space takes that Space's look.
-        device.Send(new ChooseSetupLook(SetupLook.Modern));
         device.Send(new ShowSetupStep(SetupStep.ImportBrowser));
         device.Send(new OfferImportSources([ImportSource.Arc]));
         device.Send(new ToggleImportSource(ImportSource.Arc));
         device.Send(new ContinueImport());
         var review = Flowing(device.Send(new ReviewImport(ImportSource.Arc,
             ReadSpaces(ImportedSpace("Arc", ImportedTab("https://arc.example/"))), []))).Review!;
-        Assert.Equal(modern, Worn(review.Spaces[0].Customization));
+        var imported = review.Spaces[0].Customization.Branding;
+        Assert.Equal(SpaceBannerPattern.Solid, imported.BannerPattern);
     }
 
     [Fact]

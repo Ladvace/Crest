@@ -120,9 +120,7 @@ struct BrowserCrestForge: View {
         }
     }
 
-    @ViewBuilder
     private var sidebarSections: some View {
-        sidebarGallery
         sidebarSection
     }
 
@@ -165,42 +163,9 @@ struct BrowserCrestForge: View {
         }
     }
 
-    private var sidebarGallery: some View {
-        gallery(SpaceBannerPattern.all.map(Optional.some) + [nil], id: \.self) { pattern in
-            let selected =
-                pattern.map { branding.themeMode == .banner && branding.bannerPattern == $0 }
-                ?? (branding.themeMode == .gradient)
-            BrowserCrestStudioChoice(
-                title: pattern?.title ?? "Gradient", selected: selected, tint: .accentColor
-            ) {
-                context.branding.editorUpdate {
-                    if let pattern {
-                        $0.themeMode = .banner
-                        $0.bannerPattern = pattern
-                    } else {
-                        $0.themeMode = .gradient
-                    }
-                    $0.hasCustomAppearance = true
-                }
-            } artwork: {
-                BrowserSpaceBannerBackground(
-                    branding: context.preview {
-                        if let pattern {
-                            $0.themeMode = .banner
-                            $0.bannerPattern = pattern
-                        } else {
-                            $0.themeMode = .gradient
-                        }
-                    }
-                )
-                .frame(width: 56, height: 48)
-                .clipShape(.rect(cornerRadius: 8))
-            }
-        }
-    }
-
     private var sidebarSection: some View {
         Section {
+            BrowserCrestStudioFillPicker(context: context)
             BrowserCrestStudioSlider(title: "Intensity", value: context.setting(\.bannerStrength))
             if branding.themeMode == .gradient {
                 let angle = context.setting(\.gradientAngle)
@@ -214,11 +179,15 @@ struct BrowserCrestForge: View {
             }
             BrowserCrestStudioSlider(title: "Readability fade", value: context.setting(\.readabilityFade))
             BrowserCrestStudioSlider(title: "Folder colors", value: context.setting(\.folderColorIntensity))
-            let texture = context.setting(\.showsTexture)
-            CrestSettingRow("Texture", setting: texture.resettable("Texture")) {
-                Toggle("Texture", isOn: texture.binding).labelsHidden()
+            if branding.themeMode == .gradient {
+                let texture = context.setting(\.showsTexture)
+                CrestSettingRow("Texture", setting: texture.resettable("Texture")) {
+                    Toggle("Texture", isOn: texture.binding).labelsHidden()
+                }
             }
             segmentedText
+        } header: {
+            stageHeader
         }
     }
 
@@ -299,8 +268,8 @@ struct BrowserCrestForge: View {
     // MARK: - Looks
 
     /// A new sidebar and icon color, chosen afresh in the templates'
-    /// tinctures: dark ones for the sidebar, so its text stays light over
-    /// every band of the pattern, and a light one for the icon on it.
+    /// tinctures: dark ones for the sidebar's gradient, so its text stays
+    /// light, and a light one for the icon on it.
     static func shuffledLook(_ branding: SpaceBranding) -> SpaceBranding {
         let tinctures = Tincture.all.map(\.color)
         let darks = tinctures.filter { $0.luminance < 0.3 }.shuffled()
@@ -308,8 +277,7 @@ struct BrowserCrestForge: View {
         guard darks.count > 2, let light = lights.first else { return branding }
 
         var look = branding
-        look.themeMode = Double.random(in: 0..<1) < 0.15 ? .gradient : .banner
-        look.bannerPattern = SpaceBannerPattern.all.randomElement() ?? .diagonal
+        look.themeMode = .gradient
         look.gradientAngle = Double(Int.random(in: 0..<8) * 45)
         look.colors = [darks[0], darks[1], darks[2]]
         look.symbolColor = light

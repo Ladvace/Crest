@@ -98,7 +98,7 @@ struct BrowserSpaceAppearanceHero: View {
     #Preview("Editable Space identity") {
         @Previewable @State var name = "Work"
         BrowserSpaceAppearanceHero(
-            branding: BrowserSpaceBrandingPreviewFixture.quarteredBranding, symbol: "crown.fill", name: name,
+            branding: BrowserSpaceBrandingPreviewFixture.solidBranding, symbol: "crown.fill", name: name,
             editableName: $name, showsNameHint: true
         )
         .frame(width: 420, height: 440)

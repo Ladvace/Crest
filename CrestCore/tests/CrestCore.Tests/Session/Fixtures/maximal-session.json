@@ -54,7 +54,7 @@
       "accessPolicy" : "deviceOwnerAuthentication",
       "branding" : {
         "renderingVersion" : 5,
-        "bannerPattern" : "quartered",
+        "bannerPattern" : "solid",
         "colors" : [
           {
             "green" : 0.2,
@@ -541,7 +541,7 @@
       "accessPolicy" : "open",
       "branding" : {
         "renderingVersion" : 5,
-        "bannerPattern" : "diagonal",
+        "bannerPattern" : "solid",
         "colors" : [
           {
             "green" : 0.49,
@@ -550,8 +550,8 @@
             "alpha" : 1
           }
         ],
-        "gradientAngle" : 0,
-        "themeMode" : "banner",
+        "gradientAngle" : 90,
+        "themeMode" : "gradient",
         "bannerStrength" : 1,
         "iconStyle" : "simpleSymbol",
         "readabilityFade" : 0.25,
@@ -652,7 +652,7 @@
       "accessPolicy" : "open",
       "branding" : {
         "renderingVersion" : 5,
-        "bannerPattern" : "diagonal",
+        "bannerPattern" : "solid",
         "colors" : [
           {
             "green" : 0.27,
@@ -667,8 +667,8 @@
             "alpha" : 1
           }
         ],
-        "gradientAngle" : 0,
-        "themeMode" : "banner",
+        "gradientAngle" : 90,
+        "themeMode" : "gradient",
         "bannerStrength" : 1,
         "iconStyle" : "simpleSymbol",
         "readabilityFade" : 0.25,
