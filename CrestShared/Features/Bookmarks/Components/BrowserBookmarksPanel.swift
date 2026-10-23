@@ -177,19 +177,22 @@ struct BrowserBookmarksPanel: View {
 
     /// Where the bar would bookmark: the folders it names and the address,
     /// its own or the page on show's, or nil when it names nothing to
-    /// bookmark, as words without a "/" or an address don't.
+    /// bookmark, as words without a "/" or an address don't. An empty bar
+    /// names the page on show.
     private var entryTarget: (folders: [String], url: String)? {
-        guard let path = BrowserBookmarkPath(entry), path.url != nil || entry.contains("/") else { return nil }
+        if entry.trimmingCharacters(in: .whitespaces).isEmpty { return page.map { ([], $0.url) } }
+        guard let path = path(entry), path.url != nil || entry.contains("/") else { return nil }
         guard let url = path.url ?? page?.url else { return nil }
         return (path.folders, url)
     }
 
     /// What the bar opens holding: the page on show's address, after the
-    /// folders that keep it when it's bookmarked.
+    /// folders that keep it when it's bookmarked, or nothing for an address
+    /// the bar can't spell back.
     private var suggestion: String {
-        guard let page else { return "" }
+        guard let page, let spelled = spelled(page.url) else { return "" }
         let folders = ownEntry(at: page.url).map { folderPath(of: $0.id) } ?? []
-        return (folders + [Self.spelled(page.url)]).joined(separator: "/")
+        return (folders + [spelled]).joined(separator: "/")
     }
 
     /// The names of the folders around bookmark `id`, outermost first.
@@ -220,8 +223,30 @@ struct BrowserBookmarksPanel: View {
     private var search: String {
         let typed = entry.trimmingCharacters(in: .whitespaces)
         guard typed != suggestion else { return "" }
-        guard let path = BrowserBookmarkPath(typed), path.url != nil || typed.contains("/") else { return typed }
+        guard let path = path(typed), path.url != nil || typed.contains("/") else { return typed }
         return path.address
+    }
+
+    /// The path `text` spells, where a folder this Space already keeps stays
+    /// a folder whatever its name.
+    private func path(_ text: String) -> BrowserBookmarkPath? {
+        BrowserBookmarkPath(text, hasFolder: hasFolder)
+    }
+
+    /// Whether this Space keeps a folder named `name`, ignoring case, inside
+    /// the folders `parents` name, outermost first.
+    private func hasFolder(_ parents: [String], _ name: String) -> Bool {
+        let bookmarks = browser.availableSpaces.first { $0.id == space.id }?.bookmarks ?? []
+        var parentID: UUID?
+        for title in parents + [name] {
+            guard
+                let folder = bookmarks.first(where: {
+                    $0.isFolder && $0.parentID == parentID && $0.title.caseInsensitiveCompare(title) == .orderedSame
+                })
+            else { return false }
+            parentID = folder.id
+        }
+        return true
     }
 
     /// The bookmark this Space keeps itself for the page at `url`, if any.
@@ -253,13 +278,15 @@ struct BrowserBookmarksPanel: View {
         reveal(id, in: space.id)
     }
 
-    /// An address as the bar spells it: without `https://`, unless the
-    /// address it spells would then differ.
-    private static func spelled(_ url: String) -> String {
-        let prefix = "https://"
-        guard url.hasPrefix(prefix) else { return url }
-        let short = String(url.dropFirst(prefix.count))
-        return BrowserBookmarkPath(short).flatMap { $0.folders.isEmpty && $0.url == url ? short : nil } ?? url
+    /// An address as the bar spells it: without `https://` when it reads
+    /// back the same, or nil when the bar would read it as another address or
+    /// it is too long to edit, as a page's inline data can be.
+    private func spelled(_ url: String) -> String? {
+        guard url.count <= BrowserBookmarksPanelMetrics.longestSpelledAddress else { return nil }
+        let short = url.hasPrefix("https://") ? String(url.dropFirst("https://".count)) : url
+        return [short, url].first { text in
+            path(text).map { $0.folders.isEmpty && $0.url == url } == true
+        }
     }
 
     private func bookmarkPage() {
@@ -323,4 +350,7 @@ struct BrowserBookmarksPanel: View {
 enum BrowserBookmarksPanelMetrics {
     static let width: CGFloat = 320
     static let listHeight: CGFloat = 360
+    /// The longest address the bar opens holding; a longer one is saved from
+    /// an empty bar.
+    static let longestSpelledAddress = 2048
 }

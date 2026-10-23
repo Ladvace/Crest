@@ -4365,6 +4365,10 @@
     "simpler-space-looks": {
       "category": "improved",
       "message": "Spaces start from simpler gradient looks, and the sidebar's surfaces and folders sit more softly on any Space's color."
+    },
+    "bookmark-field-reads-every-address": {
+      "category": "fixed",
+      "message": "The bookmark field reads every kind of address: about:, mailto:, file: and localhost addresses save as typed, and folders named with a dot or a colon stay folders."
     }
   }
 }
