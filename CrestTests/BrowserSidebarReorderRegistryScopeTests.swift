@@ -20,7 +20,9 @@ final class BrowserSidebarReorderRegistryScopeTests: XCTestCase {
         let state = fixture.sidebarInteraction.sidebarReorderState
         fixture.register(in: state)
 
-        fixture.liftTheJoiner(in: state, to: CGPoint(x: 70, y: 80))
+        // Two tiles and the lift's slot share the first line, so its middle is
+        // the second slot.
+        fixture.liftTheJoiner(in: state, to: CGPoint(x: pinnedZone.midX, y: pinnedZone.minY + 20))
 
         XCTAssertEqual(
             state.resolvedTarget?.kind,

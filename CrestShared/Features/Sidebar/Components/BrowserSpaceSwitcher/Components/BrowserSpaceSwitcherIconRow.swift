@@ -2,15 +2,16 @@ import SwiftUI
 
 /// The Spaces as a row of bare icons in the sidebar's text color, so each
 /// reads against whatever Space's sidebar is behind it, the selected one at
-/// full strength and the others dimmed. The icons shrink as the sidebar
-/// narrows; once even the smallest don't fit, every Space but the selected
-/// one becomes a dot, and a row that still doesn't fit scrolls.
+/// full strength and the others dimmed. Once they don't all fit, every Space
+/// but the selected one becomes a dot that shows its icon under the pointer,
+/// and a row that still doesn't fit scrolls.
 struct BrowserSpaceSwitcherIconRow: View {
     let spaces: [BrowserSpaceIdentity]
     let selectedSpaceID: UUID
     let reorderState: BrowserSidebarReorderState?
     let selectSpace: (UUID) -> Void
     let width: CGFloat
+    var menu: BrowserSpaceSwitcherSpaceMenu? = nil
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -36,7 +37,7 @@ struct BrowserSpaceSwitcherIconRow: View {
             ForEach(spaces) { space in
                 BrowserSpaceSwitcherIconButton(
                     space: space, isSelected: space.id == selectedSpaceID, layout: layout,
-                    reorderState: reorderState
+                    reorderState: reorderState, menu: menu
                 ) {
                     selectSpace(space.id)
                 }
@@ -52,34 +53,58 @@ private struct BrowserSpaceSwitcherIconButton: View {
     let isSelected: Bool
     let layout: BrowserSpaceSwitcherIconRowLayout
     let reorderState: BrowserSidebarReorderState?
+    let menu: BrowserSpaceSwitcherSpaceMenu?
     let select: () -> Void
 
     @State private var isHovering = false
 
-    private var showsDot: Bool { layout.collapsesUnselected && !isSelected }
+    /// Whether the Space keeps a dot's slot: the row is collapsed and it isn't
+    /// the selected Space.
+    private var isCollapsed: Bool { layout.collapsesUnselected && !isSelected }
 
     var body: some View {
         Button(action: select) {
             Group {
-                if showsDot {
+                if isCollapsed && !isHovering {
                     Circle()
                         .fill(.primary)
                         .frame(width: BrowserSpaceSwitcherLayout.dotSize, height: BrowserSpaceSwitcherLayout.dotSize)
                 } else {
+                    // A dot under the pointer shows its icon in the dot's own
+                    // slot, so the row never shifts beneath the pointer.
                     BrowserSpaceSwitcherGlyph(space: space, size: layout.iconSize)
+                        .fixedSize()
                 }
             }
             .frame(
-                width: showsDot ? BrowserSpaceSwitcherLayout.dotSlotWidth : layout.iconSlotWidth,
+                width: isCollapsed ? BrowserSpaceSwitcherLayout.dotSlotWidth : layout.iconSlotWidth,
                 height: BrowserSpaceSwitcherLayout.utilityButtonSize
             )
+            .opacity(isSelected ? 1 : isHovering ? 0.9 : 0.55)
+            // The hover tint is a little larger than the icon, and may reach
+            // over a dot's narrow slot, as Arc's does.
+            .background {
+                Color.clear
+                    .frame(
+                        width: BrowserSpaceSwitcherLayout.hoverSurfaceSize,
+                        height: BrowserSpaceSwitcherLayout.hoverSurfaceSize
+                    )
+                    .crestInteractiveSurface(isSelected: false, isHovering: isHovering && !isSelected)
+            }
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .opacity(isSelected ? 1 : isHovering ? 0.8 : 0.55)
         .onHover { isHovering = $0 }
         .modifier(BrowserSpaceSwitcherDropZone(space: space, reorderState: reorderState))
-        .help(space.name)
+        .contextMenu {
+            if let menu {
+                Button("Edit Space…", systemImage: "pencil") { menu.edit(space.id) }
+                if let create = menu.create {
+                    Button("New Space…", systemImage: "plus", action: create)
+                }
+            }
+        }
+        .crestHoverLabel(Text(space.name))
         .accessibilityLabel(Text(space.name))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }

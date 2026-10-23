@@ -20,6 +20,8 @@ struct BrowserSpaceSwitcherCommonListsButton: View {
         Button("Common Lists", systemImage: "archivebox", action: action)
             .labelStyle(.iconOnly)
             .buttonStyle(.borderless)
+            .font(.system(size: BrowserSpaceSwitcherLayout.utilityGlyphSize, weight: .medium))
+            .foregroundStyle(isExpanded ? .primary : .secondary)
             .frame(
                 width: BrowserSpaceSwitcherLayout.utilityButtonSize,
                 height: BrowserSpaceSwitcherLayout.utilityButtonSize
@@ -45,7 +47,7 @@ struct BrowserSpaceSwitcherCommonListsButton: View {
                 }
             }
             .zIndex(newDownloads.isEmpty ? 0 : 1)
-            .help("Archive, History, and Downloads")
+            .crestHoverLabel(Text("Archive, History, and Downloads"))
             .accessibilityValue(accessibilityValue)
             .accessibilityIdentifier("common-lists-button")
             .onGeometryChange(for: CGRect.self) { proxy in

@@ -5,12 +5,14 @@ import SwiftUI
 /// Everything the strip needs from the page layer arrives through
 /// `BrowserSidebarNavigationPort`, and everything about how it is drawn comes
 /// from `BrowserInteractionCapabilities` — so the two shells share this strip
-/// rather than a resemblance. What is left is one slot at the trailing end for
-/// a shell that keeps its page menu there.
-struct BrowserSidebarNavigationControls<TrailingAccessory: View>: View {
+/// rather than a resemblance. What is left is a slot at the leading end, beside
+/// the window's own buttons, for a shell that keeps its sidebar toggle there,
+/// and one at the trailing end for a shell that keeps its page menu there.
+struct BrowserSidebarNavigationControls<LeadingAccessory: View, TrailingAccessory: View>: View {
     private let port: BrowserSidebarNavigationPort
     private let capabilities: BrowserInteractionCapabilities
     private let hidesUnavailableForwardControl: Bool
+    private let leadingAccessory: LeadingAccessory
     private let trailingAccessory: TrailingAccessory
 
     /// - Parameter hidesUnavailableForwardControl: Whether the forward control
@@ -22,6 +24,9 @@ struct BrowserSidebarNavigationControls<TrailingAccessory: View>: View {
         port: BrowserSidebarNavigationPort,
         capabilities: BrowserInteractionCapabilities,
         hidesUnavailableForwardControl: Bool = false,
+        @ViewBuilder leadingAccessory: () -> LeadingAccessory = {
+            EmptyView()
+        },
         @ViewBuilder trailingAccessory: () -> TrailingAccessory = {
             EmptyView()
         }
@@ -29,6 +34,7 @@ struct BrowserSidebarNavigationControls<TrailingAccessory: View>: View {
         self.port = port
         self.capabilities = capabilities
         self.hidesUnavailableForwardControl = hidesUnavailableForwardControl
+        self.leadingAccessory = leadingAccessory()
         self.trailingAccessory = trailingAccessory()
     }
 
@@ -53,6 +59,8 @@ struct BrowserSidebarNavigationControls<TrailingAccessory: View>: View {
 
     private var strip: some View {
         HStack(spacing: metrics.controlSpacing) {
+            leadingAccessory
+
             Spacer(minLength: metrics.leadingSpacerMinimum)
 
             BrowserSidebarNavigationHistoryControl(

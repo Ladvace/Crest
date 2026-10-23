@@ -4353,6 +4353,10 @@
     "clear-tabs-confirm-and-undo": {
       "category": "improved",
       "message": "Clearing a Space's open tabs asks first, and Command-Z brings the cleared tabs back."
+    },
+    "sidebar-new-menu-and-narrow-fit": {
+      "category": "improved",
+      "message": "The + button at the bottom of the sidebar creates a Space, folder, split or tab, and the sidebar button sits beside the window controls. A narrow sidebar stays tidy: the address bar compacts, Space icons become dots that show their name on hover, and pinned sites resize to fit. Switching Spaces no longer slides the page."
     }
   }
 }

@@ -42,9 +42,9 @@ struct BrowserPinnedTabReorderLayout: Equatable {
     }
 
     /// How many tiles a row holds. The automatic layout fits as many compact
-    /// tiles as the sidebar allows and keeps that width however few pins
-    /// there are, so a short row doesn't stretch. A chosen count fills rows
-    /// to it.
+    /// tiles as the sidebar allows, and fewer pins share the row between
+    /// them, so the grid always spans the sidebar's width and its tiles grow
+    /// and shrink with it. A chosen count fills rows to it.
     var columns: Int {
         let width =
             availableWidth.isFinite ? min(max(0, availableWidth), 10_000) : BrowserChromeLayout.sidebarIdealWidth
@@ -53,7 +53,8 @@ struct BrowserPinnedTabReorderLayout: Equatable {
             return min(max(slots.count, 1), min(max(preferredColumns, 1), Self.maximumColumns), fitting)
         }
         let tileWidth = max(minimumTileWidth, Self.automaticTileWidth * BrowserSidebarDensity(tabScale).scale)
-        return min(Self.maximumColumns, max(1, Int((width + tileSpacing) / (tileWidth + tileSpacing))))
+        let fitting = max(1, Int((width + tileSpacing) / (tileWidth + tileSpacing)))
+        return min(Self.maximumColumns, fitting, max(slots.count, 1))
     }
 
     var height: CGFloat {

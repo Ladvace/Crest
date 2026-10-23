@@ -3,7 +3,10 @@ import Foundation
 
 /// Shared Space picker sizing and the lane reserved between sidebar utilities.
 enum BrowserSpaceSwitcherLayout {
-    static let utilityButtonSize: CGFloat = 32
+    static let utilityButtonSize: CGFloat = 24
+
+    /// The glyph the strip's buttons draw, in the sidebar's quieter text color.
+    static let utilityGlyphSize: CGFloat = 10
     static let segmentWidth = CrestSpaceIconPickerMetrics.segmentWidth
     static let overflowButtonWidth = CrestSpaceIconPickerMetrics.overflowButtonWidth
 
@@ -64,26 +67,26 @@ enum BrowserSpaceSwitcherLayout {
         )
     }
 
-    /// The icon sizes the strip steps down through as the sidebar narrows,
-    /// largest first, and the room around each icon.
-    static let iconSizes: [CGFloat] = [24, 20, 16]
-    static let iconSlotPadding: CGFloat = 8
+    /// The size a Space's icon is drawn at, and the room around each icon.
+    static let iconSizes: [CGFloat] = [15]
+    static let iconSlotPadding: CGFloat = 14
 
     /// The dot an unselected Space shrinks to once even the smallest icons
     /// don't fit, and the room around it.
-    static let dotSize: CGFloat = 6
-    static let dotSlotWidth: CGFloat = 14
+    static let dotSize: CGFloat = 4
+    /// The tint behind a Space under the pointer.
+    static let hoverSurfaceSize: CGFloat = 30
+    static let dotSlotWidth: CGFloat = 12
 
-    /// How the strip draws `spaceCount` Spaces in `width`: the largest icon
-    /// that fits every Space, or, when none does, the smallest icon for the
-    /// selected Space and a dot for each other. A row that still doesn't fit
-    /// scrolls.
+    /// How the strip draws `spaceCount` Spaces in `width`: every Space's icon
+    /// at full size when they all fit, or else, as Arc does, the selected
+    /// Space's icon and a dot for each other, which shows its icon while the
+    /// pointer is over it. A row that still doesn't fit scrolls.
     static func iconRowLayout(width: CGFloat, spaceCount: Int) -> BrowserSpaceSwitcherIconRowLayout {
         let count = CGFloat(max(1, spaceCount))
-        for size in iconSizes where count * (size + iconSlotPadding) <= width {
-            return BrowserSpaceSwitcherIconRowLayout(iconSize: size, collapsesUnselected: false)
-        }
-        return BrowserSpaceSwitcherIconRowLayout(iconSize: iconSizes.last ?? 16, collapsesUnselected: true)
+        let size = iconSizes.first ?? 15
+        return BrowserSpaceSwitcherIconRowLayout(
+            iconSize: size, collapsesUnselected: count * (size + iconSlotPadding) > width)
     }
 
     /// The active Space is the semantic scroll target. Falling back to the

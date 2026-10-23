@@ -42,7 +42,9 @@ struct BrowserSidebarLoadedContent: View {
                 activateAddress: activateAddress,
                 submitAddress: submitAddress,
                 commandSurfaceNamespace: commandSurfaceNamespace,
-                commandPaletteHandoff: commandPaletteHandoff
+                commandPaletteHandoff: commandPaletteHandoff,
+                sidebarToggleAction: sidebarToggleAction,
+                toggleSidebar: toggleSidebar
             )
             .onGeometryChange(for: CGFloat.self) {
                 $0.size.height
@@ -169,16 +171,59 @@ struct BrowserSidebarLoadedContent: View {
 
     private var switcherAccessories: BrowserSpaceSwitcherAccessories {
         BrowserSpaceSwitcherAccessories(
-            sidebarToggle: BrowserSpaceSwitcherSidebarToggle(
-                action: sidebarToggleAction,
-                toggle: toggleSidebar
-            ),
             commonLists: BrowserSpaceSwitcherCommonLists(
                 isExpanded: context.utilityPresentation.isSwitcherExpanded,
                 toggle: context.toggleUtilitySwitcher,
                 recordTriggerFrame:
                     context.utilityPresentation.recordTriggerFrame
+            ),
+            spaceMenu: BrowserSpaceSwitcherSpaceMenu(
+                edit: { id in
+                    guard let space = context.availableSpaces.first(where: { $0.id == id }) else { return }
+                    context.chromeActions.presentSpaceSettings(BrowserSpaceRuntimeAssignment(space: space))
+                },
+                create: context.chromeActions.createSpace
+            ),
+            newItems: BrowserSpaceSwitcherNewItems(
+                newTab: openNewTab,
+                newSplit: addsToShownSpace(openNewSplit),
+                createFolder: addsToShownSpace(createFolder),
+                createSpace: context.chromeActions.createSpace
             )
+        )
+    }
+
+    /// `action`, where the Space on show takes new tabs and folders: it is
+    /// there and unlocked.
+    private func addsToShownSpace(_ action: @escaping () -> Void) -> (() -> Void)? {
+        context.browser.showsSelectedSpaceActions(accessController: context.spaceAccess) ? action : nil
+    }
+
+    /// Opens a new tab beside the selected one, the two in a split.
+    private func openNewSplit() {
+        let browser = context.browser
+        guard let space = browser.shownSpace, let selectedTabID = browser.selectedTabID(in: space.id),
+            let newTabID = browser.openNewTab()
+        else { return }
+        _ = browser.addTabToSplit(
+            BrowserTabDragItem(tabID: newTabID, spaceID: space.id, profileID: space.profileID),
+            joining: selectedTabID,
+            at: nil
+        )
+        pages.select()
+    }
+
+    /// Adds a folder to the Space on show and starts naming it, as the
+    /// sidebar's own New Folder does.
+    private func createFolder() {
+        guard let space = context.browser.shownSpace else { return }
+        let assignment = BrowserSpaceRuntimeAssignment(space: space)
+        guard let folderID = context.browser.addFolder(matching: assignment) else { return }
+        context.browser.setSavedTabsExpanded(true, matching: assignment)
+        context.sidebarInteraction.editingFolderRequest = BrowserFolderRuntimeAssignment(
+            folderID: folderID,
+            spaceID: assignment.spaceID,
+            profileID: assignment.profileID
         )
     }
 }

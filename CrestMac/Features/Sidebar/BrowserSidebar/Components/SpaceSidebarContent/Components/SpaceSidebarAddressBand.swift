@@ -25,10 +25,21 @@ struct SpaceSidebarAddressBand: View {
     let bookmarksRequest: BrowserBookmarksRequest?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// The band's width, which decides how many controls fit beside the
+    /// address.
+    @State private var width: CGFloat = .infinity
+
+    /// Below this width the address keeps its room, as Arc keeps it: the
+    /// security mark and the copy-link control step out, and the bookmarks
+    /// control keeps no width but stays where its shortcut and popover reach
+    /// it. The site controls stay, since permission prompts open from them.
+    private static let compactWidth: CGFloat = 240
+
+    private var isCompact: Bool { width < Self.compactWidth }
 
     var body: some View {
         BrowserSidebarAddressField(configuration: addressConfiguration) {
-            if let siteControl {
+            if let siteControl, !isCompact {
                 BrowserAddressSecurityButton(
                     page: siteControl.page,
                     isSecure: isSecure
@@ -38,11 +49,22 @@ struct SpaceSidebarAddressBand: View {
             HStack(spacing: 0) {
                 BrowserBookmarksButton(
                     browser: browser, space: space, page: bookmarkPage, request: bookmarksRequest,
-                    presentationChanged: siteControlPresentationChanged)
+                    presentationChanged: siteControlPresentationChanged
+                )
+                .frame(width: isCompact ? 0 : nil)
+                .opacity(isCompact ? 0 : 1)
+                .allowsHitTesting(!isCompact)
+                .accessibilityHidden(isCompact)
                 if let siteControl {
+                    if !isCompact { BrowserCopyLinkButton(page: siteControl.page) }
                     BrowserSiteControlButton(configuration: siteControl)
                 }
             }
+        }
+        .onGeometryChange(for: CGFloat.self) {
+            $0.size.width
+        } action: {
+            width = $0
         }
         .contentTransition(.opacity)
         .animation(
@@ -106,6 +128,7 @@ struct SpaceSidebarAddressBand: View {
             return nil
         }
         return BrowserSiteControlConfiguration(
+            browser: browser,
             page: page,
             space: space,
             selectedTabID: selectedTabID,
