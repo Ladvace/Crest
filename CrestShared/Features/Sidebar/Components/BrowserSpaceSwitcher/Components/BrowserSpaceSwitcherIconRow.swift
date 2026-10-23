@@ -34,9 +34,9 @@ struct BrowserSpaceSwitcherIconRow: View {
 
     private var row: some View {
         HStack(spacing: 0) {
-            ForEach(spaces) { space in
+            ForEach(Array(spaces.enumerated()), id: \.element.id) { index, space in
                 BrowserSpaceSwitcherIconButton(
-                    space: space, isSelected: space.id == selectedSpaceID, layout: layout,
+                    space: space, number: index + 1, isSelected: space.id == selectedSpaceID, layout: layout,
                     reorderState: reorderState, menu: menu
                 ) {
                     selectSpace(space.id)
@@ -50,6 +50,9 @@ struct BrowserSpaceSwitcherIconRow: View {
 /// the Space isn't the selected one. A lifted tab can be dropped on it.
 private struct BrowserSpaceSwitcherIconButton: View {
     let space: BrowserSpaceIdentity
+    /// The Space's place in the row, counting from one, which its Select
+    /// Space shortcut names.
+    let number: Int
     let isSelected: Bool
     let layout: BrowserSpaceSwitcherIconRowLayout
     let reorderState: BrowserSidebarReorderState?
@@ -57,6 +60,7 @@ private struct BrowserSpaceSwitcherIconButton: View {
     let select: () -> Void
 
     @State private var isHovering = false
+    @Environment(CrestCore.self) private var core: CrestCore?
 
     /// Whether the Space keeps a dot's slot: the row is collapsed and it isn't
     /// the selected Space.
@@ -104,9 +108,19 @@ private struct BrowserSpaceSwitcherIconButton: View {
                 }
             }
         }
-        .crestHoverLabel(Text(space.name))
+        .crestHoverLabel(hoverTitle)
         .accessibilityLabel(Text(space.name))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    /// The Space's name, and the keys that select it, as they are bound now:
+    /// ⌃1 to ⌃9 unless the person changed them.
+    private var hoverTitle: Text {
+        guard
+            let command = ShortcutCommand.selecting(.space, number: number),
+            let chord = core?.state.shortcuts[command]?.keys.flatMap(BrowserShortcut.init(boundKeys:))
+        else { return Text(space.name) }
+        return Text(space.name) + Text(verbatim: "  " + chord.displayString).foregroundStyle(.secondary)
     }
 }
 

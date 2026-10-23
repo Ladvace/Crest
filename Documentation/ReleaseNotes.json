@@ -4417,6 +4417,10 @@
     "peek-header-bar": {
       "category": "improved",
       "message": "On Mac, a Peek has a slim bar along its top, as in Arc and Zen: close and its Space on one side, the site in the middle, and copy link and Open in Space on the other, instead of buttons floating over the page."
+    },
+    "space-shortcut-in-tooltip": {
+      "category": "improved",
+      "message": "Hovering a Space at the bottom of the sidebar shows the keys that switch to it, Control and its number."
     }
   }
 }
