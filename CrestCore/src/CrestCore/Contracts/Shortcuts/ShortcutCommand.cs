@@ -76,7 +76,8 @@ public sealed class ShortcutCommand {
         FindNext,
         FindPrevious,
         BookmarkPage,
-        ShowBookmarks
+        ShowBookmarks,
+        ToggleBookmarksBar
     }
 
     #endregion
@@ -282,6 +283,9 @@ public sealed class ShortcutCommand {
     public static readonly ShortcutCommand ShowBookmarks = new(Kinds.ShowBookmarks, name: "showBookmarks", ShortcutSection.View,
         title: "Show Bookmarks", symbol: "book", shortcuts: Everywhere(Character("b", Command | Option)),
         searchTerms: "bookmarks saved links folders", availableWhen: ShowingSpace);
+    public static readonly ShortcutCommand ToggleBookmarksBar = new(Kinds.ToggleBookmarksBar, name: "toggleBookmarksBar",
+        ShortcutSection.View, title: "Show or Hide Bookmarks Bar", symbol: "menubar.rectangle",
+        shortcuts: Everywhere(Character("b", Command | Shift)), searchTerms: "bookmarks bar toolbar");
 
     public static IReadOnlyList<ShortcutCommand> All { get; } = [
         NewWindow, NewBlankWindow, NewTab, NewQuickWindow, NewPrivateWindow, CloseTabOrWindow, CloseWindow, OpenLocation, Back,
@@ -293,7 +297,7 @@ public sealed class ShortcutCommand {
         ExportPDF, SaveWebArchive, PrintPage, ToggleSidebar, ShowHistory, ShowArchive, ShowDownloads, ShowWebInspector,
         SplitWithNextTab, FocusNextSplitCard, FocusPreviousSplitCard, RemoveTabFromSplit, SeparateSplitTabs,
         MoveSplitCardLeft, MoveSplitCardRight, ToggleDeveloperToolbar, ToggleTranslationToolbar, OpenFile, FindNext,
-        FindPrevious, BookmarkPage, ShowBookmarks
+        FindPrevious, BookmarkPage, ShowBookmarks, ToggleBookmarksBar
     ];
 
     public Kinds Kind { get; }

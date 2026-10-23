@@ -4345,6 +4345,10 @@
     "arc-import-as-it-was": {
       "category": "improved",
       "message": "Moving from Arc brings everything as it was: each Space's colors with their grain and intensity, its archived tabs, and its folders, pinned or not. A Space can also stay signed in to the sites it was signed in to, each with the right account."
+    },
+    "bookmarks-bar-and-one-field": {
+      "category": "improved",
+      "message": "A bookmarks bar can sit above your pages: drag bookmarks to reorder them, and find the ones that don't fit behind the +N button. The bookmarks button opens on the page you're viewing: save it, type another address, or type folder/address to file it. Deleting a bookmark now asks first."
     }
   }
 }

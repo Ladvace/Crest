@@ -74,6 +74,9 @@ public sealed record SidebarChanged(Guid WorkspaceId, Guid SpaceId, IReadOnlyLis
 /// <summary>A Space's split metadata now reads as <see cref="Groups"/>.</summary>
 public sealed record SplitGroupsChanged(Guid WorkspaceId, Guid SpaceId, IReadOnlyList<SplitGroupState> Groups) : Change;
 
+/// <summary>A Space's bookmarks now read as <see cref="Bookmarks"/>.</summary>
+public sealed record BookmarksChanged(Guid WorkspaceId, Guid SpaceId, IReadOnlyList<BookmarkState> Bookmarks) : Change;
+
 #endregion
 
 #region Preferences

@@ -13,6 +13,20 @@ struct BrowserBookmarkDraft: Equatable {
     var showsInEverySpace: Bool
 
     var isFolder: Bool { url == nil }
+
+    /// The address as Crest opens it: the spelled address, given a scheme
+    /// when it has none.
+    var resolvedURL: String? {
+        guard let spelled = url?.trimmingCharacters(in: .whitespaces), !spelled.isEmpty else { return url }
+        return BrowserBookmarkPath(spelled).flatMap { $0.folders.isEmpty ? $0.url : nil } ?? spelled
+    }
+
+    /// The name the bookmark keeps: the one typed, or else its site's.
+    var resolvedTitle: String {
+        let typed = title.trimmingCharacters(in: .whitespaces)
+        if !typed.isEmpty { return typed }
+        return resolvedURL.flatMap { URL(string: $0)?.host() } ?? String(localized: "Untitled Folder")
+    }
 }
 
 /// Names a bookmark or folder, and chooses its address, the folder it sits in
@@ -31,7 +45,7 @@ struct BrowserBookmarkEditor: View {
                 .textFieldStyle(.roundedBorder)
                 .accessibilityIdentifier("bookmark-editor-name")
             if !draft.isFolder {
-                TextField("Address", text: Binding(get: { draft.url ?? "" }, set: { draft.url = $0 }))
+                TextField("Address, like example.com", text: Binding(get: { draft.url ?? "" }, set: { draft.url = $0 }))
                     .textFieldStyle(.roundedBorder)
                     .accessibilityIdentifier("bookmark-editor-address")
             }
@@ -47,13 +61,16 @@ struct BrowserBookmarkEditor: View {
             Toggle("Show in all Spaces", isOn: $draft.showsInEverySpace)
             HStack {
                 if let delete {
-                    Button("Delete", role: .destructive, action: delete)
+                    Button("Delete…", role: .destructive, action: delete)
                 }
                 Spacer()
                 Button("Cancel", action: cancel).keyboardShortcut(.cancelAction)
                 Button("Save") { save(draft) }
                     .keyboardShortcut(.defaultAction)
-                    .disabled(!draft.isFolder && (draft.url ?? "").trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(
+                        draft.isFolder
+                            ? draft.title.trimmingCharacters(in: .whitespaces).isEmpty
+                            : (draft.url ?? "").trimmingCharacters(in: .whitespaces).isEmpty)
             }
         }
         .padding(16)
@@ -62,7 +79,7 @@ struct BrowserBookmarkEditor: View {
     private var title: LocalizedStringKey {
         switch (draft.id == nil, draft.isFolder) {
         case (true, true): "New Folder"
-        case (true, false): "Bookmark This Page"
+        case (true, false): "New Bookmark"
         case (false, true): "Edit Folder"
         case (false, false): "Edit Bookmark"
         }

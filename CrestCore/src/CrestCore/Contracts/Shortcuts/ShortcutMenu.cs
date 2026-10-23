@@ -18,7 +18,7 @@ public sealed class ShortcutMenu {
         [ShortcutCommand.PrintPage]
     ]);
     public static readonly ShortcutMenu View = new(name: "view", title: "View", groups: [
-        [ShortcutCommand.ToggleSidebar, ShortcutCommand.ToggleTranslationToolbar],
+        [ShortcutCommand.ToggleSidebar, ShortcutCommand.ToggleBookmarksBar, ShortcutCommand.ToggleTranslationToolbar],
         [ShortcutCommand.ShowHistory, ShortcutCommand.ShowArchive, ShortcutCommand.ShowDownloads, ShortcutCommand.ShowBookmarks]
     ]);
     public static readonly ShortcutMenu Navigate = new(name: "navigate", title: "Navigate", groups: [

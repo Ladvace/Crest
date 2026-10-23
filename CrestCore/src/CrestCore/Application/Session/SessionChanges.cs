@@ -87,6 +87,8 @@ internal static class SessionChanges {
         if (tabs is not null) changes.Add(new TabsChanged(workspaceId, space.Id, tabs.Updated, tabs.Removed, tabs.Order));
         if (!ReferenceEquals(old.SplitGroups, space.SplitGroups) && !old.SplitGroups.SequenceEqual(space.SplitGroups))
             changes.Add(new SplitGroupsChanged(workspaceId, space.Id, space.SplitGroups));
+        if (!ReferenceEquals(old.Bookmarks, space.Bookmarks) && !old.Bookmarks.SequenceEqual(space.Bookmarks))
+            changes.Add(new BookmarksChanged(workspaceId, space.Id, space.Bookmarks));
         if (ChangedSidebar(workspaceId, old, space) is { } sidebar) changes.Add(sidebar);
         if (!TryChange(old.ArchivedTabs, space.ArchivedTabs, archived => archived.Tab.Id, recordedFirst: false, out var archive))
             return null;

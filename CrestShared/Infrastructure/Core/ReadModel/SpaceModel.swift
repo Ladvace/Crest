@@ -107,6 +107,10 @@ final class SpaceModel: ObservedModel, Identifiable {
         splitGroups = change.groups
     }
 
+    func apply(_ change: BookmarksChanged) {
+        bookmarks = change.bookmarks
+    }
+
     func apply(_ change: SidebarChanged) {
         sidebar.apply(change)
     }

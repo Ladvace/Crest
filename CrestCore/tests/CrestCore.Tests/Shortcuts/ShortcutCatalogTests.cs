@@ -20,7 +20,8 @@ public sealed class ShortcutCatalogTests {
         "sharePage", "exportPDF", "saveWebArchive", "printPage", "toggleSidebar", "showHistory", "showArchive",
         "showDownloads", "webInspectorInstructions", "splitWithNextTab", "focusNextSplitCard", "focusPreviousSplitCard",
         "removeTabFromSplit", "separateSplitTabs", "moveSplitCardLeft", "moveSplitCardRight", "toggleDeveloperToolbar",
-        "toggleTranslationToolbar", "openFile", "findNext", "findPrevious", "bookmarkPage", "showBookmarks"
+        "toggleTranslationToolbar", "openFile", "findNext", "findPrevious", "bookmarkPage", "showBookmarks",
+        "toggleBookmarksBar"
     ];
 
     private static readonly IReadOnlyList<ShortcutCommand> Offered = ShortcutCommand.All;

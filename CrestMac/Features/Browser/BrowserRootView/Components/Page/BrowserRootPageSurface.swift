@@ -10,6 +10,8 @@ import SwiftUI
 struct BrowserRootPageSurface: View, @MainActor Equatable {
     @Environment(\.spaceContentPresentation) private var contentPresentation
     @Environment(\.browserMacWindows) private var windows
+    @AppStorage(BrowserBookmarksBarPreference.key) private var showsBookmarksBar = BrowserBookmarksBarPreference
+        .defaultValue
     let model: BrowserRootModel
     let space: SpaceModel
     let isSelectedSpace: Bool
@@ -77,28 +79,51 @@ struct BrowserRootPageSurface: View, @MainActor Equatable {
         appearance.pageInsets(docked: model.sidebarPresentation.reservesSidebarWidth, direction: layoutDirection)
     }
 
+    /// Whether the bookmarks bar stands above this Space's pages: the person
+    /// keeps it shown, and the Space has bookmarks to show.
+    private var showsBar: Bool {
+        showsBookmarksBar && !BrowserBookmarkLibrary(space: space, spaces: model.browser.availableSpaces).roots.isEmpty
+    }
+
     var body: some View {
         let presentation = pageSurfacePresentation
-        return surface(presentation)
-            .overlay { BrowserPageFrameTitleBarSurface(insets: frameInsets) }
-            .overlay {
-                BrowserRootPeekLayer(model: model, transientBrowsing: transientBrowsing, space: space)
+        return VStack(spacing: 0) {
+            if showsBar {
+                BrowserBookmarksBar(browser: model.browser, space: space, open: openBookmark)
+                    .padding(.leading, frameInsets.leading)
+                    .padding(.trailing, frameInsets.trailing)
+                    .padding(.top, frameInsets.top)
             }
-            .environment(\.browserPagePresentationWindowID, model.windowState?.id)
-            .environment(\.spaceContentIsInteractive, isInteractive)
-            .environment(\.browserPagePresentation, pagePresentation)
-            .allowsHitTesting(isInteractive)
-            .accessibilityHidden(!isInteractive)
-            .browserSplitContentDropZone(
-                assignment: isSelectedSpace ? presentation.dropAssignment : nil,
-                state: model.sidebarInteraction.sidebarReorderState
-            )
-            .environment(
-                \.browserWebFocusRestorationGate,
-                BrowserWebFocusRestorationGate(
-                    browserChromeOwnsFocus: !isInteractive || !model.isWindowFocused
-                        || model.isAddressEditing || model.chrome.isCommandPalettePresented,
-                    pageChromeOwnsFocus: false))
+            surface(presentation)
+        }
+        .overlay { BrowserPageFrameTitleBarSurface(insets: frameInsets) }
+        .overlay {
+            BrowserRootPeekLayer(model: model, transientBrowsing: transientBrowsing, space: space)
+        }
+        .environment(\.browserPagePresentationWindowID, model.windowState?.id)
+        .environment(\.spaceContentIsInteractive, isInteractive)
+        .environment(\.browserPagePresentation, pagePresentation)
+        .allowsHitTesting(isInteractive)
+        .accessibilityHidden(!isInteractive)
+        .browserSplitContentDropZone(
+            assignment: isSelectedSpace ? presentation.dropAssignment : nil,
+            state: model.sidebarInteraction.sidebarReorderState
+        )
+        .environment(
+            \.browserWebFocusRestorationGate,
+            BrowserWebFocusRestorationGate(
+                browserChromeOwnsFocus: !isInteractive || !model.isWindowFocused
+                    || model.isAddressEditing || model.chrome.isCommandPalettePresented,
+                pageChromeOwnsFocus: false))
+    }
+
+    /// Opens a bookmark from the bar in the tab on show, or in a new tab.
+    private func openBookmark(_ url: URL, inNewTab: Bool) {
+        if inNewTab {
+            _ = model.browser.openNewTab(url: url, in: space.id)
+        } else {
+            model.openInShownTab(url)
+        }
     }
 
     @ViewBuilder

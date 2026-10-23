@@ -702,6 +702,12 @@ extension BrowserRootModel {
         return opening.open(url, from: source, with: BrowserMacPaletteOpener(model: self, mode: mode, windows: windows))
     }
 
+    /// Opens `url` in the tab the window shows, as the palette does.
+    func openInShownTab(_ url: URL) {
+        browser.navigateSelectedTab(to: url.absoluteString)
+        showLoading(url)
+    }
+
     /// Loads `url` in the page the window shows and shows it in the address field.
     fileprivate func showLoading(_ url: URL) {
         pages.select()
@@ -722,8 +728,7 @@ private struct BrowserMacPaletteOpener: BrowserCommandPaletteOpener {
 
     func openHere(_ url: URL, from source: BrowserTabRuntimeAssignment) -> Bool {
         if mode == .newTab { return openTab(url, from: source, selecting: true) }
-        model.browser.navigateSelectedTab(to: url.absoluteString)
-        model.showLoading(url)
+        model.openInShownTab(url)
         return true
     }
 

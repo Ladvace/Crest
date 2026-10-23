@@ -32,6 +32,7 @@ struct BrowserBookmarksButton: View {
                 browser: browser, space: space, page: page, startsBookmarkingPage: bookmarksPage,
                 dismiss: { presentation.wrappedValue = false }
             )
+            .modifier(CrestPopoverStyle())
             .modifier(BrowserDeviceAppearanceEnvironment())
         }
         .onChange(of: request) { _, request in
@@ -45,7 +46,7 @@ struct BrowserBookmarksButton: View {
         }
         .accessibilityLabel(isBookmarked ? "Bookmarks, this page is bookmarked" : "Bookmarks")
         .accessibilityIdentifier("browser-bookmarks")
-        .help("Bookmarks")
+        .help("Bookmarks (⌥⌘B)")
     }
 
     private var isBookmarked: Bool {
