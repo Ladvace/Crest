@@ -4317,6 +4317,10 @@
     "space-icons-keep-contrast": {
       "category": "fixed",
       "message": "Space icons always stand out from the sidebar: the Spaces at the bottom of the sidebar follow its text color, and an icon whose color would blend into its Space's background uses the text color instead."
+    },
+    "bookmarks-core-model": {
+      "category": "internal",
+      "message": "Spaces keep bookmarks in nested folders, saved and synced with the Space."
     }
   }
 }

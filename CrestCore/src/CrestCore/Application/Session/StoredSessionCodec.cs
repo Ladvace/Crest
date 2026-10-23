@@ -36,6 +36,7 @@ internal static partial class StoredSessionCodec {
         public const string BannerPattern = "bannerPattern";
         public const string BannerStrength = "bannerStrength";
         public const string Blue = "blue";
+        public const string Bookmarks = "bookmarks";
         public const string Branding = "branding";
         public const string BrowsingPreferences = "browsingPreferences";
         public const string Charge = "charge";
@@ -123,6 +124,7 @@ internal static partial class StoredSessionCodec {
         public const string SelectedSearchProviderId = "selectedSearchProviderID";
         public const string ShowsOutline = "showsOutline";
         public const string ShowsReasons = "showsReasons";
+        public const string ShowsInEverySpace = "showsInEverySpace";
         public const string ShowsTexture = "showsTexture";
         public const string ShowsTopHit = "showsTopHit";
         public const string Source = "source";

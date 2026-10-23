@@ -198,6 +198,9 @@ enum Rejection: Equatable, Error, Sendable {
     case archiveInvalid(ArchiveInvalid)
     case archiveTooLarge(ArchiveTooLarge)
     case authenticationBusy(AuthenticationBusy)
+    case bookmarkAlreadyExists(BookmarkAlreadyExists)
+    case bookmarkDepthLimitReached(BookmarkDepthLimitReached)
+    case bookmarkLimitReached(BookmarkLimitReached)
     case bookmarksHaveNoLinks(BookmarksHaveNoLinks)
     case bookmarksOverLimits(BookmarksOverLimits)
     case bookmarksTooLarge(BookmarksTooLarge)
@@ -230,6 +233,8 @@ enum Rejection: Equatable, Error, Sendable {
     case incompleteSplit(IncompleteSplit)
     case invalidAgent(InvalidAgent)
     case invalidBlockedPopup(InvalidBlockedPopup)
+    case invalidBookmarkAddress(InvalidBookmarkAddress)
+    case invalidBookmarkPlacement(InvalidBookmarkPlacement)
     case invalidCredentialDate(InvalidCredentialDate)
     case invalidCredentialFile(InvalidCredentialFile)
     case invalidCredentialOrigin(InvalidCredentialOrigin)
@@ -328,6 +333,7 @@ enum Rejection: Equatable, Error, Sendable {
     case translationRuleLimitReached(TranslationRuleLimitReached)
     case unknownAgentSession(UnknownAgentSession)
     case unknownArchivedTab(UnknownArchivedTab)
+    case unknownBookmark(UnknownBookmark)
     case unknownCloudMerge(UnknownCloudMerge)
     case unknownFolder(UnknownFolder)
     case unknownLinkRoute(UnknownLinkRoute)
@@ -362,6 +368,7 @@ enum Rejection: Equatable, Error, Sendable {
         case .agentsUnavailable(let value): value.message
         case .archiveInvalid(let value): value.message
         case .archiveTooLarge(let value): value.message
+        case .bookmarkLimitReached(let value): value.message
         case .bookmarksHaveNoLinks(let value): value.message
         case .bookmarksOverLimits(let value): value.message
         case .bookmarksTooLarge(let value): value.message
@@ -376,6 +383,7 @@ enum Rejection: Equatable, Error, Sendable {
         case .guideSpaceLocked(let value): value.message
         case .incompleteSplit(let value): value.message
         case .invalidAgent(let value): value.message
+        case .invalidBookmarkAddress(let value): value.message
         case .invalidImport(let value): value.message
         case .invalidSearchShortcut(let value): value.message
         case .invalidSyncRecords(let value): value.message
@@ -767,6 +775,17 @@ struct ActivateMediaSession: PageRequest, Equatable, Sendable {
 
     let pageID: UUID
     let document: String
+}
+
+struct AddBookmark: Intent, SessionIntent, Equatable, Sendable {
+    let workspaceID: UUID
+    let spaceID: UUID
+    let bookmarkID: UUID
+    let parentID: UUID?
+    let beforeID: UUID?
+    let title: String
+    let url: String?
+    let showsInEverySpace: Bool
 }
 
 struct AddContentScript: PageRequest, Equatable, Sendable {
@@ -1304,6 +1323,50 @@ struct BlockedPopupTransition: Query, Equatable, Sendable {
 
 struct BlockedPopupTransitioned: Equatable, Sendable {
     let state: BlockedPopupPageState?
+}
+
+struct BookmarkAlreadyExists: Equatable, Sendable {
+    let bookmarkID: UUID
+}
+
+struct BookmarkDepthLimitReached: Equatable, Sendable {
+    let limit: Int
+}
+
+struct BookmarkLimitReached: Equatable, Sendable {
+    let limit: Int
+
+    var message: LocalizedStringResource {
+        LocalizedStringResource("A Space keeps up to \(limit) bookmarks.")
+    }
+}
+
+struct BookmarkState: Equatable, Sendable, Identifiable {
+    static let maximumCount: Int = 5000
+    static let maximumDepth: Int = 16
+    static let maximumTitleLength: Int = 512
+
+    let id: UUID
+    let parentID: UUID?
+    let title: String
+    let url: String?
+    let showsInEverySpace: Bool
+    let isFolder: Bool
+
+    /// The fields of a `BookmarkState` alone, as a platform builds one to send. The
+    /// core resolves the rest when it reads it.
+    struct Seed: Equatable, Sendable, Identifiable {
+        var id: UUID
+        var parentID: UUID?
+        var title: String
+        var url: String?
+        var showsInEverySpace: Bool
+    }
+
+    /// The record's fields alone, as a platform sends it back.
+    var seed: Seed {
+        Seed(id: id, parentID: parentID, title: title, url: url, showsInEverySpace: showsInEverySpace)
+    }
 }
 
 struct BookmarksHaveNoLinks: Equatable, Sendable {
@@ -2073,6 +2136,12 @@ struct DefaultEngineAlreadyRegistered: Equatable, Sendable {
     let current: EngineKind
 }
 
+struct DeleteBookmark: Intent, SessionIntent, Equatable, Sendable {
+    let workspaceID: UUID
+    let spaceID: UUID
+    let bookmarkID: UUID
+}
+
 struct DeleteFolder: Intent, SessionIntent, Equatable, Sendable {
     let workspaceID: UUID
     let spaceID: UUID
@@ -2391,6 +2460,15 @@ struct DuplicateTabs: Intent, SessionIntent, Equatable, Sendable {
     let windowID: UUID
     let spaceID: UUID
     let selection: TabSelection
+}
+
+struct EditBookmark: Intent, SessionIntent, Equatable, Sendable {
+    let workspaceID: UUID
+    let spaceID: UUID
+    let bookmarkID: UUID
+    let title: String
+    let url: String?
+    let showsInEverySpace: Bool
 }
 
 struct EditEngineRule: Intent, Equatable, Sendable {
@@ -3229,6 +3307,15 @@ struct InvalidAgent: Equatable, Sendable {
 struct InvalidBlockedPopup: Equatable, Sendable {
 }
 
+struct InvalidBookmarkAddress: Equatable, Sendable {
+    var message: LocalizedStringResource {
+        LocalizedStringResource("Enter a web address to bookmark.")
+    }
+}
+
+struct InvalidBookmarkPlacement: Equatable, Sendable {
+}
+
 struct InvalidCredentialDate: Equatable, Sendable {
 }
 
@@ -3724,6 +3811,14 @@ struct MostRecentCredential: Query, Equatable, Sendable {
     typealias Answer = CredentialChoice
 
     let records: [CredentialRecord]
+}
+
+struct MoveBookmark: Intent, SessionIntent, Equatable, Sendable {
+    let workspaceID: UUID
+    let spaceID: UUID
+    let bookmarkID: UUID
+    let parentID: UUID?
+    let beforeID: UUID?
 }
 
 struct MoveFolder: Intent, SessionIntent, Equatable, Sendable {
@@ -6211,6 +6306,7 @@ struct SpaceState: Equatable, Sendable, Identifiable {
     let splitGroups: [SplitGroupState]
     let archivedTabs: [ArchivedTabState]
     let history: [HistoryEntryState]
+    let bookmarks: [BookmarkState]?
     let sidebar: SidebarOutline
 
     /// The fields of a `SpaceState` alone, as a platform builds one to send. The
@@ -6224,6 +6320,7 @@ struct SpaceState: Equatable, Sendable, Identifiable {
         var splitGroups: [SplitGroupState.Seed]
         var archivedTabs: [ArchivedTabState.Seed]
         var history: [HistoryEntryState]
+        var bookmarks: [BookmarkState.Seed]?
     }
 
     /// The record's fields alone, as a platform sends it back.
@@ -6236,7 +6333,8 @@ struct SpaceState: Equatable, Sendable, Identifiable {
             tabs: tabs.map(\.seed),
             splitGroups: splitGroups.map(\.seed),
             archivedTabs: archivedTabs.map(\.seed),
-            history: history
+            history: history,
+            bookmarks: bookmarks.map { $0.map(\.seed) }
         )
     }
 }
@@ -6773,6 +6871,10 @@ struct UnknownAgentSession: Equatable, Sendable {
 
 struct UnknownArchivedTab: Equatable, Sendable {
     let tabID: UUID
+}
+
+struct UnknownBookmark: Equatable, Sendable {
+    let bookmarkID: UUID
 }
 
 struct UnknownCloudMerge: Equatable, Sendable {

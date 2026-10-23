@@ -33,12 +33,18 @@ final class SpaceModel: ObservedModel, Identifiable {
         set { publish(newValue, into: \.splitGroupsStorage, as: \.splitGroups) }
     }
     @ObservationIgnored private var splitGroupsStorage: [SplitGroupState]
+    /// The links and folders the Space keeps out of its sidebar.
+    private(set) var bookmarks: [BookmarkState] {
+        get { observed(\.bookmarksStorage, as: \.bookmarks) }
+        set { publish(newValue, into: \.bookmarksStorage, as: \.bookmarks) }
+    }
+    @ObservationIgnored private var bookmarksStorage: [BookmarkState]
 
     var value: SpaceState {
         SpaceState(
             id: id, profileID: profileID, settings: settings.value, folders: folders.values, tabs: tabs.values,
             splitGroups: splitGroups, archivedTabs: archive.entries, history: history.entries,
-            sidebar: sidebar.outline(folders: folders.models))
+            bookmarks: bookmarks, sidebar: sidebar.outline(folders: folders.models))
     }
 
     /// Every tab the Space holds, open or archived.
@@ -56,6 +62,7 @@ final class SpaceModel: ObservedModel, Identifiable {
         folders = ObservedList(value.folders)
         sidebar = SidebarModel(value.sidebar)
         splitGroupsStorage = value.splitGroups
+        bookmarksStorage = value.bookmarks ?? []
         history = HistoryModel(value.history)
         archive = ArchiveModel(value.archivedTabs)
     }
@@ -70,6 +77,7 @@ final class SpaceModel: ObservedModel, Identifiable {
         folders.replace(with: value.folders)
         sidebar.replace(with: value.sidebar)
         splitGroups = value.splitGroups
+        bookmarks = value.bookmarks ?? []
         history.replace(with: value.history)
         archive.replace(with: value.archivedTabs)
     }

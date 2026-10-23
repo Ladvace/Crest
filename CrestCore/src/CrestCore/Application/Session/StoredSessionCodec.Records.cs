@@ -121,6 +121,22 @@ internal static partial class StoredSessionCodec {
         return value;
     }
 
+    /// A bookmark: a link with its address, or a folder without one. One
+    /// without a title reads as untitled.
+    internal static BookmarkState DecodeBookmark(JsonNode? node) {
+        var value = Object(node);
+        return new(Identity(value[Key.Id]), OptionalIdentity(value[Key.ParentId]), Text(value[Key.Title]) ?? "",
+            Text(value[Key.Url]), Flag(value[Key.ShowsInEverySpace]) ?? false);
+    }
+
+    internal static JsonObject Encode(BookmarkState bookmark) {
+        var value = new JsonObject { [Key.Id] = WrappedIdentity(bookmark.Id), [Key.Title] = bookmark.Title };
+        if (bookmark.ParentId is { } parent) value[Key.ParentId] = WrappedIdentity(parent);
+        Put(value, Key.Url, bookmark.Url);
+        if (bookmark.ShowsInEverySpace) value[Key.ShowsInEverySpace] = true;
+        return value;
+    }
+
     internal static SplitGroupState DecodeSplitGroup(JsonNode? node) {
         var value = Object(node);
         return new(Identity(value[Key.Id]), Text(value[Key.CustomTitle]), OptionalDate(value[Key.TitleModifiedAt]),

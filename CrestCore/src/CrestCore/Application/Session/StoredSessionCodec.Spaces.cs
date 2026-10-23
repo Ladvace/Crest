@@ -41,7 +41,8 @@ internal static partial class StoredSessionCodec {
             [.. Items(value[Key.Tabs]).Select(DecodeTab)],
             [.. Items(value[Key.SplitGroups]).Select(DecodeSplitGroup)],
             [.. Items(value[Key.ArchivedTabs]).Select(DecodeArchivedTab)],
-            [.. Items(value[Key.History]).Select(DecodeHistoryEntry)]);
+            [.. Items(value[Key.History]).Select(DecodeHistoryEntry)],
+            BookmarkTree.Repaired([.. Items(value[Key.Bookmarks]).Select(DecodeBookmark)]));
     }
 
     internal static JsonObject Encode(SpaceState space) {
@@ -59,6 +60,7 @@ internal static partial class StoredSessionCodec {
         value[Key.SplitGroups] = EncodeAll(space.SplitGroups, Encode);
         value[Key.ArchivedTabs] = EncodeAll(space.ArchivedTabs, Encode);
         value[Key.History] = EncodeHistory(space.History);
+        if (space.Bookmarks.Count > 0) value[Key.Bookmarks] = EncodeAll(space.Bookmarks, Encode);
         value[Key.BrowsingPreferences] = Encode(settings.BrowsingPreferences);
         value[Key.CredentialPreferences] = Encode(settings.CredentialPreferences);
         value[Key.AccessPolicy] = SpaceAccessPolicies.Name(settings.AccessPolicy);

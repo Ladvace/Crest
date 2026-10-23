@@ -1,13 +1,15 @@
 using System.Text.Json.Nodes;
 
 using CrestCore.Contracts;
+using CrestCore.Domain;
 
 namespace CrestCore.Application;
 
 /// A Space's synced value: its identity and profile, how it looks and
 /// browses, who may open it, whether it uses Crest Passwords once someone
-/// chose, its saved tabs' disclosure, its splits' metadata and its position
-/// among the Spaces. Where it keeps its passwords stays with each device.
+/// chose, its saved tabs' disclosure, its splits' metadata, its bookmarks and
+/// its position among the Spaces. Where it keeps its passwords stays with each
+/// device.
 internal sealed partial record SpacePayload(
     Guid Id,
     Guid ProfileId,
@@ -22,7 +24,8 @@ internal sealed partial record SpacePayload(
     bool IsSavedTabsExpanded,
     SyncTime? SavedTabsExpansionModifiedAt,
     IReadOnlyList<SplitGroupPayload>? SplitGroups,
-    string OrderToken) : SyncPayload {
+    string OrderToken,
+    IReadOnlyList<BookmarkState>? Bookmarks = null) : SyncPayload {
     #region Static Variables
 
     /// The most splits a Space's record names.
@@ -47,9 +50,9 @@ internal sealed partial record SpacePayload(
     /// The Space `value` holds. A Space without branding wears the branding its
     /// accent and symbol gave it before brandings synced; one without browsing
     /// preferences or an access policy takes the defaults; one without a saved
-    /// tabs disclosure shows them; and one without splits' metadata, or without
-    /// the time someone chose whether it uses Crest Passwords, holds no opinion
-    /// about them.
+    /// tabs disclosure shows them; and one without splits' metadata or
+    /// bookmarks, or without the time someone chose whether it uses Crest
+    /// Passwords, holds no opinion about them.
     public static SpacePayload Read(SyncPayloadReader value) {
         string name = value.Text("name"), symbol = value.Text("symbol");
         var accent = SpaceAccent.Named(value.Text("accent")) ?? throw new UnreadableSyncPayloadException();
@@ -66,7 +69,9 @@ internal sealed partial record SpacePayload(
             value.OptionalFlag("isSavedTabsExpanded") ?? true,
             value.OptionalTime("savedTabsExpansionModifiedAt"),
             value.OptionalArray("splitGroups") is { } groups ? SplitGroupPayload.Normalized(groups, value.Form) : null,
-            value.Text("orderToken"));
+            value.Text("orderToken"),
+            value.OptionalArray("bookmarks") is { } bookmarks
+                ? BookmarkTree.Repaired([.. bookmarks.Select(StoredSessionCodec.DecodeBookmark)]) : null);
     }
 
     public override JsonObject EncodeValue(SyncPayloadForm form) {
@@ -87,6 +92,8 @@ internal sealed partial record SpacePayload(
             Put(value, "credentialsEnabledModifiedAt", credentialsModifiedAt, form);
         }
         if (SplitGroups is { } groups) value["splitGroups"] = new JsonArray([.. groups.Select(group => (JsonNode?)group.Encode(form))]);
+        if (Bookmarks is { } bookmarks)
+            value["bookmarks"] = new JsonArray([.. bookmarks.Select(bookmark => (JsonNode?)StoredSessionCodec.Encode(bookmark))]);
         value["orderToken"] = OrderToken;
         return value;
     }
