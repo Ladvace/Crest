@@ -15,6 +15,8 @@ struct BrowserDeveloperCaptureControls: View {
             .disabled(!page.pageEngine.registration.supports(.fullPageCapture))
             .popover(isPresented: $showsCaptureOptions, arrowEdge: .top) {
                 BrowserDeveloperCaptureOptions(page: page)
+                    .modifier(CrestPopoverStyle())
+                    .modifier(BrowserDeviceAppearanceEnvironment())
             }
 
             BrowserDeveloperToolbarButton(

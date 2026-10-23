@@ -32,6 +32,8 @@ struct BrowserQuickWindowDestinationPickerButton: View {
                 isPresented = false
                 promote(candidate.assignment)
             }
+            .modifier(CrestPopoverStyle())
+            .modifier(BrowserDeviceAppearanceEnvironment())
         }
     }
 }

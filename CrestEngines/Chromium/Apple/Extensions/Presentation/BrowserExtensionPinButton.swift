@@ -3,7 +3,8 @@ import SwiftUI
 struct BrowserExtensionPinButton: View {
     // MARK: - Static Variables
 
-    private static let size: CGFloat = 14
+    private static let size: CGFloat = 18
+    private static let glyphSize: CGFloat = 10
 
     // MARK: - Variables
 
@@ -12,8 +13,15 @@ struct BrowserExtensionPinButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: isPinned ? "pin.slash.fill" : "pin.fill")
-                .font(.system(size: 8, weight: .semibold))
+            // A pinned extension's pin is white on the accent, which reads on
+            // any tile; an unpinned one stays quiet until it's wanted.
+            Image(systemName: isPinned ? "pin.fill" : "pin")
+                .font(.system(size: Self.glyphSize, weight: .bold))
+                .foregroundStyle(isPinned ? AnyShapeStyle(Color.white) : AnyShapeStyle(.secondary))
+                .frame(width: Self.size, height: Self.size)
+                .background {
+                    if isPinned { Circle().fill(.tint) }
+                }
         }
         .buttonStyle(
             CrestChromeButtonStyle(

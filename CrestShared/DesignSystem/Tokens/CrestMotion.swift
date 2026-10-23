@@ -123,6 +123,9 @@ enum CrestMotion {
     static var compactPress: Animation { .easeOut(duration: compactPressFeedback) }
     static var developerPress: Animation { .snappy(duration: developerPressFeedback) }
     static var surface: Animation { .easeInOut(duration: surfaceTransition) }
+    /// A hover tint leaving: it arrives at once, as the pointer does, and
+    /// fades only as the pointer moves on.
+    static var hoverRelease: Animation { .easeOut(duration: surfaceTransition) }
     static var collection: Animation { .snappy(duration: collectionTransition) }
     static var dragPreview: Animation { .smooth(duration: dragPreviewTransition) }
     static var navigation: Animation { .snappy(duration: navigationTransition) }

@@ -41,6 +41,8 @@ struct BrowserDeveloperViewportMenu: View {
                     page.developerViewport = viewport
                 }
                 .padding(12)
+                .modifier(CrestPopoverStyle())
+                .modifier(BrowserDeviceAppearanceEnvironment())
             }
             .onAppear(perform: synchronizeCustomSize)
             .onChange(of: page.developerViewport) { _, _ in

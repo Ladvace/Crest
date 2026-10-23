@@ -30,8 +30,10 @@ struct BrowserSiteExtensionActionButton: View {
                 isPinned: action.isPinned,
                 action: togglePinned
             )
-            .opacity(isHovering ? 1 : 0)
-            .allowsHitTesting(isHovering)
+            // A pinned extension wears its pin; any other shows one to pin
+            // it while the pointer is over it.
+            .opacity(isHovering || action.isPinned ? 1 : 0)
+            .allowsHitTesting(isHovering || action.isPinned)
             .offset(x: 3, y: 3)
         }
     }

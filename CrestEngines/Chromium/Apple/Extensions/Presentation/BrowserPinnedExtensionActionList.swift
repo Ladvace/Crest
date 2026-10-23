@@ -5,6 +5,9 @@ struct BrowserPinnedExtensionActionList: View {
 
     private static let spacing: CGFloat = 6
 
+    /// The most tiles a row holds; more wrap onto the next row.
+    private static let columns = 5
+
     // MARK: - Variables
 
     let actions: [BrowserExtensionActionPresentation]
@@ -15,26 +18,18 @@ struct BrowserPinnedExtensionActionList: View {
             Void = { _, _ in }
 
     var body: some View {
-        GeometryReader { proxy in
-            ScrollView(.horizontal) {
-                HStack(spacing: Self.spacing) {
-                    ForEach(actions) { action in
-                        BrowserPinnedExtensionActionButton(
-                            action: action,
-                            perform: { perform(action, $0) },
-                            prepare: { prepare(action) },
-                            presentMenu: { presentMenu(action, $0) }
-                        )
-                    }
-                }
-                // Size the scroll content in both axes so the buttons stay
-                // centered when the viewport is laid out again.
-                .frame(
-                    minWidth: proxy.size.width,
-                    minHeight: proxy.size.height
+        LazyVGrid(
+            columns: Array(repeating: GridItem(.flexible(), spacing: Self.spacing), count: Self.columns),
+            spacing: Self.spacing
+        ) {
+            ForEach(actions) { action in
+                BrowserPinnedExtensionActionButton(
+                    action: action,
+                    perform: { perform(action, $0) },
+                    prepare: { prepare(action) },
+                    presentMenu: { presentMenu(action, $0) }
                 )
             }
-            .scrollIndicators(.hidden)
         }
     }
 }

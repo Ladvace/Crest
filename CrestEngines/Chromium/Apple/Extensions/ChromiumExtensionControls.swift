@@ -78,6 +78,12 @@ struct ChromiumExtensionControls: View {
             BrowserSiteExtensionsSection(
                 actions: store.actions(for: page),
                 manageExtensions: { afterDismiss { ChromiumComposition.openExtensionSettings() } },
+                addExtension: page.isPrivateBrowsing
+                    ? nil
+                    : {
+                        let window = page.surface.window
+                        afterDismiss { store.command(.store, space: space.identity, window: window) }
+                    },
                 perform: { action, anchor in
                     let retained = anchor?.replacingSourceWindow(page.surface.window)
                     afterDismiss { page.runExtension(action.id, anchor: retained) }

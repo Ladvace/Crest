@@ -38,6 +38,8 @@ struct BrowserDeveloperSiteSettingsControl: View {
             )
             .padding(14)
             .frame(width: 300)
+            .modifier(CrestPopoverStyle())
+            .modifier(BrowserDeviceAppearanceEnvironment())
         }
     }
 }

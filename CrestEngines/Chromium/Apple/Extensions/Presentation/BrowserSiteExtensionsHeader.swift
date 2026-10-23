@@ -9,7 +9,7 @@ struct BrowserSiteExtensionsHeader: View {
                 .font(.headline)
             Spacer(minLength: CrestSpacing.small)
             Button(action: manageExtensions) {
-                Image(systemName: "plus")
+                Image(systemName: "gearshape")
                     .font(.system(size: 11, weight: .semibold))
             }
             .buttonStyle(

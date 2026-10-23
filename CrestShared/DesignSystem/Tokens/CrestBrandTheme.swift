@@ -38,6 +38,11 @@ enum CrestBrandTheme {
     static let surfaceLightComponents = CrestBrandPalette.parchmentComponents
     static let surfaceDarkComponents = CrestBrandPalette.inkSoftComponents
 
+    /// The neutral surface the browser's popovers sit on, untinted so it
+    /// matches the window's own gray chrome rather than the brand's ink.
+    static let popoverSurfaceLightComponents = CrestColorComponents(red: 246, green: 246, blue: 246)
+    static let popoverSurfaceDarkComponents = CrestColorComponents(red: 38, green: 38, blue: 40)
+
     static let textDisplayLightComponents = CrestBrandPalette.inkComponents
     static let textDisplayDarkComponents = CrestBrandPalette.paperComponents
 
@@ -92,6 +97,10 @@ enum CrestBrandTheme {
 
     static func surface(_ colorScheme: ColorScheme) -> Color {
         components(surfaceLightComponents, surfaceDarkComponents, colorScheme).color
+    }
+
+    static func popoverSurface(_ colorScheme: ColorScheme) -> Color {
+        components(popoverSurfaceLightComponents, popoverSurfaceDarkComponents, colorScheme).color
     }
 
     static func textDisplay(_ colorScheme: ColorScheme) -> Color {

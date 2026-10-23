@@ -88,7 +88,18 @@ final class ChromiumExtensionStore {
     }
     func actions(for page: ChromiumNativePage) -> [BrowserExtensionActionPresentation] {
         _ = revision
-        return page.extensions
+        return page.extensions.map(withInstalledIcon)
+    }
+
+    /// `action`, wearing its extension's installed icon where the engine gave
+    /// it none to show.
+    private func withInstalledIcon(_ action: BrowserExtensionActionPresentation) -> BrowserExtensionActionPresentation {
+        guard action.icon == nil,
+            let icon = installed.values.lazy.flatMap({ $0 }).first(where: { $0.id == action.id })?.icon
+        else { return action }
+        var action = action
+        action.icon = icon
+        return action
     }
     /// The pinned actions of a Space's own toolbar row.
     ///
@@ -115,6 +126,7 @@ final class ChromiumExtensionStore {
                 }
                 return BrowserExtensionActionPresentation(action)
             }
+            .map(withInstalledIcon)
             .sorted { $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending }
     }
     /// Runs a pinned action from a Space with no page open. Only an action with

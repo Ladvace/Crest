@@ -57,5 +57,6 @@ private struct BrowserIconCustomizationPopoverModifier: ViewModifier {
             reset: presentation.reset
         )
         .presentationCompactAdaptation(.popover)
+        .modifier(CrestPopoverStyle())
     }
 }

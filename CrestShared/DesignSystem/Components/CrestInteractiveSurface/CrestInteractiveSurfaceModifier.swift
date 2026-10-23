@@ -21,6 +21,8 @@ struct CrestInteractiveSurfaceModifier: ViewModifier {
     var customHoverFill: Color? = nil
     var customRestingFill: Color? = nil
     var restingBorderColor: Color = .clear
+    /// Whether a selected or pressed surface lifts off with a shadow.
+    var showsSelectionShadow = true
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -55,7 +57,11 @@ struct CrestInteractiveSurfaceModifier: ViewModifier {
                     ? CrestInteractiveSurfaceMetrics.selectedShadowYOffset
                     : 0
             )
-            .animation(accessibleSurfaceAnimation, value: isHovering)
+            // Hover shows at once under the pointer and fades only as it
+            // leaves, as other browsers' sidebars do.
+            .animation(
+                isHovering ? nil : CrestMotion.hoverRelease.unlessReducingMotion(reduceMotion), value: isHovering
+            )
             .animation(accessibleSurfaceAnimation, value: selectionEmphasis)
             // Selection shows at once, as browsers switch tabs; only a press
             // eases in. Fading a selected surface in and out redraws its
@@ -91,7 +97,7 @@ struct CrestInteractiveSurfaceModifier: ViewModifier {
     }
 
     private var shadowOpacity: Double {
-        guard isSelected || isPressed, !reduceTransparency else { return 0 }
+        guard isSelected || isPressed, showsSelectionShadow, !reduceTransparency else { return 0 }
         return CrestOpacity.interactionSelectionShadow
     }
 

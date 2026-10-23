@@ -3,6 +3,8 @@ import SwiftUI
 struct BrowserSiteExtensionsSection: View {
     let actions: [BrowserExtensionActionPresentation]
     let manageExtensions: () -> Void
+    /// Opens the Chrome Web Store to add an extension.
+    var addExtension: (() -> Void)?
     let perform: (BrowserExtensionActionPresentation, BrowserExtensionPopupAnchor?) -> Void
     let togglePinned: (BrowserExtensionActionPresentation) -> Void
     var presentMenu:
@@ -14,7 +16,7 @@ struct BrowserSiteExtensionsSection: View {
             BrowserSiteExtensionsHeader(
                 manageExtensions: manageExtensions
             )
-            if actions.isEmpty {
+            if actions.isEmpty, addExtension == nil {
                 Label(
                     "No extension actions for this page",
                     systemImage: "puzzlepiece.extension"
@@ -45,6 +47,19 @@ struct BrowserSiteExtensionsSection: View {
                     togglePinned: { togglePinned(action) },
                     presentMenu: { presentMenu(action, $0) }
                 )
+            }
+            if let addExtension {
+                Button(action: addExtension) {
+                    Image(systemName: "plus")
+                        .font(.system(size: BrowserSiteControlMetrics.quickActionGlyphSize, weight: .medium))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: BrowserSiteControlMetrics.extensionActionHeight)
+                }
+                .buttonStyle(
+                    CrestChromeButtonStyle(controlSize: nil, cornerRadius: CrestRadius.compact, showsRestingFill: true)
+                )
+                .accessibilityLabel("Add Extension")
+                .help("Add Extension from the Chrome Web Store")
             }
         }
     }

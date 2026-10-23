@@ -70,6 +70,7 @@ struct BrowserFolderGroupSurface: View {
         ) {
             BrowserFolderColorPicker(color: interaction.folderColor)
                 .presentationCompactAdaptation(.popover)
+                .modifier(CrestPopoverStyle())
         }
         .browserIconCustomizationPopover(
             BrowserIconCustomizationPresentation(

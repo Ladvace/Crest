@@ -4357,6 +4357,10 @@
     "sidebar-new-menu-and-narrow-fit": {
       "category": "improved",
       "message": "The + button at the bottom of the sidebar creates a Space, folder, split or tab, and the sidebar button sits beside the window controls. A narrow sidebar stays tidy: the address bar compacts, Space icons become dots that show their name on hover, and pinned sites resize to fit. Switching Spaces no longer slides the page."
+    },
+    "readable-popovers-instant-hover": {
+      "category": "fixed",
+      "message": "Popovers are easy to read in light and dark, use your system accent color, and show every extension's icon with a clearer pin. Highlights follow the pointer instantly as you move across tabs."
     }
   }
 }

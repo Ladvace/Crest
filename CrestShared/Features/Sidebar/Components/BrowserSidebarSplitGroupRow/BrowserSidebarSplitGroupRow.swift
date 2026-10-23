@@ -52,6 +52,7 @@ struct BrowserSidebarSplitGroupRow: View {
                 reset: interaction.resetTint
             )
             .presentationCompactAdaptation(.popover)
+            .modifier(CrestPopoverStyle())
         }
         .onChange(of: configuration.runtimeAssignment) { _, assignment in
             guard renameRequest != assignment else { return }

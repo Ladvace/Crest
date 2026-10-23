@@ -3,7 +3,7 @@ import SwiftUI
 struct BrowserPinnedExtensionActionButton: View {
     // MARK: - Static Variables
 
-    private static let tileSize: CGFloat = 24
+    private static let tileHeight: CGFloat = 28
     private static let glyphSize: CGFloat = 16
 
     // MARK: - Variables
@@ -17,10 +17,11 @@ struct BrowserPinnedExtensionActionButton: View {
     @State private var popupAnchor: BrowserExtensionPopupAnchor?
 
     var body: some View {
+        // Each extension is a small tile of its own, like a pinned site.
         anchoredButton
-            .background(
-                .quaternary.opacity(isHovering ? 1 : 0),
-                in: .rect(cornerRadius: 7)
+            .crestInteractiveSurface(
+                isSelected: false, isHovering: isHovering, cornerRadius: BrowserSidebarMetrics.layerCornerRadius(),
+                showsRestingSurface: true
             )
             .contentShape(.rect)
             .onHover(perform: hoverChanged)
@@ -28,10 +29,8 @@ struct BrowserPinnedExtensionActionButton: View {
 
     private var anchoredButton: some View {
         actionButton
-            .frame(
-                width: Self.tileSize,
-                height: Self.tileSize
-            )
+            .frame(maxWidth: .infinity)
+            .frame(height: Self.tileHeight)
             .background {
                 BrowserExtensionPopupAnchorReader(
                     popupAnchor: $popupAnchor,
