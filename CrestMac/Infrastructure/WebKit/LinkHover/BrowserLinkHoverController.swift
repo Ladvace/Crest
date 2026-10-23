@@ -50,6 +50,10 @@ final class BrowserLinkHoverController {
         ) { [weak self] event in
             MainActor.assumeIsolated {
                 guard let self else { return }
+                // A move with no preview shown or on its way has nothing to
+                // take down, so it skips the window-wide hit test, which is
+                // as costly as the whole sidebar and runs on every move.
+                if event.type == .mouseMoved, self.isIdle { return }
                 if event.type != .mouseMoved || !self.canPresent {
                     self.invalidate()
                 }
@@ -214,6 +218,11 @@ final class BrowserLinkHoverController {
             in: frame, contentWorld: BrowserLinkHoverContentBridge.world
         )
         return result as? Bool == true
+    }
+
+    /// Whether no preview is shown, waiting to show, or being retired.
+    private var isIdle: Bool {
+        work == nil && retireSource == nil && state.destination == nil
     }
 
     private var canPresent: Bool {

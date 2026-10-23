@@ -57,7 +57,8 @@ struct BrowserSidebarIconColumn: View {
     @ViewBuilder private func column(_ space: SpaceModel) -> some View {
         let pinned = tabs(in: space.sidebar.section(.pinned), of: space)
         let others = [TabPlacement.saved, .current].flatMap { tabs(in: space.sidebar.section($0), of: space) }
-        VStack(spacing: CrestSpacing.extraSmall) {
+        // Lazily, so a Space with hundreds of tabs builds only the icons in view.
+        LazyVStack(spacing: CrestSpacing.extraSmall) {
             ForEach(pinned) { icon($0, in: space) }
             if !pinned.isEmpty, !others.isEmpty {
                 Circle()

@@ -20,9 +20,13 @@ struct BrowserFloatingHoverLabel: ViewModifier {
         content
             .onHover { isHovering = $0 }
             .background {
-                BrowserFloatingHoverLabelAnchor(
-                    label: CrestHoverLabelCapsule(title: title).environment(\.colorScheme, colorScheme),
-                    isShown: isHovering)
+                // Made only under the pointer: a column of hundreds of tabs
+                // would otherwise keep a native view for every one.
+                if isHovering {
+                    BrowserFloatingHoverLabelAnchor(
+                        label: CrestHoverLabelCapsule(title: title).environment(\.colorScheme, colorScheme),
+                        isShown: true)
+                }
             }
     }
 }

@@ -19,14 +19,15 @@ struct BrowserPinnedTabSlotLayout: Layout {
         resting.liftedID = nil
         resting.liftedIDs = []
         resting.insertionIndex = nil
+        let frames = resolved.frames(in: bounds)
+        let restingFrames = resting.frames(in: bounds)
         for (index, subview) in subviews.enumerated() {
             let slot: BrowserPinnedTabReorderLayout.Slot =
                 index < projection.ids.count ? .tab(projection.ids[index]) : .gap
             // The invisible source retains a frame and its recognizer even when
             // it has left the grid. It contributes no capacity to this layout.
             let frame =
-                resolved.frame(for: slot, in: bounds) ?? resting.frame(for: slot, in: bounds)
-                ?? CGRect(origin: bounds.origin, size: .zero)
+                frames[slot] ?? restingFrames[slot] ?? CGRect(origin: bounds.origin, size: .zero)
             subview.place(at: frame.origin, anchor: .topLeading, proposal: ProposedViewSize(frame.size))
         }
     }

@@ -14,17 +14,23 @@ struct BrowserBookmarksBar: View {
 
     /// Each top-level bookmark's width on the bar, measured off screen.
     @State private var widths: [UUID: CGFloat] = [:]
-    @State private var availableWidth: CGFloat = 0
+    /// The room the bar has, kept where writing it redraws nothing: a resize
+    /// redraws the bar only when it changes how many bookmarks fit.
+    @State private var room = BrowserBookmarksBarRoom()
+    /// How many bookmarks fit, which a resize updates when it changes.
+    @State private var fittingCount = 0
     /// The bookmark being dragged along the bar.
     @State private var dragged: UUID?
     @State private var pendingDeletion: BrowserBookmarkDeletion?
 
     var body: some View {
         let roots = BrowserBookmarkLibrary(space: space, spaces: browser.availableSpaces).roots
-        let shown = shownCount(of: roots)
+        let shown = shownCount(of: roots, in: room.width)
+        let sites = tabsBySite()
+        let _ = fittingCount
         HStack(spacing: BrowserBookmarksBarMetrics.spacing) {
             ForEach(roots.prefix(shown)) { entry in
-                item(entry)
+                item(entry, sites: sites)
                     .modifier(
                         BrowserBookmarksBarReorder(
                             entry: entry, order: ownOrder(of: roots), isMovable: entry.spaceID == space.id,
@@ -40,8 +46,10 @@ struct BrowserBookmarksBar: View {
         .frame(height: BrowserBookmarksBarMetrics.height)
         .onGeometryChange(for: CGFloat.self) {
             $0.size.width - 2 * BrowserBookmarksBarMetrics.inset
-        } action: {
-            availableWidth = $0
+        } action: { width in
+            let count = shownCount(of: roots, in: width)
+            room.width = width
+            if count != fittingCount { fittingCount = count }
         }
         .background { measurements(of: roots) }
         .bookmarkDeletionConfirmation($pendingDeletion) { browser.deleteBookmark($0.id, in: $0.spaceID) }
@@ -52,12 +60,14 @@ struct BrowserBookmarksBar: View {
 
     // MARK: - Items
 
-    @ViewBuilder private func item(_ entry: BrowserBookmarkLibrary.Entry) -> some View {
+    @ViewBuilder private func item(
+        _ entry: BrowserBookmarkLibrary.Entry, sites: [String: TabStateModel]
+    ) -> some View {
         if let children = entry.children {
             Menu {
                 BrowserBookmarkMenuItems(entries: children, open: open)
             } label: {
-                label(of: entry)
+                label(of: entry, sites: sites)
             }
             .menuStyle(.button)
             .menuIndicator(.hidden)
@@ -67,7 +77,7 @@ struct BrowserBookmarksBar: View {
             Button {
                 open(url, false)
             } label: {
-                label(of: entry)
+                label(of: entry, sites: sites)
             }
             .buttonStyle(BrowserBookmarksBarItemStyle())
             .help(entry.bookmark.url ?? "")
@@ -102,13 +112,17 @@ struct BrowserBookmarksBar: View {
         .accessibilityIdentifier("browser-bookmarks-bar-overflow")
     }
 
-    private func label(of entry: BrowserBookmarkLibrary.Entry) -> some View {
+    /// A bookmark as the bar shows it, with the icon of a tab open on its
+    /// site, from `sites`, or a globe.
+    private func label(of entry: BrowserBookmarkLibrary.Entry, sites: [String: TabStateModel]) -> some View {
         HStack(spacing: 6) {
             Group {
                 if entry.children != nil {
                     Image(systemName: "folder").foregroundStyle(.secondary)
-                } else if let url = entry.bookmark.url.flatMap(URL.init(string:)) {
-                    BrowserBookmarkFavicon(url: url, browser: browser)
+                } else {
+                    BrowserBookmarkFavicon(
+                        tab: entry.bookmark.url.flatMap(URL.init(string:))?.host().flatMap { sites[$0] },
+                        browser: browser)
                 }
             }
             .frame(width: 14, height: 14)
@@ -120,13 +134,27 @@ struct BrowserBookmarksBar: View {
         .font(.system(size: 12))
     }
 
+    /// Each site the Spaces have a tab open on, with the first such tab,
+    /// found in one pass rather than once for every bookmark.
+    private func tabsBySite() -> [String: TabStateModel] {
+        var sites: [String: TabStateModel] = [:]
+        for space in browser.availableSpaces {
+            for tab in space.tabs.models {
+                guard let host = tab.url.flatMap(URL.init(string:))?.host(), sites[host] == nil else { continue }
+                sites[host] = tab
+            }
+        }
+        return sites
+    }
+
     // MARK: - Fitting
 
     /// Every item at its natural width, hidden, so the bar knows what fits.
     private func measurements(of roots: [BrowserBookmarkLibrary.Entry]) -> some View {
         HStack(spacing: BrowserBookmarksBarMetrics.spacing) {
             ForEach(roots) { entry in
-                label(of: entry)
+                // A globe stands in for every icon: it measures the same.
+                label(of: entry, sites: [:])
                     .padding(.horizontal, BrowserBookmarksBarMetrics.itemPadding)
                     .fixedSize()
                     .onGeometryChange(for: CGFloat.self) {
@@ -144,7 +172,7 @@ struct BrowserBookmarksBar: View {
 
     /// How many bookmarks fit in order, leaving room for the "+N" menu when
     /// some don't.
-    private func shownCount(of roots: [BrowserBookmarkLibrary.Entry]) -> Int {
+    private func shownCount(of roots: [BrowserBookmarkLibrary.Entry], in availableWidth: CGFloat) -> Int {
         guard availableWidth > 0 else { return roots.count }
         let spacing = BrowserBookmarksBarMetrics.spacing
         let width = { (entry: BrowserBookmarkLibrary.Entry) in
@@ -286,11 +314,11 @@ private struct BrowserBookmarkMenuItems: View {
 /// A bookmark's site icon: the icon of a tab the Spaces have open on the same
 /// site, or a globe while none does.
 private struct BrowserBookmarkFavicon: View {
-    let url: URL
+    let tab: TabStateModel?
     let browser: BrowserStore
 
     var body: some View {
-        if let tab = tabOnSameSite {
+        if let tab {
             TabFaviconView(
                 subject: BrowserTabFaviconSubject(tab: tab, image: browser.core.state.favicons.icon(of: tab.id)),
                 size: 14)
@@ -298,16 +326,12 @@ private struct BrowserBookmarkFavicon: View {
             Image(systemName: "globe").foregroundStyle(.secondary)
         }
     }
+}
 
-    private var tabOnSameSite: TabStateModel? {
-        guard let host = url.host() else { return nil }
-        for space in browser.availableSpaces {
-            if let tab = space.tabs.models.first(where: { $0.url.flatMap(URL.init(string:))?.host() == host }) {
-                return tab
-            }
-        }
-        return nil
-    }
+/// Where the bookmarks bar keeps the room it last measured. A class, so the
+/// bar can write it without redrawing.
+private final class BrowserBookmarksBarRoom {
+    var width: CGFloat = 0
 }
 
 /// A bar item's quiet surface: nothing at rest, the design system's hover

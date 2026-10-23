@@ -4421,6 +4421,10 @@
     "space-shortcut-in-tooltip": {
       "category": "improved",
       "message": "Hovering a Space at the bottom of the sidebar shows the keys that switch to it, Control and its number."
+    },
+    "smoother-pointer-and-pins": {
+      "category": "fixed",
+      "message": "Moving the pointer, switching Spaces and resizing stay smoother: link previews no longer check the whole window on every move, pinned tabs lay out in one pass, and the bookmarks bar and icon-only sidebar build only what changes or shows."
     }
   }
 }
