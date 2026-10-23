@@ -9,7 +9,8 @@ struct BrowserTabAppearance: Codable, Equatable, Sendable {
     var borders: Borders = .selected
     var outlinesSelectedTabs = false
     var usesWebsitePinColor = true
-    var dimsUnloadedTabs = true
+    /// Off unless asked for: a sleeping tab keeps its full color, as Arc shows it.
+    var dimsUnloadedTabs = false
     var pinFill: Double = 0
     var pinGlow: Double = 0
     var hoverFill: Double = 0
@@ -45,7 +46,7 @@ extension BrowserTabAppearance {
         borders = (try? values.decode(Borders.self, forKey: .borders)) ?? .selected
         outlinesSelectedTabs = (try? values.decode(Bool.self, forKey: .outlinesSelectedTabs)) ?? false
         usesWebsitePinColor = (try? values.decode(Bool.self, forKey: .usesWebsitePinColor)) ?? true
-        dimsUnloadedTabs = (try? values.decode(Bool.self, forKey: .dimsUnloadedTabs)) ?? true
+        dimsUnloadedTabs = (try? values.decode(Bool.self, forKey: .dimsUnloadedTabs)) ?? false
         pinFill = Self.intensity((try? values.decode(Double.self, forKey: .pinFill)) ?? 0)
         pinGlow = Self.intensity((try? values.decode(Double.self, forKey: .pinGlow)) ?? 0)
         hoverFill = Self.intensity((try? values.decode(Double.self, forKey: .hoverFill)) ?? 0)

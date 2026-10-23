@@ -4385,6 +4385,10 @@
     "crestark-readme-and-logo": {
       "category": "internal",
       "message": "Describe CrestArk in the README, with screenshots, a comparison with Crest and the new logo."
+    },
+    "sleeping-tabs-full-color": {
+      "category": "improved",
+      "message": "Tabs that haven't loaded yet keep their full color, as Arc shows them. Turn on Dim Unloaded Tabs in Appearance settings to fade them again."
     }
   }
 }
