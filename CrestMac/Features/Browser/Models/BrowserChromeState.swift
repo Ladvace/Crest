@@ -88,6 +88,13 @@ final class BrowserChromeState {
         }
     }
 
+    /// Opens the bookmarks panel, on bookmarking the page on show when
+    /// `bookmarkingPage`. A hidden sidebar floats over the page to show it.
+    func requestBookmarks(bookmarkingPage: Bool) {
+        if columnVisibility == .detailOnly { isFloatingSidebarPresented = true }
+        utilityPresentation.requestBookmarks(bookmarkingPage: bookmarkingPage)
+    }
+
     // MARK: - Actions - Command Palette
 
     func openLocation(_ address: String = "") {

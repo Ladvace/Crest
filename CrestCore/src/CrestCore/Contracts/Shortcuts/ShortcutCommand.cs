@@ -74,7 +74,9 @@ public sealed class ShortcutCommand {
         ToggleTranslationToolbar,
         OpenFile,
         FindNext,
-        FindPrevious
+        FindPrevious,
+        BookmarkPage,
+        ShowBookmarks
     }
 
     #endregion
@@ -274,6 +276,13 @@ public sealed class ShortcutCommand {
         shortcuts: [new(DevicePlatform.Desktop, Character("g", Command | Shift), YieldsToOverrides: true)],
         availableWhen: ShowingWebPage);
 
+    public static readonly ShortcutCommand BookmarkPage = new(Kinds.BookmarkPage, name: "bookmarkPage", ShortcutSection.Page,
+        title: "Bookmark This Page", symbol: "bookmark", shortcuts: Everywhere(Character("d", Command | Shift)),
+        searchTerms: "bookmark save favorite link", menuTitle: "Bookmark This Page…", availableWhen: ShowingWebPage);
+    public static readonly ShortcutCommand ShowBookmarks = new(Kinds.ShowBookmarks, name: "showBookmarks", ShortcutSection.View,
+        title: "Show Bookmarks", symbol: "book", shortcuts: Everywhere(Character("b", Command | Option)),
+        searchTerms: "bookmarks saved links folders", availableWhen: ShowingSpace);
+
     public static IReadOnlyList<ShortcutCommand> All { get; } = [
         NewWindow, NewBlankWindow, NewTab, NewQuickWindow, NewPrivateWindow, CloseTabOrWindow, CloseWindow, OpenLocation, Back,
         Forward, ReloadPage, StopLoading, ReloadFromOrigin, ToggleSelectedTabPinned, DuplicateTab, ReopenClosedTab,
@@ -284,7 +293,7 @@ public sealed class ShortcutCommand {
         ExportPDF, SaveWebArchive, PrintPage, ToggleSidebar, ShowHistory, ShowArchive, ShowDownloads, ShowWebInspector,
         SplitWithNextTab, FocusNextSplitCard, FocusPreviousSplitCard, RemoveTabFromSplit, SeparateSplitTabs,
         MoveSplitCardLeft, MoveSplitCardRight, ToggleDeveloperToolbar, ToggleTranslationToolbar, OpenFile, FindNext,
-        FindPrevious
+        FindPrevious, BookmarkPage, ShowBookmarks
     ];
 
     public Kinds Kind { get; }

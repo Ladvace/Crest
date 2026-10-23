@@ -106,6 +106,8 @@ struct BrowserMacCommand {
     static let toggleSidebar = BrowserMacCommand(.toggleSidebar) { $0.toggleSidebar() }
     static let showHistory = BrowserMacCommand(.showHistory) { $0.chrome.toggleUtility(.history) }
     static let showArchive = BrowserMacCommand(.showArchive) { $0.chrome.toggleUtility(.archive) }
+    static let showBookmarks = BrowserMacCommand(.showBookmarks) { $0.chrome.requestBookmarks(bookmarkingPage: false) }
+    static let bookmarkPage = BrowserMacCommand(.bookmarkPage) { $0.chrome.requestBookmarks(bookmarkingPage: true) }
     static let showDownloads = BrowserMacCommand(
         .showDownloads, isAvailable: { $0.supportsEngineCapability(.downloads) },
         run: { $0.chrome.toggleUtility(.downloads) })
@@ -148,7 +150,7 @@ struct BrowserMacCommand {
         copyPageLink,
         copyPageLinkAsMarkdown,
         sharePage, exportPDF, saveWebArchive, printPage, toggleSidebar, showHistory, showArchive, showDownloads,
-        showWebInspector,
+        showWebInspector, showBookmarks, bookmarkPage,
         toggleTranslationToolbar, toggleDeveloperToolbar, selectNumbered,
     ]
 

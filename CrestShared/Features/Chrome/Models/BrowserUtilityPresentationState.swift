@@ -2,6 +2,14 @@ import Foundation
 import Observation
 import SwiftUI
 
+/// A request to open the bookmarks panel, and whether it opens on
+/// bookmarking the page on show. Each request is new, so asking twice opens
+/// it twice.
+struct BrowserBookmarksRequest: Equatable {
+    let id: Int
+    let bookmarksPage: Bool
+}
+
 @Observable
 @MainActor
 final class BrowserUtilityPresentationState {
@@ -30,6 +38,9 @@ final class BrowserUtilityPresentationState {
     }
     @ObservationIgnored private var isSiteControlContextMenuPresentedStorage = false
     private(set) var triggerFrameInGlobal: CGRect?
+    /// The latest request to open the bookmarks panel, which the address
+    /// field's bookmarks button answers.
+    private(set) var bookmarksRequest: BrowserBookmarksRequest?
     private(set) var searchFocusRequest = 0
     @ObservationIgnored private var consumedSearchFocusRequest = 0
     @ObservationIgnored private let defaults: UserDefaults?
@@ -79,6 +90,13 @@ final class BrowserUtilityPresentationState {
         lastSelectedSurface = surface
         defaults?.set(surface.name, forKey: persistenceKey)
         isSwitcherExpanded = true
+    }
+
+    /// Asks the address field's bookmarks button to open its panel, closing
+    /// any utility list that hides the address field.
+    func requestBookmarks(bookmarkingPage: Bool) {
+        dismiss()
+        bookmarksRequest = BrowserBookmarksRequest(id: (bookmarksRequest?.id ?? 0) + 1, bookmarksPage: bookmarkingPage)
     }
 
     /// Records a request that stays pending until the owning search field can receive it.

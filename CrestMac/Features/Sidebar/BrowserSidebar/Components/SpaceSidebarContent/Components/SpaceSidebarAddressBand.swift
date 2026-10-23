@@ -3,6 +3,7 @@ import SwiftUI
 /// Fixed address controls. The pager owns the changing extension-strip seam
 /// so semantic selection cannot resize the viewport during a Space transition.
 struct SpaceSidebarAddressBand: View {
+    let browser: BrowserStore
     let space: SpaceModel
     /// Whether the site controls act for `space`; they offer nothing while it
     /// is being deleted.
@@ -20,6 +21,8 @@ struct SpaceSidebarAddressBand: View {
     let commandPaletteHandoff: BrowserCommandPaletteHandoff
     let siteControlPresentationChanged: (Bool) -> Void
     let siteControlContextMenuPresentationChanged: (Bool) -> Void
+    /// The latest request to open the bookmarks, from the menu or a shortcut.
+    let bookmarksRequest: BrowserBookmarksRequest?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -32,8 +35,13 @@ struct SpaceSidebarAddressBand: View {
                 )
             }
         } trailingAccessory: {
-            if let siteControl {
-                BrowserSiteControlButton(configuration: siteControl)
+            HStack(spacing: 0) {
+                BrowserBookmarksButton(
+                    browser: browser, space: space, page: bookmarkPage, request: bookmarksRequest,
+                    presentationChanged: siteControlPresentationChanged)
+                if let siteControl {
+                    BrowserSiteControlButton(configuration: siteControl)
+                }
             }
         }
         .contentTransition(.opacity)
@@ -55,6 +63,7 @@ struct SpaceSidebarAddressBand: View {
             isLoading: displayedPage?.live.isLoading == true,
             hasResidentPage: displayedPage != nil,
             hasActiveSite: siteControl != nil,
+            offersBookmarks: true,
             capabilities: capabilities,
             activate: activateAddress,
             submit: submitAddress,
@@ -63,6 +72,16 @@ struct SpaceSidebarAddressBand: View {
             commandPaletteHandoff: commandPaletteHandoff,
             branding: space.settings.look
         )
+    }
+
+    /// The page the bookmarks button can bookmark: the one on show, as it
+    /// spells its address and title, or the selected tab's when it has none.
+    private var bookmarkPage: BrowserBookmarkPage? {
+        if let page = displayedPage, let url = page.live.displayURL?.absoluteString {
+            return BrowserBookmarkPage(url: url, title: page.live.title.isEmpty ? url : page.live.title)
+        }
+        guard let tab = selectedTab, let url = tab.url, url.hasPrefix("http") else { return nil }
+        return BrowserBookmarkPage(url: url, title: tab.title.isEmpty ? url : tab.title)
     }
 
     private var selectedTab: TabStateModel? {

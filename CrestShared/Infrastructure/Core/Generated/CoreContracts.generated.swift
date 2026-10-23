@@ -17231,6 +17231,8 @@ struct ShortcutCommand: Hashable, Sendable {
         case openFile
         case findNext
         case findPrevious
+        case bookmarkPage
+        case showBookmarks
     }
 
     let tag: Int
@@ -19121,6 +19123,62 @@ struct ShortcutCommand: Hashable, Sendable {
         offersInPalette: true,
         isReservedFromPages: false
     )
+    static let bookmarkPage = ShortcutCommand(
+        tag: 70,
+        kind: .bookmarkPage,
+        name: "bookmarkPage",
+        section: ShortcutSection.page,
+        title: LocalizedStringResource("Bookmark This Page"),
+        searchTerms: LocalizedStringResource("bookmark save favorite link"),
+        menuTitle: LocalizedStringResource("Bookmark This Page…"),
+        symbol: "bookmark",
+        requiredCapability: nil,
+        selects: nil,
+        number: nil,
+        defaultShortcuts: [
+            ShortcutDefault(
+                platform: DevicePlatform.desktop,
+                keys: KeyCombination(key: "d", isSpecialKey: false, modifiers: [.command, .shift]),
+                yieldsToOverrides: false
+            ),
+            ShortcutDefault(
+                platform: DevicePlatform.mobile,
+                keys: KeyCombination(key: "d", isSpecialKey: false, modifiers: [.command, .shift]),
+                yieldsToOverrides: false
+            )
+        ],
+        paletteRest: nil,
+        offersInPalette: true,
+        isReservedFromPages: false
+    )
+    static let showBookmarks = ShortcutCommand(
+        tag: 71,
+        kind: .showBookmarks,
+        name: "showBookmarks",
+        section: ShortcutSection.view,
+        title: LocalizedStringResource("Show Bookmarks"),
+        searchTerms: LocalizedStringResource("bookmarks saved links folders"),
+        menuTitle: nil,
+        symbol: "book",
+        requiredCapability: nil,
+        selects: nil,
+        number: nil,
+        defaultShortcuts: [
+            ShortcutDefault(
+                platform: DevicePlatform.desktop,
+                keys: KeyCombination(key: "b", isSpecialKey: false, modifiers: [.command, .option]),
+                yieldsToOverrides: false
+            ),
+            ShortcutDefault(
+                platform: DevicePlatform.mobile,
+                keys: KeyCombination(key: "b", isSpecialKey: false, modifiers: [.command, .option]),
+                yieldsToOverrides: false
+            )
+        ],
+        paletteRest: nil,
+        offersInPalette: true,
+        isReservedFromPages: false
+    )
 
     static let all: [ShortcutCommand] = [
         newWindow,
@@ -19192,7 +19250,9 @@ struct ShortcutCommand: Hashable, Sendable {
         toggleTranslationToolbar,
         openFile,
         findNext,
-        findPrevious
+        findPrevious,
+        bookmarkPage,
+        showBookmarks
     ]
 
     static func named(_ name: String?) -> ShortcutCommand? {
@@ -19293,7 +19353,12 @@ struct ShortcutMenu: Hashable, Sendable {
         title: LocalizedStringResource("View"),
         groups: [
             [ShortcutCommand.toggleSidebar, ShortcutCommand.toggleTranslationToolbar],
-            [ShortcutCommand.showHistory, ShortcutCommand.showArchive, ShortcutCommand.showDownloads]
+            [
+                ShortcutCommand.showHistory,
+                ShortcutCommand.showArchive,
+                ShortcutCommand.showDownloads,
+                ShortcutCommand.showBookmarks
+            ]
         ]
     )
     static let navigate = ShortcutMenu(
@@ -19318,6 +19383,7 @@ struct ShortcutMenu: Hashable, Sendable {
         groups: [
             [
                 ShortcutCommand.toggleSelectedTabPinned,
+                ShortcutCommand.bookmarkPage,
                 ShortcutCommand.duplicateTab,
                 ShortcutCommand.reopenClosedTab,
                 ShortcutCommand.clearUnpinnedTabs,

@@ -19,7 +19,7 @@ public sealed class ShortcutMenu {
     ]);
     public static readonly ShortcutMenu View = new(name: "view", title: "View", groups: [
         [ShortcutCommand.ToggleSidebar, ShortcutCommand.ToggleTranslationToolbar],
-        [ShortcutCommand.ShowHistory, ShortcutCommand.ShowArchive, ShortcutCommand.ShowDownloads]
+        [ShortcutCommand.ShowHistory, ShortcutCommand.ShowArchive, ShortcutCommand.ShowDownloads, ShortcutCommand.ShowBookmarks]
     ]);
     public static readonly ShortcutMenu Navigate = new(name: "navigate", title: "Navigate", groups: [
         [ShortcutCommand.OpenLocation],
@@ -27,8 +27,8 @@ public sealed class ShortcutMenu {
             ShortcutCommand.ReloadFromOrigin]
     ]);
     public static readonly ShortcutMenu Tabs = new(name: "tabs", title: "Tabs", groups: [
-        [ShortcutCommand.ToggleSelectedTabPinned, ShortcutCommand.DuplicateTab, ShortcutCommand.ReopenClosedTab,
-            ShortcutCommand.ClearUnpinnedTabs, ShortcutCommand.ArchiveTab],
+        [ShortcutCommand.ToggleSelectedTabPinned, ShortcutCommand.BookmarkPage, ShortcutCommand.DuplicateTab,
+            ShortcutCommand.ReopenClosedTab, ShortcutCommand.ClearUnpinnedTabs, ShortcutCommand.ArchiveTab],
         [ShortcutCommand.PreviousTab, ShortcutCommand.NextTab, ShortcutCommand.MostRecentTab],
         [ShortcutCommand.SplitWithNextTab, ShortcutCommand.FocusNextSplitCard, ShortcutCommand.FocusPreviousSplitCard,
             ShortcutCommand.MoveSplitCardLeft, ShortcutCommand.MoveSplitCardRight, ShortcutCommand.RemoveTabFromSplit,

@@ -4321,6 +4321,10 @@
     "bookmarks-core-model": {
       "category": "internal",
       "message": "Spaces keep bookmarks in nested folders, saved and synced with the Space."
+    },
+    "bookmarks-button-and-library": {
+      "category": "new",
+      "message": "Bookmark pages you want to keep without filling your sidebar. The bookmark button next to the address field opens your Space's bookmarks: search them, sort them into folders, and show any bookmark or folder in every Space. Press Shift-Command-D to bookmark a page and Option-Command-B to open your bookmarks."
     }
   }
 }

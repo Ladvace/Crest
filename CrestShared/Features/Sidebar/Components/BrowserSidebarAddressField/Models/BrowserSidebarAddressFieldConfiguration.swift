@@ -22,6 +22,9 @@ struct BrowserSidebarAddressFieldConfiguration {
     var hasResidentPage = true
     /// Whether a live site is offering the field its own controls.
     var hasActiveSite = false
+    /// Whether the shell offers its bookmarks in the trailing slot, with or
+    /// without a live site.
+    var offersBookmarks = false
     let capabilities: BrowserInteractionCapabilities
     /// What tapping the resting address means. Absent where the field simply
     /// begins editing in place; present where the shell grows it into the
@@ -58,9 +61,10 @@ struct BrowserSidebarAddressFieldConfiguration {
         return isEditing.wrappedValue || (hasResidentPage && !text.wrappedValue.isEmpty)
     }
 
-    /// Whether the live site's settings control takes the trailing slot.
+    /// Whether the live site's settings control, or the shell's bookmarks,
+    /// take the trailing slot.
     var showsTrailingAccessory: Bool {
-        !isEditing.wrappedValue && hasActiveSite
+        !isEditing.wrappedValue && (hasActiveSite || offersBookmarks)
     }
 
     /// The clear control appears while there is an edit in progress and

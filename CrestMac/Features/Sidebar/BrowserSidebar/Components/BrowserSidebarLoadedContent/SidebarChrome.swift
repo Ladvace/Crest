@@ -41,6 +41,7 @@ struct SidebarChrome: View {
 
                 if context.utilityPresentation.surface == nil {
                     SpaceSidebarAddressBand(
+                        browser: context.browser,
                         space: space,
                         offersSiteControls: !context.browser.isDeleting(space.id),
                         selectedTabID: context.browser.selectedTabID(in: space.id),
@@ -58,7 +59,8 @@ struct SidebarChrome: View {
                         },
                         siteControlContextMenuPresentationChanged: {
                             context.utilityPresentation.setSiteControlContextMenuPresented($0)
-                        }
+                        },
+                        bookmarksRequest: context.utilityPresentation.bookmarksRequest
                     )
                 }
             }
