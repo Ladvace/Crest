@@ -24,6 +24,7 @@ struct BrowserOnboardingWindow: View {
         progress: BrowserOnboardingProgressStore,
         spaceAccess: BrowserSpaceAccessController,
         extensionInstaller: (any BrowserImportedExtensionInstalling)?,
+        signInSeeder: (any BrowserImportedSignInSeeding)? = nil,
         closeWindow: @escaping () -> Void,
         openBrowser: @escaping () -> Void
     ) {
@@ -32,7 +33,8 @@ struct BrowserOnboardingWindow: View {
             cloudSync: cloudSync,
             progress: progress,
             spaceAccess: spaceAccess,
-            flow: BrowserOnboardingFlow(request: request, browser: browser, extensionInstaller: extensionInstaller),
+            flow: BrowserOnboardingFlow(
+                request: request, browser: browser, extensionInstaller: extensionInstaller, signInSeeder: signInSeeder),
             closeWindow: closeWindow, openBrowser: openBrowser
         )
     }

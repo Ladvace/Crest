@@ -12,9 +12,11 @@ enum BrowserPasswordImportReader {
             var readableStoreCount = 0
             for store in stores where total < maximumPasswordCount {
                 guard
-                    let records = try? BrowserPasswordSQLiteDatabase(
-                        url: URL(fileURLWithPath: store.path)
-                    ).encryptedRecords(limit: maximumPasswordCount - total)
+                    let records = try? BrowserPasswordSQLiteDatabase.reading(
+                        copyOf: URL(fileURLWithPath: store.path),
+                        {
+                            try $0.encryptedRecords(limit: maximumPasswordCount - total)
+                        })
                 else {
                     continue
                 }
@@ -45,8 +47,11 @@ enum BrowserPasswordImportReader {
             imported.reserveCapacity(min(maximumPasswordCount, stores.count * 100))
             for store in stores where imported.count < maximumPasswordCount {
                 guard
-                    let records = try? BrowserPasswordSQLiteDatabase(url: URL(fileURLWithPath: store.path))
-                        .encryptedRecords(limit: maximumPasswordCount - imported.count)
+                    let records = try? BrowserPasswordSQLiteDatabase.reading(
+                        copyOf: URL(fileURLWithPath: store.path),
+                        {
+                            try $0.encryptedRecords(limit: maximumPasswordCount - imported.count)
+                        })
                 else {
                     continue
                 }
@@ -92,8 +97,11 @@ enum BrowserPasswordImportReader {
             candidates.reserveCapacity(min(maximumPasswordCount, stores.count * 100))
             for store in stores where candidates.count < maximumPasswordCount {
                 guard
-                    let records = try? BrowserPasswordSQLiteDatabase(url: URL(fileURLWithPath: store.path))
-                        .encryptedRecords(limit: maximumPasswordCount - candidates.count)
+                    let records = try? BrowserPasswordSQLiteDatabase.reading(
+                        copyOf: URL(fileURLWithPath: store.path),
+                        {
+                            try $0.encryptedRecords(limit: maximumPasswordCount - candidates.count)
+                        })
                 else {
                     continue
                 }

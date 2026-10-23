@@ -22,4 +22,8 @@ protocol BrowserMacEngineHost: AnyObject {
     /// What installs the extensions an import brings, or nil for an engine
     /// that runs none.
     var importedExtensionInstaller: (any BrowserImportedExtensionInstalling)? { get }
+
+    /// What lays an import's sign-ins down in new Spaces' profiles, or nil
+    /// for an engine whose cookie stores take them once imported.
+    var importedSignInSeeder: (any BrowserImportedSignInSeeding)? { get }
 }

@@ -399,6 +399,7 @@ final class BrowserMacWindows {
                     request: request, browser: source?.browser ?? application.browser,
                     cloudSync: application.cloudSync, progress: application.onboardingProgress,
                     spaceAccess: application.spaceAccess, extensionInstaller: engineHost.importedExtensionInstaller,
+                    signInSeeder: engineHost.importedSignInSeeder,
                     closeWindow: { [weak window] in window?.close() },
                     openBrowser: { [weak self] in self?.openBrowser(after: source?.id) })
             },

@@ -36,6 +36,12 @@ enum BrowserOnboardingSummary {
         )
     }
 
+    static func signInSiteCount(_ count: Int) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "Stay signed in to \(max(count, 0)) sites",
+            comment: "Shown while reviewing a browser import, for the sites a Space can stay signed in to.")
+    }
+
     static func extensionCount(included: Int, total: Int) -> LocalizedStringResource {
         let total = max(total, 0)
         let included = min(max(included, 0), total)

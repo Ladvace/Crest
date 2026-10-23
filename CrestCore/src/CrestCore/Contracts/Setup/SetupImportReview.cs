@@ -51,6 +51,11 @@ public sealed partial record SetupImportReview(ImportSource Source, IReadOnlyLis
     [Resolved]
     public int IncludedPasswordCount => Spaces.Where(space => space.Included && space.IncludesPasswords).Sum(space => space.PasswordCount);
 
+    /// How many sites the review's Spaces stay signed in to, counted once for
+    /// each Space.
+    [Resolved]
+    public int IncludedSignInSiteCount => Spaces.Where(space => space.BringsSignIns).Sum(space => space.SignInSiteCount);
+
     /// How many extensions the review installs.
     [Resolved]
     public int IncludedExtensionCount => Spaces.Sum(space => space.BroughtExtensions.Count);

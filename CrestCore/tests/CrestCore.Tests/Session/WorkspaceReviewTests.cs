@@ -29,7 +29,8 @@ public sealed class WorkspaceReviewTests {
         var duplicate = Tab("https://example.com/a"); var fresh = Tab("https://example.com/b"); var native = Tab(null);
         var source = Space(" work! ", duplicate, fresh, native);
         var unmatched = Space("!!!", Tab("https://example.com/a"));
-        var review = SetupImportReview.Started(ImportSource.Arc, [source, unmatched], new Dictionary<Guid, int> { [source.Id] = 3 }, [], [], Session(null, existing));
+        var review = SetupImportReview.Started(ImportSource.Arc, [source, unmatched], new Dictionary<Guid, int> { [source.Id] = 3 },
+            new Dictionary<Guid, int>(), [], [], Session(null, existing));
 
         Assert.Equal(source.Id, review.ShownSpaceId);
         var joined = review.Spaces[0];
@@ -39,7 +40,8 @@ public sealed class WorkspaceReviewTests {
         Assert.Equal([existingTab.Id], joined.MatchedTabIds);
         Assert.Equal((null, "!!!"), (review.Spaces[1].DestinationId, review.Spaces[1].Customization.Name));
         // Over a first launch's disposable Spaces, everything comes in new.
-        Assert.Null(SetupImportReview.Started(ImportSource.Arc, [source], new Dictionary<Guid, int>(), [], [], Session(Guid.NewGuid(), existing)).Spaces[0].DestinationId);
+        Assert.Null(SetupImportReview.Started(ImportSource.Arc, [source], new Dictionary<Guid, int>(), new Dictionary<Guid, int>(), [], [],
+            Session(Guid.NewGuid(), existing)).Spaces[0].DestinationId);
     }
 
     [Fact]
@@ -51,7 +53,8 @@ public sealed class WorkspaceReviewTests {
         var source = Space("Work", first, second, promoted);
         var fresh = Space("New", Tab("https://three.example", TabPlacement.Pinned));
         var session = Session(null, existing);
-        var review = SetupImportReview.Started(ImportSource.Chrome, [source, fresh], new Dictionary<Guid, int>(), [], [], session);
+        var review = SetupImportReview.Started(ImportSource.Chrome, [source, fresh], new Dictionary<Guid, int>(), new Dictionary<Guid, int>(), [], [],
+            session);
 
         review = review.Placing(source.Id, promoted.Id, TabPlacement.Pinned, session);
         Assert.Equal([second.Id, promoted.Id], review.OverflowTabIds);
@@ -86,7 +89,8 @@ public sealed class WorkspaceReviewTests {
 
         // The first Space matching an existing one joins it, and the next
         // comes in new; the workspace has room for one new Space only.
-        var review = SetupImportReview.Started(ImportSource.Chrome, [joining, again, first, second], new Dictionary<Guid, int>(), [], leftOut,
+        var review = SetupImportReview.Started(ImportSource.Chrome, [joining, again, first, second], new Dictionary<Guid, int>(),
+            new Dictionary<Guid, int>(), [], leftOut,
             session);
         Assert.Equal([existing[0].Id, null, null, null], review.Spaces.Select(space => space.DestinationId));
         Assert.Equal([true, true, false, false], review.Spaces.Select(space => space.Included));
@@ -102,7 +106,7 @@ public sealed class WorkspaceReviewTests {
         Assert.Same(full, full.ChoosingDestination(again.Id, null, session));
         // A first launch's disposable Spaces make way for every Space.
         Assert.Equal(SessionState.MaximumSpaces - 4, SetupImportReview.Started(ImportSource.Chrome, [joining, again, first, second],
-            new Dictionary<Guid, int>(), [], [], Session(Guid.NewGuid(), existing)).NewSpaceCapacity);
+            new Dictionary<Guid, int>(), new Dictionary<Guid, int>(), [], [], Session(Guid.NewGuid(), existing)).NewSpaceCapacity);
     }
 
     [Fact]

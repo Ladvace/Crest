@@ -30,6 +30,30 @@ enum ChromiumPasswordCrypto {
         return key
     }
 
+    /// `plain` sealed as Chromium seals a value on the Mac: `v10` and the
+    /// AES-128-CBC ciphertext under `key`.
+    static func encrypt(_ plain: Data, key: Data) throws -> Data {
+        let iv = Data(repeating: 0x20, count: kCCBlockSizeAES128)
+        var output = Data(count: plain.count + kCCBlockSizeAES128)
+        let outputCount = output.count
+        var moved = 0
+        let status = output.withUnsafeMutableBytes { outputBytes in
+            plain.withUnsafeBytes { plainBytes in
+                key.withUnsafeBytes { keyBytes in
+                    iv.withUnsafeBytes { ivBytes in
+                        CCCrypt(
+                            CCOperation(kCCEncrypt), CCAlgorithm(kCCAlgorithmAES), CCOptions(kCCOptionPKCS7Padding),
+                            keyBytes.baseAddress, key.count, ivBytes.baseAddress,
+                            plainBytes.baseAddress, plain.count, outputBytes.baseAddress, outputCount, &moved)
+                    }
+                }
+            }
+        }
+        guard status == kCCSuccess else { throw BrowserPasswordImportError.unsupportedEncryption }
+        output.removeSubrange(moved..<output.count)
+        return Data("v10".utf8) + output
+    }
+
     static func decrypt(_ encrypted: Data, key: Data) throws -> Data {
         guard encrypted.count > 3,
             encrypted.prefix(3) == Data("v10".utf8)

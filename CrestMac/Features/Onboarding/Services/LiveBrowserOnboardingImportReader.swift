@@ -2,7 +2,10 @@ import Foundation
 
 /// Reads an installed browser's data for review: the core reads its profiles'
 /// bookmarks, sessions and installed extensions away from the main thread, and the password stores
-/// are counted where the browser keeps passwords Crest imports.
+/// are counted where the browser keeps passwords Crest imports, with the sites
+/// each profile is signed in to. A launch that may not open the Keychain that
+/// unlocks them offers neither, and one that forgets its website data on quit
+/// offers no sign-ins.
 struct LiveBrowserOnboardingImportReader: BrowserOnboardingImportReading {
     // MARK: - Static Variables
 
@@ -12,16 +15,22 @@ struct LiveBrowserOnboardingImportReader: BrowserOnboardingImportReading {
     // MARK: - Variables
 
     let core: CrestCore
+    var launchEnvironment: BrowserLaunchEnvironment = .current
 
     func read(
         _ payload: BrowserDetectedImportPayload
     ) async throws -> BrowserOnboardingImportReadOutput {
         let passwordCandidates =
-            payload.application.suppliesPasswords
+            payload.application.suppliesPasswords && launchEnvironment.opensImportKeychain
             ? try await BrowserPasswordImportReader.candidates(
                 from: payload.passwordStores,
                 application: payload.application
             )
+            : []
+        let signInSites =
+            payload.application.suppliesPasswords && launchEnvironment.opensImportKeychain
+                && !launchEnvironment.usesEphemeralProfileStorage
+            ? await BrowserCookieImportReader.sites(in: payload.passwordStores)
             : []
         try Task.checkCancellation()
 
@@ -37,6 +46,8 @@ struct LiveBrowserOnboardingImportReader: BrowserOnboardingImportReading {
             payload: payload,
             imported: imported.spaces,
             passwordCandidates: passwordCandidates,
+            signInSites: signInSites,
+            spaceProfiles: imported.profiles ?? [],
             extensions: imported.extensions,
             extensionIcons: icons,
             leftOut: imported.leftOut

@@ -54,16 +54,17 @@ public sealed partial class BrowserContractsTests {
         Assert.Equal(["Arc Work", "Gradient", "Single"], spaces.Select(space => space.Settings.Name));
         var work = spaces[0];
         Assert.Equal(("crest.emoji:🏛️", SpaceAccent.Indigo), (work.Settings.Symbol, work.Settings.Accent));
-        // Favorites are pinned, Today's tabs stay open whatever lists hold them,
-        // and pinned lists become saved folders. A file address is dropped.
+        // Favorites are pinned, Today's tabs stay open and pinned ones saved,
+        // each section keeping its folders. A file address is dropped.
         Assert.Equal([
             ("Favorite", TabPlacement.Pinned, "https://favorite.example/", null),
             ("Today", TabPlacement.Current, "https://today.example/", null),
-            ("today-two.example", TabPlacement.Current, "https://today-two.example/path", null),
+            ("today-two.example", TabPlacement.Current, "https://today-two.example/path", "Today Folder"),
             ("Saved", TabPlacement.Saved, "https://saved.example/", "Reading"),
             ("Deep title", TabPlacement.Saved, "https://deep.example/", "Untitled Folder")
         ], TabsOf(work));
-        Assert.Equal([("Reading", null), ("Untitled Folder", "Reading")], FoldersOf(work));
+        Assert.Equal([("Today Folder", null), ("Reading", null), ("Untitled Folder", "Reading")], FoldersOf(work));
+        Assert.Equal([TabPlacement.Current, TabPlacement.Saved, TabPlacement.Saved], work.Folders.Select(folder => folder.Location));
 
         // Another profile's favorites are its own; a gradient keeps its colors
         // the way Crest can draw them.
@@ -72,7 +73,25 @@ public sealed partial class BrowserContractsTests {
         Assert.Equal([TabPlacement.Pinned, TabPlacement.Pinned], gradient.Tabs.Select(tab => tab.Placement));
         Assert.Equal((SpaceBannerPattern.Solid, SpaceThemeMode.Gradient, 3),
             (gradient.Settings.Branding!.BannerPattern, gradient.Settings.Branding.ThemeMode, gradient.Settings.Branding.Colors.Colors.Count));
+        var gradientLook = gradient.Settings.Branding!;
+        Assert.Equal((1.0, false), (gradientLook.BannerStrength, gradientLook.ShowsTexture));
         Assert.Equal(("globe.americas.fill", SpaceAccent.Teal), (spaces[2].Settings.Symbol, spaces[2].Settings.Accent));
+        // A single color keeps Arc's intensity and its grain.
+        var singleLook = spaces[2].Settings.Branding!;
+        Assert.Equal((0.6, true), (singleLook.BannerStrength, singleLook.ShowsTexture));
+    }
+
+    [Fact]
+    public void ArcBringsEachSpacesArchiveLatestFirstLeavingOutFilesAndLittleArc() {
+        var spaces = ReadSession("arc", "arc-rich", "StorableSidebar.json");
+
+        Assert.Equal([
+            ("Closed", "https://new.example/", ArchiveReason.Closed),
+            ("Cleaned up", "https://old.example/", ArchiveReason.AutoCleanup)
+        ], spaces[0].ArchivedTabs.Select(archived => (archived.Tab.Title, archived.Tab.Url, archived.Reason)));
+        Assert.True(spaces[0].ArchivedTabs[0].ArchivedAt > spaces[0].ArchivedTabs[0].Tab.LastActivatedAt);
+        Assert.Equal(["Other Space"], spaces[1].ArchivedTabs.Select(archived => archived.Tab.Title));
+        Assert.Empty(spaces[2].ArchivedTabs);
     }
 
     [Fact]

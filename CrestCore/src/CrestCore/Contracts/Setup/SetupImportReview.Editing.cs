@@ -20,14 +20,16 @@ public sealed partial record SetupImportReview {
     /// come in new once the workspace is full starts left out. A first
     /// launch's disposable Spaces are no destination, so everything comes in
     /// new in their place. `passwords` counts the saved passwords that belong
-    /// with each Space, `extensions` lists the extensions each Space offers,
+    /// with each Space, `signIns` the sites each could stay signed in to,
+    /// `extensions` lists the extensions each Space offers,
     /// all of them left on, and `leftOut` is what the read could not bring.
     internal static SetupImportReview Started(ImportSource source, IReadOnlyList<SpaceState> spaces,
-        IReadOnlyDictionary<Guid, int> passwords, IReadOnlyList<ImportSpaceExtensions> extensions, IReadOnlyList<ImportLeftOut> leftOut,
-        SessionState session) {
+        IReadOnlyDictionary<Guid, int> passwords, IReadOnlyDictionary<Guid, int> signIns, IReadOnlyList<ImportSpaceExtensions> extensions,
+        IReadOnlyList<ImportLeftOut> leftOut, SessionState session, IReadOnlyDictionary<Guid, string>? profiles = null) {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(spaces);
         ArgumentNullException.ThrowIfNull(passwords);
+        ArgumentNullException.ThrowIfNull(signIns);
         ArgumentNullException.ThrowIfNull(extensions);
         ArgumentNullException.ThrowIfNull(leftOut);
         ArgumentNullException.ThrowIfNull(session);
@@ -44,7 +46,9 @@ public sealed partial record SetupImportReview {
             bool included = match is not null || created < room;
             if (included && match is null) created++;
             reviews.Add(SetupReviewSpace.Started(space, match, included, passwords.GetValueOrDefault(space.Id),
-                offers.GetValueOrDefault(space.Id) ?? []));
+                signIns.GetValueOrDefault(space.Id), offers.GetValueOrDefault(space.Id) ?? []) with {
+                SourceProfileId = profiles?.GetValueOrDefault(space.Id)
+            });
         }
         return new SetupImportReview(source, reviews, [], spaces.FirstOrDefault()?.Id, leftOut, room).Analyzed(session);
     }
@@ -103,6 +107,11 @@ public sealed partial record SetupImportReview {
     internal SetupImportReview IncludingPasswords(Guid sourceId, bool included, SessionState session) =>
         Editing(sourceId, session, space => space with { IncludesPasswords = included });
 
+    /// `review` keeping `sourceId` signed in to the sites the other browser
+    /// was signed in to, or leaving them out.
+    internal SetupImportReview IncludingSignIns(Guid sourceId, bool included, SessionState session) =>
+        Editing(sourceId, session, space => space with { IncludesSignIns = included });
+
     /// `review` installing the extension `extensionId` that `sourceId` offers,
     /// or leaving it out. An extension the Space does not offer changes nothing.
     internal SetupImportReview IncludingExtension(Guid sourceId, string extensionId, bool included,
@@ -151,16 +160,44 @@ public sealed partial record SetupImportReview {
     /// longer holds or `isLocked` holds shut. A password whose Space does not
     /// bring its passwords goes nowhere, never to another profile's Space.
     internal ImportPasswordRoutes PasswordRoutes(IReadOnlyList<ImportPasswordSource> passwords, SessionState session,
-        Func<SpaceState, bool> isLocked) {
-        ArgumentNullException.ThrowIfNull(passwords);
+        Func<SpaceState, bool> isLocked) => Routes(passwords, space => space.BringsPasswords, session, isLocked);
+
+    /// Where the sign-ins of each of `sites` go once the review is imported
+    /// into `session`, as passwords go, to the Spaces that bring their
+    /// sign-ins.
+    internal ImportPasswordRoutes SignInRoutes(IReadOnlyList<ImportPasswordSource> sites, SessionState session,
+        Func<SpaceState, bool> isLocked) => Routes(sites, space => space.BringsSignIns, session, isLocked);
+
+    /// The reviewed Spaces the sign-ins of each of `sites` go to, by the
+    /// Space's identity in the review, among those that bring their
+    /// sign-ins. A Space that comes in new keeps that identity and its
+    /// profile, so its sign-ins can be laid down before its profile first
+    /// opens.
+    internal ImportPasswordRoutes SignInSources(IReadOnlyList<ImportPasswordSource> sites) {
+        ArgumentNullException.ThrowIfNull(sites);
+        var reviewed = Spaces.Select(space => space.Source).ToArray();
+        var bringing = Spaces.Where(space => space.BringsSignIns).Select(space => space.Source.Id).ToHashSet();
+        var spaceSites = SpaceSites.Of(reviewed);
+        return new([.. sites.Select(site => new ImportPasswordRoute([.. Source.SpacesFor(site, reviewed, spaceSites, SourceProfiles)
+            .Where(bringing.Contains)]))]);
+    }
+
+    /// The browser profile each reviewed Space comes from, where the read
+    /// knew it.
+    private IReadOnlyDictionary<Guid, string> SourceProfiles => Spaces.Where(space => space.SourceProfileId is not null)
+        .ToDictionary(space => space.Source.Id, space => space.SourceProfileId!);
+
+    private ImportPasswordRoutes Routes(IReadOnlyList<ImportPasswordSource> sources, Func<SetupReviewSpace, bool> brings,
+        SessionState session, Func<SpaceState, bool> isLocked) {
+        ArgumentNullException.ThrowIfNull(sources);
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(isLocked);
         var reviewed = Spaces.Select(space => space.Source).ToArray();
-        var destinations = Spaces.Where(space => space.BringsPasswords)
+        var destinations = Spaces.Where(brings)
             .ToDictionary(space => space.Source.Id, space => space.DestinationId ?? space.Source.Id);
         var open = session.Spaces.Where(space => !isLocked(space)).Select(space => space.Id).ToHashSet();
         var sites = SpaceSites.Of(reviewed);
-        return new([.. passwords.Select(password => new ImportPasswordRoute([.. Source.SpacesFor(password, reviewed, sites)
+        return new([.. sources.Select(source => new ImportPasswordRoute([.. Source.SpacesFor(source, reviewed, sites, SourceProfiles)
             .Where(destinations.ContainsKey).Select(spaceId => destinations[spaceId]).Distinct().Where(open.Contains)]))]);
     }
 

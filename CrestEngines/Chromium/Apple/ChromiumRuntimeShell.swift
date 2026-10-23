@@ -9,6 +9,7 @@
 
         var aboutCredits: String? { ChromiumComposition.engineHost.map { "Chromium \($0.engineVersion())" } }
         var importedExtensionInstaller: (any BrowserImportedExtensionInstalling)? { ChromiumComposition.extensions }
+        var importedSignInSeeder: (any BrowserImportedSignInSeeding)? { ChromiumSignInSeeder() }
 
         // MARK: - Actions - Windows
 

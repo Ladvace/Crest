@@ -10,6 +10,7 @@
 
         var aboutCredits: String? { "Chromium \(host.engineVersion())" }
         var importedExtensionInstaller: (any BrowserImportedExtensionInstalling)? { ChromiumComposition.extensions }
+        var importedSignInSeeder: (any BrowserImportedSignInSeeding)? { ChromiumSignInSeeder() }
 
         // MARK: - Initializers
 

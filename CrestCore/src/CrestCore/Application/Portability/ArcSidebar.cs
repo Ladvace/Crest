@@ -7,10 +7,11 @@ namespace CrestCore.Application;
 
 /// Arc's sidebar, `StorableSidebar.json`: containers of items, and Spaces
 /// whose sections list the items they hold. Each Space brings its favorites
-/// as pinned tabs, its pinned section as saved tabs in their folders, and its
-/// unpinned section as open tabs, with its name, icon and colors, and each
-/// split view as a split of its tabs. A Chromium session file Arc wrote is
-/// read as one.
+/// as pinned tabs, its pinned section as saved tabs and its unpinned section
+/// as open tabs, each in its folders, with its name, icon and colors, each
+/// split view as a split of its tabs, and the tabs Arc archived from it,
+/// `StorableArchiveItems.json`, as its archive. A Chromium session file Arc
+/// wrote is read as one.
 internal static class ArcSidebar {
     #region Static Variables
 
@@ -26,6 +27,14 @@ internal static class ArcSidebar {
     private const string UntitledFolder = "Untitled Folder";
     private const string UnpinnedSection = "unpinned";
     private const string PinnedSection = "pinned";
+    /// The reason Arc gives a tab it archived by itself.
+    private const string AutomaticArchive = "auto";
+    /// The least alpha at which one of Arc's overlay colors shows.
+    private const double VisibleAlpha = 0.05;
+    /// The least noise at which Arc's grain shows.
+    private const double VisibleNoise = 0.1;
+    /// The faintest Arc's intensity slider paints, so a Space keeps its color.
+    private const double MinimumIntensity = 0.3;
 
     #endregion
 
@@ -39,6 +48,10 @@ internal static class ArcSidebar {
 
     private sealed record Space(string? Title, IReadOnlyList<string> Sections, string ProfileKey, string? ProfileFolder,
         JsonElement? CustomInfo);
+
+    /// How strongly Arc paints a Space's colors, from none to full, and
+    /// whether it lays grain over them.
+    private sealed record Finish(double Intensity, bool Grain);
 
     private sealed class Draft {
         public List<SessionFolder> Folders { get; } = [];
@@ -55,12 +68,13 @@ internal static class ArcSidebar {
     /// out. A Space holding more than a Space keeps holds one tab or folder
     /// past it, so an import leaves it out. Throws `Rejected` with
     /// `SessionUnrecognized` for a file that is not Arc's sidebar.
-    public static IReadOnlyList<SessionDraft> Read(byte[] contents, DateTimeOffset importedAt) {
+    public static IReadOnlyList<SessionDraft> Read(byte[] contents, byte[]? archive, DateTimeOffset importedAt) {
         if (ChromiumSession.Recognizes(contents)) return ChromiumSession.Read(contents, importedAt);
         using var document = ImportJson.Parse(contents) ?? throw new Rejected(new SessionUnrecognized());
         var sidebar = ImportJson.Object(ImportJson.Member(document.RootElement, "sidebar"));
-        var containers = ImportJson.Array(ImportJson.Member(sidebar, "containers")) ?? throw new Rejected(new SessionUnrecognized());
         if (sidebar is null) throw new Rejected(new SessionUnrecognized());
+        var containers = ImportJson.Array(ImportJson.Member(sidebar, "containers")) ?? throw new Rejected(new SessionUnrecognized());
+        var archived = Archived(archive, importedAt);
         List<SessionDraft> drafts = [];
         foreach (var container in containers.Where(value => value.ValueKind == JsonValueKind.Object)) {
             // An identity Arc lists twice names its later record.
@@ -69,7 +83,7 @@ internal static class ArcSidebar {
                 if (id is not null) items[id] = ReadItem(value);
             var favorites = Favorites(ImportJson.Member(container, "topAppsContainerIDs"));
             int spaceIndex = 0;
-            foreach (var (value, _) in Objects(ImportJson.Member(container, "spaces"))) {
+            foreach (var (value, spaceId) in Objects(ImportJson.Member(container, "spaces"))) {
                 var space = ReadSpace(value);
                 spaceIndex++;
                 string name = space.Title ?? $"Arc Space {spaceIndex}";
@@ -89,7 +103,8 @@ internal static class ArcSidebar {
                 string symbol = Symbol(space.CustomInfo);
                 var colors = Colors(space.CustomInfo);
                 drafts.Add(new SessionDraft(drafts.Count + 1, name, draft.Folders, draft.Tabs,
-                    symbol, colors.Count == 0 ? null : SpaceAccent.Nearest(colors[0]), Look(colors), space.ProfileFolder));
+                    symbol, colors.Count == 0 ? null : SpaceAccent.Nearest(colors[0]), Look(colors, Modifiers(space.CustomInfo)),
+                    space.ProfileFolder, spaceId is not null && archived.TryGetValue(spaceId, out var tabs) ? tabs : null));
             }
         }
         return drafts;
@@ -174,7 +189,7 @@ internal static class ArcSidebar {
     #region Actions - Tabs
 
     /// Adds the item `id` names: a tab where it is one, a folder holding its
-    /// children where it is a folder in the pinned section, the tabs of a
+    /// children where it is a folder, in its section, the tabs of a
     /// split view in that split, and otherwise its children in its place.
     private static void Append(string id, TabPlacement placement, string? parent, int depth, IReadOnlyDictionary<string, Item> items,
         Draft draft, DateTimeOffset importedAt, string? split = null) {
@@ -184,7 +199,7 @@ internal static class ArcSidebar {
             if (draft.Tabs.Count > SessionDraft.MaximumTabs) return;
             var time = ImportJson.Number(tab.LastActive) is { } raw && double.IsFinite(raw) ? ImportDate.FromUnixOrReferenceSeconds(raw)
                 : null;
-            draft.Tabs.Add(new SessionTab(tab.Title, address, placement, placement == TabPlacement.Saved ? parent : null,
+            draft.Tabs.Add(new SessionTab(tab.Title, address, placement, placement.HoldsFolders ? parent : null,
                 time ?? importedAt, split));
             return;
         }
@@ -192,14 +207,51 @@ internal static class ArcSidebar {
             foreach (var child in item.Children) Append(child, placement, parent, depth, items, draft, importedAt, id);
             return;
         }
-        if (content.IsFolder && placement == TabPlacement.Saved) {
+        if (content.IsFolder && placement.HoldsFolders) {
             if (draft.Folders.Count > FolderTree.MaximumCount) return;
-            draft.Folders.Add(new SessionFolder(id, item.Title ?? UntitledFolder, parent));
+            draft.Folders.Add(new SessionFolder(id, item.Title ?? UntitledFolder, parent, placement));
             foreach (var child in item.Children) Append(child, placement, id, depth + 1, items, draft, importedAt);
             return;
         }
         foreach (var child in item.Children) Append(child, placement, parent, depth, items, draft, importedAt);
     }
+
+    #endregion
+
+    #region Actions - Archive
+
+    /// The tabs each Space archived, by the Space's identity, the latest
+    /// first: those Arc archived itself as cleaned up, the rest as closed. A
+    /// tab without a page Crest opens is left out, and an archive Crest can't
+    /// read brings nothing.
+    private static Dictionary<string, List<SessionArchivedTab>> Archived(byte[]? archive, DateTimeOffset importedAt) {
+        Dictionary<string, List<SessionArchivedTab>> archived = new(StringComparer.Ordinal);
+        if (archive is null) return archived;
+        try {
+            using var document = ImportJson.Parse(archive);
+            foreach (var (value, _) in Objects(ImportJson.Member(document?.RootElement, "items"))) {
+                if (ImportJson.Text(Path(value, "source", "space", "_0")) is not { } spaceId) continue;
+                var item = ImportJson.Member(value, "sidebarItem");
+                var tab = Path(item, "data", "tab");
+                if (ImportJson.Text(ImportJson.Member(tab, "savedURL")) is not { } url || ImportAddress.Read(url) is not { } address)
+                    continue;
+                var archivedAt = Time(ImportJson.Member(value, "archivedAt")) ?? importedAt;
+                var reason = ImportJson.Text(ImportJson.Member(value, "reason")) == AutomaticArchive ? ArchiveReason.AutoCleanup
+                    : ArchiveReason.Closed;
+                string title = ImportJson.Text(ImportJson.Member(tab, "savedTitle")) ?? ImportJson.Text(ImportJson.Member(item, "title"))
+                    ?? "";
+                if (!archived.TryGetValue(spaceId, out var tabs)) archived[spaceId] = tabs = [];
+                tabs.Add(new(title, address, Time(ImportJson.Member(tab, "timeLastActiveAt")) ?? archivedAt, archivedAt, reason));
+            }
+        } catch (JsonException) {
+            return new(StringComparer.Ordinal);
+        }
+        foreach (var tabs in archived.Values) tabs.Sort((first, second) => second.ArchivedAt.CompareTo(first.ArchivedAt));
+        return archived;
+    }
+
+    private static DateTimeOffset? Time(JsonElement? value) =>
+        ImportJson.Number(value) is { } raw && double.IsFinite(raw) ? ImportDate.FromUnixOrReferenceSeconds(raw) : null;
 
     #endregion
 
@@ -212,14 +264,17 @@ internal static class ArcSidebar {
             ? symbol : DefaultSymbol;
     }
 
-    /// The Space's colors: its gradient's base colors, else its single color,
-    /// else its palette's mid tone, at most as many as a look keeps.
+    /// The Space's colors: its gradient's base colors and then the overlay
+    /// colors Arc shows over them, else its single color, else its palette's
+    /// mid tone, at most as many as a look keeps.
     private static List<BrandColor> Colors(JsonElement? customInfo) {
         var theme = ImportJson.Member(customInfo, "windowTheme");
         var color = Path(theme, "background", "single", "_0", "style", "color", "_0");
         List<BrandColor> colors = [];
         if (ImportJson.Array(Path(color, "blendedGradient", "_0", "baseColors")) is { } gradient) {
             colors.AddRange(gradient.Select(item => Color(item)).OfType<BrandColor>());
+            var overlays = ImportJson.Array(Path(color, "blendedGradient", "_0", "overlayColors")) ?? [];
+            colors.AddRange(overlays.Select(item => Color(item)).OfType<BrandColor>().Where(overlay => overlay.Alpha >= VisibleAlpha));
         } else if (ImportJson.Object(ImportJson.Member(color, "blendedSingleColor")) is not null
             && ImportJson.Member(ImportJson.Member(ImportJson.Member(color, "blendedSingleColor"), "_0"), "color") is { } single) {
             if (Color(single) is { } parsed) colors.Add(parsed);
@@ -227,6 +282,17 @@ internal static class ArcSidebar {
         if (colors.Count == 0 && Color(ImportJson.Member(ImportJson.Member(theme, "primaryColorPalette"), "midTone")) is { } midTone)
             colors.Add(midTone);
         return [.. colors.Take(SpaceBranding.MaximumColorCount)];
+    }
+
+    /// How Arc finishes the Space's colors: their intensity, full unless it
+    /// says otherwise, and grain where its noise shows.
+    private static Finish Modifiers(JsonElement? customInfo) {
+        var color = Path(customInfo, "windowTheme", "background", "single", "_0", "style", "color", "_0");
+        var modifiers = Path(color, "blendedGradient", "_0", "modifiers") ?? Path(color, "blendedSingleColor", "_0", "modifiers");
+        double intensity = ImportJson.Number(ImportJson.Member(modifiers, "intensityFactor")) is { } raw && double.IsFinite(raw)
+            ? Math.Clamp(raw, MinimumIntensity, 1) : 1;
+        bool grain = ImportJson.Number(ImportJson.Member(modifiers, "noiseFactor")) is { } noise && noise >= VisibleNoise;
+        return new(intensity, grain);
     }
 
     private static JsonElement? Path(JsonElement? value, params string[] keys) {
@@ -242,10 +308,11 @@ internal static class ArcSidebar {
 
     private static double Unit(double value) => Math.Clamp(value, 0, 1);
 
-    /// A diagonal gradient of several colors, or a solid sidebar of one.
-    private static SpaceBranding? Look(IReadOnlyList<BrandColor> colors) => colors.Count == 0 ? null : SpaceBranding.Painted(colors,
-        strength: 1, SpaceBranding.LegacyReadabilityFade,
-        colors.Count > 1 ? SpaceThemeMode.Gradient : SpaceThemeMode.Banner, gradientAngle: 45, showsTexture: false);
+    /// A diagonal gradient of several colors, or a solid sidebar of one, as
+    /// intense as Arc paints it and grainy where Arc's is.
+    private static SpaceBranding? Look(IReadOnlyList<BrandColor> colors, Finish finish) => colors.Count == 0 ? null
+        : SpaceBranding.Painted(colors, strength: finish.Intensity, SpaceBranding.LegacyReadabilityFade,
+            colors.Count > 1 ? SpaceThemeMode.Gradient : SpaceThemeMode.Banner, gradientAngle: 45, showsTexture: finish.Grain);
 
     #endregion
 }

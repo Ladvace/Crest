@@ -29,10 +29,16 @@ public sealed record ImportFoundBrowser(string BundleIdentifier, string Name, st
 
 /// The Spaces an import would bring, in order, each with new identities, the
 /// way `ImportSpaces` takes them, the extensions each of those Spaces offers,
-/// for those that offer any, and what the read left out, in the order it met
-/// it.
+/// for those that offer any, what the read left out, in the order it met it,
+/// and the browser profile each Space comes from, where the browser keeps
+/// its passwords and sign-ins by profile.
 public sealed record ImportedSpaces(IReadOnlyList<SpaceState> Spaces, IReadOnlyList<ImportSpaceExtensions> Extensions,
-    IReadOnlyList<ImportLeftOut> LeftOut);
+    IReadOnlyList<ImportLeftOut> LeftOut, IReadOnlyList<ImportSpaceProfile>? Profiles = null);
+
+/// The browser profile the Space `SpaceId` comes from, by the name the
+/// browser keeps its folder under, `ProfileId`: the same name its password
+/// and cookie stores go by.
+public sealed record ImportSpaceProfile(Guid SpaceId, string ProfileId);
 
 /// A profile or Space an import could not bring, or brought only in part, by
 /// the `Name` the person knows it by, and the `Reason` it was left out, such

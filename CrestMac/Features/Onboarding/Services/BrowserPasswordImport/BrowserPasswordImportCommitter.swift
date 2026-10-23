@@ -70,16 +70,16 @@ enum BrowserPasswordImportCommitter {
 }
 
 extension BrowserImportedPassword {
-    /// Where the password belongs, as the core routes it: its profile and its
-    /// site's host.
+    /// Where the password belongs, as the core routes it: its profile, by the
+    /// folder the browser keeps it in, and its site's host.
     var routingSource: ImportPasswordSource {
-        ImportPasswordSource(profileName: sourceProfileName, host: origin.host)
+        ImportPasswordSource(profileName: sourceProfileID, host: origin.host)
     }
 }
 
 extension BrowserPasswordImportCandidate {
     /// Where the password belongs, as the core counts it for the review.
     var routingSource: ImportPasswordSource {
-        ImportPasswordSource(profileName: sourceProfileName, host: origin.host)
+        ImportPasswordSource(profileName: sourceProfileID, host: origin.host)
     }
 }

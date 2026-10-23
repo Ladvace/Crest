@@ -15,7 +15,7 @@ Choose a detected browser, then review each source Space, profile, or window. De
 
 | Source | Crest can review |
 | --- | --- |
-| Arc | Spaces, tabs, folders, split views, colors, icons, extensions, and supported passwords |
+| Arc | Spaces, tabs, folders, split views, archived tabs, colors with their grain and intensity, icons, extensions, and supported passwords |
 | Zen | Spaces from every profile, Essentials, pinned tabs, folders, split views, open tabs, icons, and colors |
 | Chrome | Profiles, bookmarks, open tabs, tab groups, split views, extensions, and supported passwords |
 | Brave, Edge, Vivaldi, Opera, Dia, Comet, Aside, ego lite, Chromium, and Chrome Beta, Dev, and Canary | Profiles, bookmarks, open tabs, tab groups, split views, extensions, and supported passwords |
@@ -23,6 +23,8 @@ Choose a detected browser, then review each source Space, profile, or window. De
 | Firefox | Profiles, windows, open tabs, pinned tabs, and tab groups |
 
 If your browser isn't listed, choose **Browser not listed?** and Crest looks for other Chromium-based browsers on your Mac. Not every browser can be found this way; you can [request support for one](https://github.com/pauljoda/Crest/issues/new?template=feature_request.yml&title=Import%20from%20).
+
+A Space from a Chromium browser such as Arc or Chrome can also **Stay signed in** to the sites that browser was signed in to, where the Space has a tab for that site. It's off until you turn it on. Crest asks macOS for the same Keychain access passwords need, and keeps any sign-in the Space already has. It applies to pages that open with WebKit, and some sites, such as banks and Google accounts that tie a sign-in to one browser, still ask you to sign in again.
 
 In the review, each Space shows the Chrome Web Store extensions it brings under its address bar. Turn off any you don't want, and Crest installs the rest once the import finishes, without asking about each one.
 

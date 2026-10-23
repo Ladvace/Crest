@@ -21,6 +21,13 @@ extension CoreState {
         return engines.engines.first(where: \.isDefault)?.capabilities.contains(capability) == true
     }
 
+    /// Whether new pages open on the engine `kind`, or no engine has
+    /// registered yet.
+    func opensPages(on kind: EngineKind) -> Bool {
+        guard let engines else { return true }
+        return engines.engines.first(where: \.isDefault)?.kind == kind
+    }
+
     // MARK: - Actions - Badges
 
     /// The engine whose badge the tab's icon wears: the one its page runs on,

@@ -4,7 +4,7 @@
     "favorite",{"id":"favorite","data":{"tab":{"savedTitle":"Favorite","savedURL":"https://favorite.example/"}}},
     "today-root",{"id":"today-root","childrenIds":["today","nested-list"],"data":{"itemContainer":{}}},
     "today",{"id":"today","data":{"tab":{"savedTitle":"Today","savedURL":"https://today.example/"}}},
-    "nested-list",{"id":"nested-list","title":"Not a folder here","childrenIds":["today-two"],"data":{"list":{}}},
+    "nested-list",{"id":"nested-list","title":"Today Folder","childrenIds":["today-two"],"data":{"list":{}}},
     "today-two",{"id":"today-two","data":{"tab":{"savedURL":"https://today-two.example/path"},"createdAt":1600000000}},
     "pinned-root",{"id":"pinned-root","childrenIds":["folder","bad"],"data":{"itemContainer":{}}},
     "folder",{"id":"folder","title":"Reading","childrenIds":["saved","sub"],"data":{"list":{}}},
@@ -26,7 +26,7 @@
         ]}}}}}}}}}}},
     "space-three",{"id":"space-three","title":"Single","containerIDs":["unpinned","today-root"],
       "customInfo":{"iconType":{"icon":"planet","emoji_v2":""},
-        "windowTheme":{"background":{"single":{"_0":{"style":{"color":{"_0":{"blendedSingleColor":{"_0":{"color":{"red":0.12,"green":0.49,"blue":0.52}}}}}}}}}}}}
+        "windowTheme":{"background":{"single":{"_0":{"style":{"color":{"_0":{"blendedSingleColor":{"_0":{"color":{"red":0.12,"green":0.49,"blue":0.52},"modifiers":{"intensityFactor":0.6,"noiseFactor":0.95,"overlay":"sand"}}}}}}}}}}}}
   ],
   "topAppsContainerIDs":[{"default":true},"favorite-root",{"custom":{"_0":{"machineID":"m","directoryBasename":"Profile 1"}}},"today-root"]}
 ]}}

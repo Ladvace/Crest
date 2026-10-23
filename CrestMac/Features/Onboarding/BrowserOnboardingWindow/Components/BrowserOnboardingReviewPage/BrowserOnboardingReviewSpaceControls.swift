@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// What a reviewed Space brings along, as one card: the Space itself and
-/// where it goes, then its tabs, its saved passwords and its extensions, each
-/// a row with a checkbox.
+/// where it goes, then its tabs, its saved passwords, the sites it stays
+/// signed in to and its extensions, each a row with a checkbox.
 struct BrowserOnboardingReviewChecklist: View {
     let flow: BrowserOnboardingFlow
     let application: ImportSource?
@@ -17,6 +17,10 @@ struct BrowserOnboardingReviewChecklist: View {
             if application?.suppliesPasswords == true {
                 Divider()
                 passwordsRow
+            }
+            if review.record.signInSiteCount > 0, !flow.signInsNeedNewSpace || review.destination == .newSpace {
+                Divider()
+                signInsRow
             }
             if !review.extensions.isEmpty {
                 Divider()
@@ -83,6 +87,15 @@ struct BrowserOnboardingReviewChecklist: View {
         .disabled(!review.isIncluded || review.record.passwordCount == 0)
     }
 
+    private var signInsRow: some View {
+        BrowserOnboardingReviewRow(
+            isOn: signInInclusion, accessibilityLabel: "Stay signed in for \(review.sourceSpace.settings.name)"
+        ) {
+            Text(BrowserOnboardingSummary.signInSiteCount(review.record.signInSiteCount))
+        }
+        .disabled(!review.isIncluded)
+    }
+
     private var extensionsRow: some View {
         BrowserOnboardingReviewRow(
             isOn: extensionInclusion, accessibilityLabel: "Install extensions for \(review.sourceSpace.settings.name)"
@@ -131,6 +144,12 @@ struct BrowserOnboardingReviewChecklist: View {
         Binding(
             get: { review.includesPasswords && review.record.passwordCount > 0 },
             set: { flow.setPasswordsIncluded($0, in: review.id) })
+    }
+
+    private var signInInclusion: Binding<Bool> {
+        Binding(
+            get: { review.record.includesSignIns },
+            set: { flow.setSignInsIncluded($0, in: review.id) })
     }
 
     private var extensionInclusion: Binding<Bool> {

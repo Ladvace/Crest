@@ -4341,6 +4341,10 @@
     "ad-and-tracker-filter-lists": {
       "category": "new",
       "message": "Crest blocks ads and trackers with the same filter lists Brave uses, kept up to date on their own. Choose how much each Space blocks, and turn blocking off for a site from its site controls."
+    },
+    "arc-import-as-it-was": {
+      "category": "improved",
+      "message": "Moving from Arc brings everything as it was: each Space's colors with their grain and intensity, its archived tabs, and its folders, pinned or not. A Space can also stay signed in to the sites it was signed in to, each with the right account."
     }
   }
 }

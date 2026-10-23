@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "items": [
+    "archived-old",
+    {"archivedAt": 800000000, "reason": "auto", "source": {"space": {"_0": "space"}},
+      "sidebarItem": {"id": "archived-old", "title": null, "data": {"tab": {"savedTitle": "Cleaned up", "savedURL": "https://old.example/", "timeLastActiveAt": 799000000}}}},
+    "archived-new",
+    {"archivedAt": 810000000, "reason": "manual", "source": {"space": {"_0": "space"}},
+      "sidebarItem": {"id": "archived-new", "title": null, "data": {"tab": {"savedTitle": "Closed", "savedURL": "https://new.example/", "timeLastActiveAt": 809000000}}}},
+    "archived-file",
+    {"archivedAt": 805000000, "reason": "manual", "source": {"space": {"_0": "space"}},
+      "sidebarItem": {"id": "archived-file", "title": null, "data": {"tab": {"savedTitle": "File", "savedURL": "file:///Users/someone/secret.txt"}}}},
+    "archived-little",
+    {"archivedAt": 806000000, "reason": "manual", "source": {"littleArc": {}},
+      "sidebarItem": {"id": "archived-little", "title": null, "data": {"tab": {"savedTitle": "Little", "savedURL": "https://little.example/"}}}},
+    "archived-two",
+    {"archivedAt": 807000000, "reason": "manual", "source": {"space": {"_0": "space-two"}},
+      "sidebarItem": {"id": "archived-two", "title": null, "data": {"tab": {"savedTitle": "Other Space", "savedURL": "https://two.example/"}}}}
+  ]
+}

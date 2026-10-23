@@ -1,8 +1,45 @@
 import Foundation
 import SQLite3
 
+/// Another browser's SQLite store, opened read-only with the limits an
+/// untrusted file gets: its saved passwords, and its cookies in
+/// `BrowserPasswordSQLiteDatabase+Cookies.swift`.
 final class BrowserPasswordSQLiteDatabase {
-    private var handle: OpaquePointer?
+    private(set) var handle: OpaquePointer?
+
+    /// Runs `body` on a copy of the store at `url`, with its journal, in a
+    /// folder only this user can read, deleted afterwards whatever happens.
+    /// Chromium holds the stores of the profiles it has open locked while it
+    /// runs, so the original can't be opened then.
+    static func reading<T>(copyOf url: URL, _ body: (BrowserPasswordSQLiteDatabase) throws -> T) throws -> T {
+        let values = try? url.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
+        guard values?.isRegularFile == true,
+            values?.fileSize ?? 0 <= BrowserPasswordImportReader.maximumDatabaseByteCount
+        else {
+            throw BrowserPasswordImportError.unreadableDatabase
+        }
+        let folder = FileManager.default.temporaryDirectory.appending(path: "crest-import-\(UUID().uuidString)")
+        do {
+            try FileManager.default.createDirectory(
+                at: folder, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        } catch {
+            throw BrowserPasswordImportError.unreadableDatabase
+        }
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let copy = folder.appending(path: "Store")
+        do {
+            try FileManager.default.copyItem(at: url, to: copy)
+        } catch {
+            throw BrowserPasswordImportError.unreadableDatabase
+        }
+        for suffix in ["-wal", "-journal"] {
+            let companion = URL(fileURLWithPath: url.path + suffix)
+            if FileManager.default.fileExists(atPath: companion.path) {
+                try? FileManager.default.copyItem(at: companion, to: URL(fileURLWithPath: copy.path + suffix))
+            }
+        }
+        return try body(BrowserPasswordSQLiteDatabase(url: copy))
+    }
 
     init(url: URL) throws {
         let values = try? url.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
@@ -82,7 +119,7 @@ final class BrowserPasswordSQLiteDatabase {
         }
     }
 
-    private func string(_ statement: OpaquePointer, column: Int32) -> String? {
+    func string(_ statement: OpaquePointer, column: Int32) -> String? {
         guard let bytes = sqlite3_column_text(statement, column) else { return nil }
         let count = Int(sqlite3_column_bytes(statement, column))
         guard count >= 0, count <= 1_048_576 else { return nil }
@@ -92,7 +129,7 @@ final class BrowserPasswordSQLiteDatabase {
         )
     }
 
-    private func data(_ statement: OpaquePointer, column: Int32) -> Data? {
+    func data(_ statement: OpaquePointer, column: Int32) -> Data? {
         let count = Int(sqlite3_column_bytes(statement, column))
         guard count > 0, count <= 16 * 1_024 * 1_024,
             let bytes = sqlite3_column_blob(statement, column)

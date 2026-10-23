@@ -14,6 +14,7 @@ final class WebKitShellHost: BrowserMacEngineHost {
         (Bundle(for: WKWebView.self).infoDictionary?["CFBundleShortVersionString"] as? String).map { "WebKit \($0)" }
     }
     var importedExtensionInstaller: (any BrowserImportedExtensionInstalling)? { nil }
+    var importedSignInSeeder: (any BrowserImportedSignInSeeding)? { nil }
 
     // MARK: - Actions - Windows
 

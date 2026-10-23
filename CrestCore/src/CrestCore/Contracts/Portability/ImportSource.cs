@@ -193,25 +193,36 @@ public sealed class ImportSource {
     /// How many of `passwords` belong with each of `spaces`, by Space. A
     /// browser whose Spaces are its profiles gives a password to its own
     /// profile's Space and to no other; one that names its own Spaces gives it
-    /// to every Space holding its site, or a site one of them is a subdomain
-    /// of. A browser that keeps no passwords routes none.
-    internal IReadOnlyDictionary<Guid, int> PasswordCounts(IReadOnlyList<ImportPasswordSource> passwords, IReadOnlyList<SpaceState> spaces) {
+    /// to every Space of the password's profile holding its site, or a site
+    /// one of them is a subdomain of. `profiles` names the profile each Space
+    /// comes from, where the read knew it. A browser that keeps no passwords
+    /// routes none.
+    internal IReadOnlyDictionary<Guid, int> PasswordCounts(IReadOnlyList<ImportPasswordSource> passwords, IReadOnlyList<SpaceState> spaces,
+        IReadOnlyDictionary<Guid, string> profiles) {
         ArgumentNullException.ThrowIfNull(passwords);
         var sites = SpaceSites.Of(spaces);
         var counts = new Dictionary<Guid, int>();
         foreach (var password in passwords)
-            foreach (var spaceId in SpacesFor(password, spaces, sites))
+            foreach (var spaceId in SpacesFor(password, spaces, sites, profiles))
                 counts[spaceId] = counts.GetValueOrDefault(spaceId) + 1;
         return counts;
     }
 
-    /// The Spaces among `spaces` that `password` belongs with.
+    /// The Spaces among `spaces` that `password` belongs with. A Space whose
+    /// profile `profiles` names takes only that profile's passwords, so two
+    /// accounts on one site never cross between profiles; one it doesn't name
+    /// is matched by its name.
     internal IEnumerable<Guid> SpacesFor(ImportPasswordSource password, IReadOnlyList<SpaceState> spaces,
-        IReadOnlyDictionary<Guid, SpaceSites> sites) {
+        IReadOnlyDictionary<Guid, SpaceSites> sites, IReadOnlyDictionary<Guid, string> profiles) {
         if (!SuppliesPasswords) return [];
-        if (NamesItsSpaces) return spaces.Where(space => sites[space.Id].Holds(password.Host)).Select(space => space.Id);
-        var profile = spaces.FirstOrDefault(space => string.Equals(space.Settings.Name, password.ProfileName, StringComparison.Ordinal));
-        return profile is null ? [] : [profile.Id];
+        bool OfProfile(SpaceState space) =>
+            !profiles.TryGetValue(space.Id, out var profile) || string.Equals(profile, password.ProfileName, StringComparison.Ordinal);
+        if (NamesItsSpaces)
+            return spaces.Where(space => OfProfile(space) && sites[space.Id].Holds(password.Host)).Select(space => space.Id);
+        var own = spaces.FirstOrDefault(space => profiles.TryGetValue(space.Id, out var profile)
+            ? string.Equals(profile, password.ProfileName, StringComparison.Ordinal)
+            : string.Equals(space.Settings.Name, password.ProfileName, StringComparison.Ordinal));
+        return own is null ? [] : [own.Id];
     }
 
     #endregion

@@ -38,6 +38,14 @@ final class BrowserOnboardingFlow {
     @ObservationIgnored private let importReadCoordinator: BrowserOnboardingImportReadCoordinator
     /// What installs the extensions an import brings, when the engine runs any.
     @ObservationIgnored private let extensionInstaller: (any BrowserImportedExtensionInstalling)?
+    /// Whether an import can keep Spaces signed in: pages open on WebKit,
+    /// whose stores take sign-ins once imported, or the engine lays them
+    /// down in new Spaces' profiles.
+    @ObservationIgnored private let offersSignIns: Bool
+    /// Whether sign-ins reach only Spaces that come in new: the engine lays
+    /// them down before a profile first opens, and a Space Crest already has
+    /// keeps its profile open.
+    @ObservationIgnored let signInsNeedNewSpace: Bool
     /// The data of the browser being read, which its passwords come from.
     @ObservationIgnored private var currentImportPayload: BrowserDetectedImportPayload?
     @ObservationIgnored private var commitTask: Task<Void, Never>?
@@ -109,15 +117,18 @@ final class BrowserOnboardingFlow {
         sourceDiscovery: any BrowserInstalledImportSourceDiscovering = LiveBrowserInstalledImportSourceDiscovery(),
         dataAccessProvider: any BrowserOnboardingDataAccessProviding = LiveBrowserOnboardingDataAccessProvider(),
         importReader: (any BrowserOnboardingImportReading)? = nil,
-        importCommitter: any BrowserOnboardingImportCommitting = LiveBrowserOnboardingImportCommitter(),
-        extensionInstaller: (any BrowserImportedExtensionInstalling)? = nil
+        importCommitter: (any BrowserOnboardingImportCommitting)? = nil,
+        extensionInstaller: (any BrowserImportedExtensionInstalling)? = nil,
+        signInSeeder: (any BrowserImportedSignInSeeding)? = nil
     ) {
         self.request = request
         self.browser = browser
         self.sourceDiscovery = sourceDiscovery
         self.dataAccessProvider = dataAccessProvider
-        self.importCommitter = importCommitter
+        self.importCommitter = importCommitter ?? LiveBrowserOnboardingImportCommitter(signInSeeder: signInSeeder)
         self.extensionInstaller = extensionInstaller
+        offersSignIns = signInSeeder != nil || browser.core.state.opensPages(on: .webKit)
+        signInsNeedNewSpace = signInSeeder != nil
         importReadCoordinator = BrowserOnboardingImportReadCoordinator(
             reader: importReader ?? LiveBrowserOnboardingImportReader(core: browser.core))
         manualSetup = BrowserManualSetupModel(core: browser.core)
@@ -371,7 +382,9 @@ final class BrowserOnboardingFlow {
                     // An engine that runs no extensions is offered none to install.
                     extensions: extensionInstaller == nil ? [] : output.extensions,
                     leftOut: output.leftOut,
-                    title: offeredSource(application)?.title))
+                    title: offeredSource(application)?.title,
+                    signIns: offersSignIns ? output.signInSites : [],
+                    profiles: output.spaceProfiles))
         } catch {
             send(FailImport(source: application, reason: .read, detail: error.personFacingDescription))
         }
@@ -401,6 +414,10 @@ final class BrowserOnboardingFlow {
 
     func setPasswordsIncluded(_ isIncluded: Bool, in sourceSpaceID: UUID) {
         send(IncludeImportPasswords(sourceSpaceID: sourceSpaceID, included: isIncluded))
+    }
+
+    func setSignInsIncluded(_ isIncluded: Bool, in sourceSpaceID: UUID) {
+        send(IncludeImportSignIns(sourceSpaceID: sourceSpaceID, included: isIncluded))
     }
 
     func setExtensionIncluded(_ extensionID: String, _ isIncluded: Bool, in sourceSpaceID: UUID) {

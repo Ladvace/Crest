@@ -14,15 +14,16 @@ internal sealed partial class InstalledBrowser {
     #region Static Variables
 
     public static readonly InstalledBrowser Arc = new(ImportSource.Arc, ArcProfiles, folder => ChromiumPasswordStores(folder.Child("User Data")),
-        ArcSidebar.Read, bookmarks: null, extensions: true);
-    public static readonly InstalledBrowser Zen = new(ImportSource.Zen, ZenProfiles, _ => [], ZenSessions.Read, bookmarks: null);
+        (contents, path, importedAt) => ArcSidebar.Read(contents, ArcArchive(path), importedAt), bookmarks: null, extensions: true);
+    public static readonly InstalledBrowser Zen = new(ImportSource.Zen, ZenProfiles, _ => [],
+        (contents, _, importedAt) => ZenSessions.Read(contents, importedAt), bookmarks: null);
     public static readonly InstalledBrowser Chrome = new(ImportSource.Chrome, ChromiumProfiles, ChromiumPasswordStores,
-        (contents, importedAt) => ChromiumSession.Read(contents, importedAt), ChromeBookmarks.Read, extensions: true,
+        (contents, _, importedAt) => ChromiumSession.Read(contents, importedAt), ChromeBookmarks.Read, extensions: true,
         sessionFiles: ChromiumSessionFiles, bookmarkFiles: ChromiumBookmarkFiles);
-    public static readonly InstalledBrowser Safari = new(ImportSource.Safari, SafariProfiles, _ => [], SafariSession.Read,
-        SafariBookmarks.Read);
-    public static readonly InstalledBrowser Firefox = new(ImportSource.Firefox, FirefoxProfiles, _ => [], FirefoxSession.Read,
-        bookmarks: null);
+    public static readonly InstalledBrowser Safari = new(ImportSource.Safari, SafariProfiles, _ => [],
+        (contents, _, importedAt) => SafariSession.Read(contents, importedAt), SafariBookmarks.Read);
+    public static readonly InstalledBrowser Firefox = new(ImportSource.Firefox, FirefoxProfiles, _ => [],
+        (contents, _, importedAt) => FirefoxSession.Read(contents, importedAt), bookmarks: null);
     public static readonly InstalledBrowser ChromeBeta = ChromiumFamily(ImportSource.ChromeBeta);
     public static readonly InstalledBrowser ChromeDev = ChromiumFamily(ImportSource.ChromeDev);
     public static readonly InstalledBrowser ChromeCanary = ChromiumFamily(ImportSource.ChromeCanary);
@@ -37,7 +38,7 @@ internal sealed partial class InstalledBrowser {
     public static readonly InstalledBrowser EgoLite = ChromiumFamily(ImportSource.EgoLite);
     /// A browser Crest does not list, whose passwords it cannot open.
     public static readonly InstalledBrowser OtherChromium = new(ImportSource.OtherChromium, ChromiumProfiles, _ => [],
-        (contents, importedAt) => ChromiumSession.Read(contents, importedAt), ChromeBookmarks.Read, extensions: true,
+        (contents, _, importedAt) => ChromiumSession.Read(contents, importedAt), ChromeBookmarks.Read, extensions: true,
         sessionFiles: ChromiumSessionFiles, bookmarkFiles: ChromiumBookmarkFiles);
 
     public static IReadOnlyList<InstalledBrowser> All { get; } = [Arc, Zen, Chrome, Safari, Firefox, ChromeBeta, ChromeDev, ChromeCanary,
@@ -63,6 +64,8 @@ internal sealed partial class InstalledBrowser {
     private const string ChromiumCurrentSession = "Current Session";
     private const string ChromiumSessionPrefix = "Session_";
     private const string ZenSessionName = "zen-sessions.jsonlz4";
+    /// The tabs Arc archived, beside its sidebar.
+    private const string ArcArchiveName = "StorableArchiveItems.json";
     private const string MozillaProfileList = "profiles.ini";
 
     /// A Chromium profile's bookmarks, and those of the account a signed-in
@@ -76,7 +79,9 @@ internal sealed partial class InstalledBrowser {
 
     #region Types
 
-    private delegate IReadOnlyList<SessionDraft> SessionReader(byte[] contents, DateTimeOffset importedAt);
+    /// Reads a session file's `contents`; `path` names the file, for a reader
+    /// that also reads the files beside it.
+    private delegate IReadOnlyList<SessionDraft> SessionReader(byte[] contents, string path, DateTimeOffset importedAt);
 
     private delegate void BookmarkReader(byte[] contents, DateTimeOffset importedAt, BookmarkDraft draft);
 
@@ -123,7 +128,7 @@ internal sealed partial class InstalledBrowser {
     /// A browser built on Chromium that keeps Chrome's layout, read as Chrome
     /// is, its session numbered as `dialect` numbers it.
     private static InstalledBrowser ChromiumFamily(ImportSource source, ChromiumSessionDialect? dialect = null) =>
-        new(source, ChromiumProfiles, ChromiumPasswordStores, (contents, importedAt) => ChromiumSession.Read(contents, importedAt, dialect),
+        new(source, ChromiumProfiles, ChromiumPasswordStores, (contents, _, importedAt) => ChromiumSession.Read(contents, importedAt, dialect),
             ChromeBookmarks.Read, extensions: true, sessionFiles: ChromiumSessionFiles, bookmarkFiles: ChromiumBookmarkFiles);
 
     #endregion
@@ -134,6 +139,19 @@ internal sealed partial class InstalledBrowser {
     public ImportData Find(string folder) {
         var data = new ImportFolder(folder);
         return new(profiles(data), passwordStores(data));
+    }
+
+    /// What Arc archived, beside the sidebar at `sidebarPath`, or nothing when
+    /// it keeps no archive or one Crest can't read, which never stops the
+    /// sidebar coming.
+    private static byte[]? ArcArchive(string sidebarPath) {
+        if (Path.GetDirectoryName(sidebarPath) is not { } folder) return null;
+        try {
+            return ImportFile.Read(Path.Combine(folder, ArcArchiveName), MaximumSessionBytes, new SessionTooLarge(),
+                new SessionUnrecognized());
+        } catch (Rejected) {
+            return null;
+        }
     }
 
     private static IReadOnlyList<ImportProfile> ArcProfiles(ImportFolder folder) =>
@@ -300,6 +318,7 @@ internal sealed partial class InstalledBrowser {
         List<SpaceState> spaces = [];
         List<ImportSpaceExtensions> extensions = [];
         List<ImportLeftOut> leftOut = [];
+        List<ImportSpaceProfile> spaceProfiles = [];
         foreach (var profile in profiles) {
             int room = BrowserDataFile.MaximumSpaces - spaces.Count;
             if (Source.NamesItsSpaces) {
@@ -314,15 +333,21 @@ internal sealed partial class InstalledBrowser {
                 var named = SessionDraft.Spaces(drafts, Source, names, ids, now, room, leftOut);
                 spaces.AddRange(named.Select(made => made.Space));
                 AddExtensions(extensions, profile, named.Select(made => (made.Space, made.Draft.Profile)));
+                // A Space names its own profile's folder, or none for the
+                // browser's first, whose folder the profile names.
+                if (profile.ProfilePath is { } first)
+                    spaceProfiles.AddRange(named.Select(made =>
+                        new ImportSpaceProfile(made.Space.Id, made.Draft.Profile ?? System.IO.Path.GetFileName(first))));
             } else if (room == 0) {
                 leftOut.Add(new(profile.Name, new SessionOverLimits()));
             } else if (ProfileSpace(profile, names, ids, now, leftOut) is { } space) {
                 spaces.Add(space);
                 AddExtensions(extensions, profile, [(space, null)]);
+                spaceProfiles.Add(new ImportSpaceProfile(space.Id, profile.Id));
             }
         }
         if (spaces.Count == 0) throw new Rejected(leftOut.LastOrDefault()?.Reason ?? new SessionHasNoTabs());
-        return new(spaces, extensions, leftOut);
+        return new(spaces, extensions, leftOut, spaceProfiles);
     }
 
     /// The Space `profile` brings, named after it: the tabs of its open
@@ -400,7 +425,7 @@ internal sealed partial class InstalledBrowser {
     private IReadOnlyList<SessionDraft> Session(string path, DateTimeOffset now) {
         var contents = ImportFile.Read(path, MaximumSessionBytes, new SessionTooLarge(), new SessionUnrecognized());
         try {
-            return sessions(contents, now);
+            return sessions(contents, path, now);
         } catch (Exception error) when (error is not Rejected) {
             throw new Rejected(new SessionUnrecognized());
         }

@@ -16,3 +16,8 @@ internal sealed record SessionFolder(string SourceId, string Title, string? Pare
 /// the split view it shows in, by the identity the browser spells for it.
 internal sealed record SessionTab(string Title, ImportAddress Address, TabPlacement Placement, string? FolderSourceId,
     DateTimeOffset? LastActivatedAt, string? SplitSourceId = null);
+
+/// A tab another browser archived: the page it showed, when it was last
+/// active, and when and why it went to the archive.
+internal sealed record SessionArchivedTab(string Title, ImportAddress Address, DateTimeOffset LastActivatedAt,
+    DateTimeOffset ArchivedAt, ArchiveReason Reason);

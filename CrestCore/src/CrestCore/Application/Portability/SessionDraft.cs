@@ -8,9 +8,11 @@ namespace CrestCore.Application;
 /// and the name, symbol, accent and look it gave the Space, where it gave
 /// any. `Ordinal` counts the browser's windows or Spaces from one. A browser
 /// that keeps a profile for each Space, as Arc does, names the folder of the
-/// Space's own profile, `Profile`, when it is not the browser's first.
+/// Space's own profile, `Profile`, when it is not the browser's first. A
+/// browser that keeps an archive brings it, the latest first, in `Archived`.
 internal sealed record SessionDraft(int Ordinal, string? Name, IReadOnlyList<SessionFolder> Folders, IReadOnlyList<SessionTab> Tabs,
-    string? Symbol = null, SpaceAccent? Accent = null, SpaceBranding? Branding = null, string? Profile = null) {
+    string? Symbol = null, SpaceAccent? Accent = null, SpaceBranding? Branding = null, string? Profile = null,
+    IReadOnlyList<SessionArchivedTab>? Archived = null) {
     #region Static Variables
 
     /// The most tabs one window or Space brings.
@@ -160,8 +162,21 @@ internal sealed record SessionDraft(int Ordinal, string? Name, IReadOnlyList<Ses
             ?? throw new Rejected(new SessionOverLimits());
         string symbol = Symbol ?? source.Symbol;
         return new(name, symbol, Accent ?? source.Accent, Branding ?? SpaceBranding.NeutralImport(symbol), Ordered(folders), tabs,
-            splits, ArchivedTabs: [], History: [], StoredSessionCodec.DefaultBrowsingPreferences, SelectedTabId: null);
+            splits, Archive(ids), History: [], StoredSessionCodec.DefaultBrowsingPreferences, SelectedTabId: null);
     }
+
+    /// The archive the Space keeps: the latest of the tabs the browser
+    /// archived, as many as a Space holds, leaving out one whose title is too
+    /// long to keep.
+    private List<BrowserDataArchivedTab> Archive(IIdSource ids) => [.. (Archived ?? [])
+        .Select(archived => (Archived: archived,
+            Title: ImportText.Bounded(archived.Title, archived.Address.Host, ImportText.MaximumTitle)))
+        .Where(entry => entry.Title is not null)
+        .Take(MaximumTabs)
+        .Select(entry => new BrowserDataArchivedTab(
+            new BrowserDataTab(ids.Next(), entry.Title!, NativeContent: null, entry.Archived.Address.Spelling, SavedUrl: null,
+                TabIconMode.WebSymbol, TabPlacement.Current, FolderId: null, SplitGroupId: null, entry.Archived.LastActivatedAt),
+            entry.Archived.ArchivedAt, entry.Archived.Reason))];
 
     /// The split views of the browser's tabs that Crest keeps, joining their
     /// tabs in `tabs`: each whose tabs sit side by side, in one place and

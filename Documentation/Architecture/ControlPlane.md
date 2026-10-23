@@ -801,6 +801,14 @@ are engine-specific and are not converted. Nothing deletes them, so returning
 to the WebKit app finds them intact. A tab without a usable archive loads its
 URL.
 
+An import from a Chromium browser can keep a Space signed in when the person
+turns that on for it in the review. The Mac app reads the browser's cookies
+after the same Keychain prompt its passwords need, decrypts them in memory and
+sets them in the WebKit store of the Space they belong with, leaving any
+cookie that Space already keeps. Only each site's profile and host reach the
+core, which routes them as it routes passwords; cookie values never enter the
+core, sync or a log.
+
 ## Build workflow
 
 Install the .NET SDK 10.0.201 or a servicing patch, Xcode and XcodeGen.

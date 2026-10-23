@@ -2,6 +2,12 @@ import Foundation
 
 struct BrowserOnboardingPreparedImport {
     let passwords: [BrowserImportedPassword]
+    /// The cookies that keep the review's Spaces signed in, unlocked only
+    /// when it brings any, held in memory until they are written.
+    var signIns: [BrowserImportedSignIn] = []
+    /// How the other browser's cookie store is laid out, for an engine that
+    /// writes one of its own.
+    var signInSchema: BrowserCookieStoreSchema?
 }
 
 enum BrowserOnboardingFailureText: Equatable {

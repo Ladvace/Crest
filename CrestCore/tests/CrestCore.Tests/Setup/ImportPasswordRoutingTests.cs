@@ -76,7 +76,52 @@ public sealed partial class BrowserContractsTests {
         var arc = ReadSpaces(ImportedSpace("Mail", ImportedTab("https://mail.example.com/")),
             ImportedSpace("Root", ImportedTab("https://example.com/")));
         var counts = ImportSource.Arc.PasswordCounts(
-            [new("Arc", "example.com"), new("Arc", "accounts.example.com"), new("Arc", "notexample.com")], arc);
+            [new("Arc", "example.com"), new("Arc", "accounts.example.com"), new("Arc", "notexample.com")], arc,
+            new Dictionary<Guid, string>());
         Assert.Equal((1, 2), (counts.GetValueOrDefault(arc[0].Id), counts.GetValueOrDefault(arc[1].Id)));
+    }
+
+    [Fact]
+    public void ASiteSignedInFromTwoProfilesKeepsEachAccountWithItsOwnProfilesSpaces() {
+        // Work and Home both keep a mail tab, each signed in from its own
+        // profile, so each takes its own profile's account and never the other.
+        var arc = ReadSpaces(ImportedSpace("Work", ImportedTab("https://mail.example.com/")),
+            ImportedSpace("Home", ImportedTab("https://mail.example.com/")));
+        var profiles = new Dictionary<Guid, string> { [arc[0].Id] = "Profile 1", [arc[1].Id] = "Default" };
+        var sites = SpaceSites.Of(arc);
+        Assert.Equal([arc[0].Id], ImportSource.Arc.SpacesFor(new("Profile 1", "example.com"), arc, sites, profiles));
+        Assert.Equal([arc[1].Id], ImportSource.Arc.SpacesFor(new("Default", "example.com"), arc, sites, profiles));
+        Assert.Empty(ImportSource.Arc.SpacesFor(new("Profile 2", "example.com"), arc, sites, profiles));
+    }
+
+    [Fact]
+    public void SignInsStayOutUntilChosenAndGoOnlyToTheSpacesThatBringThem() {
+        var session = GuardedSession(withOpenSecondSpace: true);
+        session.AsObject().Remove("disposableSeedMarker");
+        using var device = new TestDevice(session);
+        var spaces = ReadSpaces(ImportedSpace("Work", ImportedTab("https://mail.example/")),
+            ImportedSpace("Home", ImportedTab("https://bank.example/")));
+        ImportPasswordSource[] sites = [new("Work", "mail.example"), new("Home", "bank.example"), new("Home", "unknown.example")];
+        device.Send(new StartSetup(device.Workspace, SetupEntry.ImportBrowser));
+        device.Send(new OfferImportSources([ImportSource.Chrome]));
+        device.Send(new ToggleImportSource(ImportSource.Chrome));
+        device.Send(new ContinueImport());
+        var review = Flowing(device.Send(new ReviewImport(ImportSource.Chrome, spaces, [], SignIns: sites))).Review!;
+        var open = device.Authority.Current.Spaces[1];
+        device.Send(new ChooseImportDestination(spaces[0].Id, open.Id));
+
+        // Each Space counts the sites its own profile is signed in to, and
+        // keeps none of them until the person chooses to.
+        Assert.Equal([1, 2], review.Spaces.Select(space => space.SignInSiteCount));
+        Assert.Equal(0, review.IncludedSignInSiteCount);
+        ImportPasswordRoutes Routes() => device.Query(new ImportSignInDestinations(device.Workspace, sites));
+        Assert.All(Routes().Routes, route => Assert.Empty(route.SpaceIds));
+
+        // Choosing it for Work brings Work's sign-in alone, never Home's, both
+        // to the Space it joins and, before the import, by its own identity.
+        device.Send(new IncludeImportSignIns(spaces[0].Id, Included: true));
+        Assert.Equal([[open.Id], [], []], Routes().Routes.Select(route => route.SpaceIds));
+        Assert.Equal([[spaces[0].Id], [], []],
+            device.Query(new ImportSignInSources(device.Workspace, sites)).Routes.Select(route => route.SpaceIds));
     }
 }

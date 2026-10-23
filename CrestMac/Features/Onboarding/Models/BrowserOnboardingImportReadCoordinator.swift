@@ -6,6 +6,10 @@ struct BrowserOnboardingImportReadOutput: Sendable {
     /// The Spaces the core read, with new identities.
     let imported: [SpaceState]
     let passwordCandidates: [BrowserPasswordImportCandidate]
+    /// Each site a profile is signed in to, once per profile.
+    var signInSites: [ImportPasswordSource] = []
+    /// The browser profile each read Space comes from.
+    var spaceProfiles: [ImportSpaceProfile] = []
     /// The extensions each Space offers to install, for the browsers that
     /// keep them where Crest reads them.
     var extensions: [ImportSpaceExtensions] = []

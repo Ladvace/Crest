@@ -3,14 +3,16 @@ namespace CrestCore.Contracts;
 /// What the person chose for one Space an import brings, and what those
 /// choices mean: whether it comes in, the existing Space it joins or none for
 /// a new Space, the name and look it takes, the tabs it brings and the
-/// placements they move to, its saved passwords, and the extensions it offers
-/// with those left on. `DuplicateTabIds` are its tabs the destination
+/// placements they move to, its saved passwords, the sites it would stay
+/// signed in to, which stay out unless the person asks for them, and the
+/// extensions it offers with those left on. `DuplicateTabIds` are its tabs the destination
 /// already holds, which it leaves out until the person asks for them;
 /// `MatchedTabIds` are the destination's tabs it matches.
 public sealed record SetupReviewSpace(SpaceState Source, bool Included, Guid? DestinationId, SpaceCustomization Customization,
     IReadOnlyList<Guid> IncludedTabIds, IReadOnlyList<Guid> DuplicateTabIds, IReadOnlyList<Guid> MatchedTabIds,
     IReadOnlyList<TabPlacementChoice> Placements, bool IncludesPasswords, int PasswordCount, IReadOnlyList<ImportExtension> Extensions,
-    IReadOnlyList<string> IncludedExtensionIds) {
+    IReadOnlyList<string> IncludedExtensionIds, bool IncludesSignIns = false, int SignInSiteCount = 0,
+    string? SourceProfileId = null) {
     #region Variables
 
     /// The name the Space shows and takes once imported: the one chosen,
@@ -21,6 +23,11 @@ public sealed record SetupReviewSpace(SpaceState Source, bool Included, Guid? De
     /// Whether the passwords that belong with the Space come in with it.
     [Resolved]
     public bool BringsPasswords => Included && IncludesPasswords;
+
+    /// Whether the Space comes in signed in to the sites the other browser
+    /// was signed in to that belong with it.
+    [Resolved]
+    public bool BringsSignIns => Included && IncludesSignIns && SignInSiteCount > 0;
 
     /// The extensions that install in the Space's destination once it is
     /// imported: those the person left on, in the order the Space offers them,
@@ -41,13 +48,15 @@ public sealed record SetupReviewSpace(SpaceState Source, bool Included, Guid? De
     /// its name and look and leaving out the tabs it holds, or coming in new
     /// with its own. It comes in when `included`, with the
     /// `passwordCount` saved passwords that belong with it, offering
-    /// `offered`, all of them left on.
+    /// `offered`, all of them left on, and the `signInSiteCount` sites it
+    /// could stay signed in to, left off.
     internal static SetupReviewSpace Started(SpaceState space, SpaceState? match, bool included, int passwordCount,
-        IReadOnlyList<ImportExtension> offered) {
+        int signInSiteCount, IReadOnlyList<ImportExtension> offered) {
         var duplicates = match is null ? [] : space.TabsAlsoIn(match).ToHashSet();
         return new(space, included, match?.Id, match?.Customization ?? space.Customization.Normalized(),
             included ? [.. space.Tabs.Where(tab => !duplicates.Contains(tab.Id)).Select(tab => tab.Id)] : [], [], [], [],
-            IncludesPasswords: true, passwordCount, offered, [.. offered.Select(extension => extension.ExtensionId)]);
+            IncludesPasswords: true, passwordCount, offered, [.. offered.Select(extension => extension.ExtensionId)],
+            IncludesSignIns: false, signInSiteCount);
     }
 
     /// The Space with what joining `destination` means: its tabs the
