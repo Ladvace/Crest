@@ -4401,6 +4401,10 @@
     "onboarding-layout-fixes": {
       "category": "fixed",
       "message": "In setup, the ready page's Space previews no longer overlap its heading, and each browser to import from shows its logo and name centered."
+    },
+    "getting-started-matches-sidebar": {
+      "category": "improved",
+      "message": "Getting Started's practice window looks like CrestArk's sidebar, with the address field on top and the bar with the + menu at the foot."
     }
   }
 }
