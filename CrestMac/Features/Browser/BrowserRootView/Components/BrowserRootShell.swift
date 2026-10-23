@@ -160,7 +160,10 @@ struct BrowserRootShell: View, BrowserChromeAnimating {
                         model: model,
                         spaceSettingsPresentation: spaceSettingsPresentation,
                         commandSurfaceNamespace: commandSurfaceNamespace,
-                        tabPromotionNamespace: tabPromotionNamespace
+                        tabPromotionNamespace: tabPromotionNamespace,
+                        expandSidebar: {
+                            if let width = model.expandSidebarFromIconColumn() { storedSidebarWidth = Double(width) }
+                        }
                     )
                 }
                 .background {

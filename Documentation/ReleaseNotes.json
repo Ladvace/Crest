@@ -4369,6 +4369,10 @@
     "bookmark-field-reads-every-address": {
       "category": "fixed",
       "message": "The bookmark field reads every kind of address: about:, mailto:, file: and localhost addresses save as typed, and folders named with a dot or a colon stay folders."
+    },
+    "icon-only-sidebar": {
+      "category": "new",
+      "message": "Narrow the Mac sidebar past its smallest width and it becomes a column of tab icons, named on hover, with a search field that widens it again. The sidebar's edge is easier to grab and lights up under the pointer."
     }
   }
 }

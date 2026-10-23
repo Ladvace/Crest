@@ -4,15 +4,18 @@ import CoreGraphics
 struct BrowserSidebarWidthTransaction: Equatable {
     private(set) var width: CGFloat
     private(set) var persistedWidth: CGFloat
+    /// Whether the sidebar may narrow to a column of tab icons.
+    let allowsIconColumn: Bool
 
-    init(persistedWidth: CGFloat) {
-        let width = BrowserChromeLayout.clampedSidebarWidth(persistedWidth)
+    init(persistedWidth: CGFloat, allowsIconColumn: Bool = false) {
+        self.allowsIconColumn = allowsIconColumn
+        let width = BrowserChromeLayout.clampedSidebarWidth(persistedWidth, allowsIconColumn: allowsIconColumn)
         self.width = width
         self.persistedWidth = width
     }
 
     mutating func resize(to proposedWidth: CGFloat) {
-        width = BrowserChromeLayout.clampedSidebarWidth(proposedWidth)
+        width = BrowserChromeLayout.clampedSidebarWidth(proposedWidth, allowsIconColumn: allowsIconColumn)
     }
 
     mutating func commit() -> CGFloat? {
@@ -22,7 +25,7 @@ struct BrowserSidebarWidthTransaction: Equatable {
     }
 
     mutating func restore(persistedWidth: CGFloat) {
-        let width = BrowserChromeLayout.clampedSidebarWidth(persistedWidth)
+        let width = BrowserChromeLayout.clampedSidebarWidth(persistedWidth, allowsIconColumn: allowsIconColumn)
         self.width = width
         self.persistedWidth = width
     }

@@ -16,6 +16,8 @@ struct BrowserSidebarLoadedContent: View {
     let activateAddress: () -> Void
     let submitAddress: () -> Void
     let openNewTab: () -> Void
+    /// Widens the sidebar from its icon column.
+    let expandSidebar: () -> Void
     let sidebarToggleAction: BrowserSidebarToggleAction
     let toggleSidebar: () -> Void
     let commandSurfaceNamespace: Namespace.ID
@@ -26,12 +28,34 @@ struct BrowserSidebarLoadedContent: View {
     @Environment(\.browserSidebarWidgetRuntime) private var widgetRuntime
     @Environment(\.spacePagerPresentation) private var inheritedPagerPresentation
     @State private var standalonePagerPresentation = SpacePagerPresentation()
+    /// How wide the sidebar is, which decides whether it shows only icons.
+    @State private var width = BrowserChromeLayout.sidebarIdealWidth
 
     private var spacePagerPresentation: SpacePagerPresentation {
         inheritedPagerPresentation ?? standalonePagerPresentation
     }
 
     var body: some View {
+        Group {
+            if BrowserChromeLayout.showsIconColumn(atSidebarWidth: width) {
+                BrowserSidebarIconColumn(
+                    context: context, pages: pages, openNewTab: openNewTab,
+                    search: {
+                        expandSidebar()
+                        activateAddress()
+                    })
+            } else {
+                fullSidebar
+            }
+        }
+        .onGeometryChange(for: CGFloat.self) {
+            $0.size.width
+        } action: {
+            width = $0
+        }
+    }
+
+    private var fullSidebar: some View {
         VStack(spacing: 0) {
             SidebarChrome(
                 context: context,
@@ -459,6 +483,7 @@ final class BrowserSidebarWidgetDeckScrollObserverView: NSView {
             activateAddress: { isAddressEditing = true },
             submitAddress: {},
             openNewTab: {},
+            expandSidebar: {},
             sidebarToggleAction: .hide,
             toggleSidebar: {},
             commandSurfaceNamespace: commandSurfaceNamespace,

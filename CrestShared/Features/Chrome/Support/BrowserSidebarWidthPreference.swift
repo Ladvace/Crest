@@ -5,13 +5,14 @@ enum BrowserSidebarWidthPreference {
     static func value(
         forKey key: String,
         default defaultWidth: CGFloat,
+        allowsIconColumn: Bool = false,
         defaults: UserDefaults = .standard
     ) -> CGFloat {
         guard defaults.object(forKey: key) != nil else {
-            return BrowserChromeLayout.clampedSidebarWidth(defaultWidth)
+            return BrowserChromeLayout.clampedSidebarWidth(defaultWidth, allowsIconColumn: allowsIconColumn)
         }
         return BrowserChromeLayout.clampedSidebarWidth(
-            CGFloat(defaults.double(forKey: key))
+            CGFloat(defaults.double(forKey: key)), allowsIconColumn: allowsIconColumn
         )
     }
 }

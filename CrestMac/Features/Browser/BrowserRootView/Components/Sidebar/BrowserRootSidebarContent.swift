@@ -8,6 +8,9 @@ struct BrowserRootSidebarContent: View {
     let spaceSettingsPresentation: BrowserSpaceSettingsPresentationState
     let commandSurfaceNamespace: Namespace.ID
     let tabPromotionNamespace: Namespace.ID
+    /// Widens the sidebar from its icon column, keeping the width as a
+    /// resize keeps it.
+    let expandSidebar: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -30,6 +33,7 @@ struct BrowserRootSidebarContent: View {
                 activateAddress: { model.chrome.openLocation(model.address) },
                 submitAddress: model.submitAddress,
                 openNewTab: model.openNewTab,
+                expandSidebar: expandSidebar,
                 sidebarToggleAction:
                     model.sidebarPresentation.sidebarToggleAction,
                 toggleSidebar: {

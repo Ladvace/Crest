@@ -4,7 +4,8 @@ enum BrowserRootSidebarWidthPersistence {
     static func read() -> CGFloat {
         BrowserSidebarWidthPreference.value(
             forKey: BrowserRootPreferenceKeys.sidebarWidth,
-            default: BrowserChromeLayout.sidebarIdealWidth
+            default: BrowserChromeLayout.sidebarIdealWidth,
+            allowsIconColumn: true
         )
     }
 

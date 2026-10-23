@@ -99,7 +99,7 @@ final class BrowserRootModel {
         layoutPersistence = BrowserWindowLayoutPersistence(windowState: windowState)
         self.startupBehavior = startupBehavior
         sidebarWidthTransaction = BrowserSidebarWidthTransaction(
-            persistedWidth: persistedSidebarWidth
+            persistedWidth: persistedSidebarWidth, allowsIconColumn: true
         )
         _ = addressBinding
         _ = isAddressEditingBinding
@@ -349,6 +349,14 @@ extension BrowserRootModel {
 
     func commitSidebarWidth(_ width: CGFloat) -> CGFloat? {
         layoutPersistence.commitSidebarWidth(width, transaction: &sidebarWidthTransaction)
+    }
+
+    /// Widens a sidebar narrowed to its icon column to its usual width,
+    /// answering the width to keep, or nil when it was not narrowed.
+    func expandSidebarFromIconColumn() -> CGFloat? {
+        guard BrowserChromeLayout.showsIconColumn(atSidebarWidth: sidebarWidth) else { return nil }
+        sidebarWidthTransaction.resize(to: BrowserChromeLayout.sidebarIdealWidth)
+        return commitSidebarWidth(sidebarWidth)
     }
 
     func hideSidebar(reduceMotion: Bool) {

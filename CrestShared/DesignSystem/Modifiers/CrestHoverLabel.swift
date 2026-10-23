@@ -24,13 +24,7 @@ struct CrestHoverLabel: ViewModifier {
                     .frame(height: 0)
                     .overlay(alignment: .bottom) {
                         if isHovering {
-                            title
-                                .font(.caption.weight(.medium))
-                                .lineLimit(1)
-                                .fixedSize()
-                                .padding(.horizontal, CrestSpacing.small)
-                                .padding(.vertical, CrestSpacing.extraSmall)
-                                .background { CrestSurfaceLayer(shape: Capsule()) }
+                            CrestHoverLabelCapsule(title: title)
                                 .padding(.bottom, Self.gap)
                                 .allowsHitTesting(false)
                                 .accessibilityHidden(true)
@@ -39,6 +33,21 @@ struct CrestHoverLabel: ViewModifier {
                     }
             }
             .zIndex(isHovering ? 1 : 0)
+    }
+}
+
+/// The capsule a hover label shows a control's name in.
+struct CrestHoverLabelCapsule: View {
+    let title: Text
+
+    var body: some View {
+        title
+            .font(.caption.weight(.medium))
+            .lineLimit(1)
+            .fixedSize()
+            .padding(.horizontal, CrestSpacing.small)
+            .padding(.vertical, CrestSpacing.extraSmall)
+            .background { CrestSurfaceLayer(shape: Capsule()) }
     }
 }
 

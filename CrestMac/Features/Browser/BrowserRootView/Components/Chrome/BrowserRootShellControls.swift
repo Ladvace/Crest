@@ -42,7 +42,8 @@ struct BrowserRootShellControls: View {
             BrowserSidebarResizeHandle(
                 width: model.sidebarWidthBinding,
                 onResizeEnded: commitSidebarWidth,
-                edge: sidebarEdge
+                edge: sidebarEdge,
+                allowsIconColumn: true
             )
             .offset(x: resizeHandleOffset)
             .zIndex(BrowserRootMetrics.sidebarResizeControlZIndex)
