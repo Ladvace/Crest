@@ -25,17 +25,16 @@ struct SpaceSidebarAddressBand: View {
     let bookmarksRequest: BrowserBookmarksRequest?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// The band's width, which decides how many controls fit beside the
-    /// address.
-    @State private var width: CGFloat = .infinity
+    /// Whether the band is too narrow for every control beside the address.
+    /// Kept as the answer alone, so resizing redraws the band only when it
+    /// changes.
+    @State private var isCompact = false
 
     /// Below this width the address keeps its room, as Arc keeps it: the
     /// security mark and the copy-link control step out, and the bookmarks
     /// control keeps no width but stays where its shortcut and popover reach
     /// it. The site controls stay, since permission prompts open from them.
     private static let compactWidth: CGFloat = 240
-
-    private var isCompact: Bool { width < Self.compactWidth }
 
     var body: some View {
         BrowserSidebarAddressField(configuration: addressConfiguration) {
@@ -61,10 +60,10 @@ struct SpaceSidebarAddressBand: View {
                 }
             }
         }
-        .onGeometryChange(for: CGFloat.self) {
-            $0.size.width
+        .onGeometryChange(for: Bool.self) {
+            $0.size.width < Self.compactWidth
         } action: {
-            width = $0
+            isCompact = $0
         }
         .contentTransition(.opacity)
         .animation(

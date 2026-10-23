@@ -4405,6 +4405,10 @@
     "getting-started-matches-sidebar": {
       "category": "improved",
       "message": "Getting Started's practice window looks like CrestArk's sidebar, with the address field on top and the bar with the + menu at the foot."
+    },
+    "smooth-sidebar-resize": {
+      "category": "fixed",
+      "message": "Resizing the sidebar is smooth again."
     }
   }
 }

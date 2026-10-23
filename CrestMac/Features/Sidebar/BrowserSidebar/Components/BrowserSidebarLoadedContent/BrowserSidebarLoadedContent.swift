@@ -28,8 +28,10 @@ struct BrowserSidebarLoadedContent: View {
     @Environment(\.browserSidebarWidgetRuntime) private var widgetRuntime
     @Environment(\.spacePagerPresentation) private var inheritedPagerPresentation
     @State private var standalonePagerPresentation = SpacePagerPresentation()
-    /// How wide the sidebar is, which decides whether it shows only icons.
-    @State private var width = BrowserChromeLayout.sidebarIdealWidth
+    /// Whether the sidebar is narrow enough to show only icons. Kept as the
+    /// answer alone: holding the width redrew the whole sidebar on every
+    /// step of a resize.
+    @State private var showsIconColumn = false
 
     private var spacePagerPresentation: SpacePagerPresentation {
         inheritedPagerPresentation ?? standalonePagerPresentation
@@ -37,7 +39,7 @@ struct BrowserSidebarLoadedContent: View {
 
     var body: some View {
         Group {
-            if BrowserChromeLayout.showsIconColumn(atSidebarWidth: width) {
+            if showsIconColumn {
                 BrowserSidebarIconColumn(
                     context: context, pages: pages, openNewTab: openNewTab,
                     search: {
@@ -48,10 +50,10 @@ struct BrowserSidebarLoadedContent: View {
                 fullSidebar
             }
         }
-        .onGeometryChange(for: CGFloat.self) {
-            $0.size.width
+        .onGeometryChange(for: Bool.self) {
+            BrowserChromeLayout.showsIconColumn(atSidebarWidth: $0.size.width)
         } action: {
-            width = $0
+            showsIconColumn = $0
         }
     }
 

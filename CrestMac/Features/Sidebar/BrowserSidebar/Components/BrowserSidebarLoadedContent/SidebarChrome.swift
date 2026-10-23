@@ -19,8 +19,10 @@ struct SidebarChrome: View {
     @Environment(\.browserChromeAppearance) private var appearance
     /// How far the window's own buttons reach into the navigation strip.
     @State private var windowButtonsWidth: CGFloat = 0
-    /// The navigation strip's width.
-    @State private var stripWidth: CGFloat = .infinity
+    /// Whether the strip holds the toggle beside the navigation, past the
+    /// window's buttons. Kept as the answer alone, so resizing the sidebar
+    /// redraws the chrome only when the answer changes.
+    @State private var showsSidebarToggle = true
 
     /// The room back, forward and reload take, and the sidebar toggle beside
     /// them; the toggle steps aside once the strip can't hold both past the
@@ -28,7 +30,7 @@ struct SidebarChrome: View {
     private static let navigationWidth: CGFloat = 120
     private static let toggleWidth: CGFloat = 36
 
-    private var showsSidebarToggle: Bool {
+    private func holdsSidebarToggle(stripWidth: CGFloat) -> Bool {
         stripWidth - windowButtonsWidth >= Self.navigationWidth + Self.toggleWidth
     }
 
@@ -62,10 +64,10 @@ struct SidebarChrome: View {
                     BrowserWindowTitleBarSurface()
                 }
                 .background { BrowserWindowButtonsClearance { windowButtonsWidth = $0 } }
-                .onGeometryChange(for: CGFloat.self) {
-                    $0.size.width
+                .onGeometryChange(for: Bool.self) {
+                    holdsSidebarToggle(stripWidth: $0.size.width)
                 } action: {
-                    stripWidth = $0
+                    showsSidebarToggle = $0
                 }
                 // Another tab's history shows at once, as every browser switches
                 // tabs; a fade on each switch redraws the strip every frame.
