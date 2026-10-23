@@ -48,6 +48,20 @@ public sealed partial class BrowserContractsTests {
     }
 
     [Fact]
+    public void ABookmarkIsSuggestedAsThePersonTypesAndUnderItsScope() {
+        var (session, space) = PaletteSession([]);
+        using var device = new TestDevice(session);
+        var window = device.Open(space);
+        device.Send(new AddBookmark(device.Workspace, space, Guid.NewGuid(), null, null, "Lentil soup", "https://soup.example/lentil",
+            false));
+
+        var typed = device.Query(Asking(window, "lentil")).Groups.SelectMany(group => group.Rows);
+        Assert.Contains(typed, row => row.Kind == PaletteRowKind.Bookmark && row.Address == "https://soup.example/lentil");
+        var scoped = device.Query(Asking(window, "soup") with { Scope = PaletteScope.Bookmarks }).Groups.SelectMany(group => group.Rows);
+        Assert.Equal([PaletteRowKind.Bookmark], scoped.Select(row => row.Kind).Distinct());
+    }
+
+    [Fact]
     public void BookmarksTravelWithTheSpaceRecord() {
         var session = OneSpaceSession();
         var folder = StoredSessionCodec.Encode(new BookmarkState(Fixed(301), null, "Recipes", null, true));

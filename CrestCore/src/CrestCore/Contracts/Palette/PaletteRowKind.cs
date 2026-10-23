@@ -60,9 +60,13 @@ public sealed class PaletteRowKind {
         symbol: "line.3.horizontal.decrease", action: "Search", label: "Scope", isPrimary: false, forgetsFromHistory: false,
         destination: (row, _) => row.Scope is { } scope ? PaletteDestination.Named(PaletteDestinationKind.Scope, scope.Name) : null);
 
+    public static readonly PaletteRowKind Bookmark = new(name: "bookmark", PaletteActivation.OpensAddress,
+        symbol: "bookmark.fill", action: "Open", label: "Bookmark", isPrimary: false, forgetsFromHistory: false,
+        destination: (row, _) => PaletteDestination.Address(row.Address));
+
     public static IReadOnlyList<PaletteRowKind> All { get; } =
         [OpenAddress, Search, SearchSuggestion, Tab, PinnedTab, SavedTab, Folder, Command, History, Space, ArchivedTab,
-            SettingsPage, Calculation, PasteAndGo, Scope];
+            SettingsPage, Calculation, PasteAndGo, Scope, Bookmark];
 
     #endregion
 

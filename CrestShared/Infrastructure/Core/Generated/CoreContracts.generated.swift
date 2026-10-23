@@ -1080,7 +1080,8 @@ struct AppPreferences: Equatable, Sendable {
                 PaletteSourceChoice(source: PaletteSource.settingsPages, isEnabled: true, limit: nil),
                 PaletteSourceChoice(source: PaletteSource.scopes, isEnabled: true, limit: nil),
                 PaletteSourceChoice(source: PaletteSource.calculator, isEnabled: true, limit: nil),
-                PaletteSourceChoice(source: PaletteSource.pasteAndGo, isEnabled: false, limit: nil)
+                PaletteSourceChoice(source: PaletteSource.pasteAndGo, isEnabled: false, limit: nil),
+                PaletteSourceChoice(source: PaletteSource.bookmarks, isEnabled: true, limit: nil)
             ],
             showsTopHit: true,
             prefersOpenTabs: true,
@@ -4591,7 +4592,8 @@ struct PalettePreferences: Equatable, Sendable {
             PaletteSourceChoice(source: PaletteSource.settingsPages, isEnabled: true, limit: nil),
             PaletteSourceChoice(source: PaletteSource.scopes, isEnabled: true, limit: nil),
             PaletteSourceChoice(source: PaletteSource.calculator, isEnabled: true, limit: nil),
-            PaletteSourceChoice(source: PaletteSource.pasteAndGo, isEnabled: false, limit: nil)
+            PaletteSourceChoice(source: PaletteSource.pasteAndGo, isEnabled: false, limit: nil),
+            PaletteSourceChoice(source: PaletteSource.bookmarks, isEnabled: true, limit: nil)
         ],
         showsTopHit: true,
         prefersOpenTabs: true,
@@ -14897,6 +14899,16 @@ struct PaletteRowKind: Hashable, Sendable {
         activation: PaletteActivation.entersScope,
         forgetsFromHistory: false
     )
+    static let bookmark = PaletteRowKind(
+        tag: 15,
+        name: "bookmark",
+        symbol: "bookmark.fill",
+        action: LocalizedStringResource("Open"),
+        label: LocalizedStringResource("Bookmark"),
+        isPrimary: false,
+        activation: PaletteActivation.opensAddress,
+        forgetsFromHistory: false
+    )
 
     static let all: [PaletteRowKind] = [
         openAddress,
@@ -14913,7 +14925,8 @@ struct PaletteRowKind: Hashable, Sendable {
         settingsPage,
         calculation,
         pasteAndGo,
-        scope
+        scope,
+        bookmark
     ]
 
     static func named(_ name: String?) -> PaletteRowKind? {
@@ -15019,8 +15032,16 @@ struct PaletteScope: Hashable, Sendable {
         symbol: "square.stack",
         source: PaletteSource.spaces
     )
+    static let bookmarks = PaletteScope(
+        tag: 5,
+        name: "bookmarks",
+        keyword: "@bookmarks",
+        title: LocalizedStringResource("Bookmarks"),
+        symbol: "bookmark",
+        source: PaletteSource.bookmarks
+    )
 
-    static let all: [PaletteScope] = [tabs, saved, history, actions, spaces]
+    static let all: [PaletteScope] = [tabs, saved, history, actions, spaces, bookmarks]
 
     static func named(_ name: String?) -> PaletteScope? {
         all.first { $0.name == name }
@@ -15147,6 +15168,14 @@ struct PaletteSection: Hashable, Sendable {
         restingLimit: 0,
         scopedLimit: 0
     )
+    static let bookmarks = PaletteSection(
+        tag: 11,
+        name: "bookmarks",
+        title: LocalizedStringResource("Bookmarks"),
+        limit: 4,
+        restingLimit: 0,
+        scopedLimit: 30
+    )
 
     static let all: [PaletteSection] = [
         intent,
@@ -15159,7 +15188,8 @@ struct PaletteSection: Hashable, Sendable {
         topHit,
         spaces,
         archived,
-        results
+        results,
+        bookmarks
     ]
 
     static func named(_ name: String?) -> PaletteSection? {
@@ -15331,7 +15361,7 @@ struct PaletteSource: Hashable, Sendable {
         tag: 9,
         name: "scopes",
         title: LocalizedStringResource("@ Filters"),
-        detail: LocalizedStringResource("Type @tabs, @saved, @history, @actions or @spaces, then a space or Tab, to show only that kind."),
+        detail: LocalizedStringResource("Type @tabs, @saved, @bookmarks, @history, @actions or @spaces, then a space or Tab, to show only that kind."),
         section: PaletteSection.intent,
         isSection: false,
         isEnabledByDefault: true,
@@ -15360,6 +15390,17 @@ struct PaletteSource: Hashable, Sendable {
         restingSection: nil,
         defaultLimit: 2
     )
+    static let bookmarks = PaletteSource(
+        tag: 12,
+        name: "bookmarks",
+        title: LocalizedStringResource("Bookmarks"),
+        detail: nil,
+        section: PaletteSection.bookmarks,
+        isSection: true,
+        isEnabledByDefault: true,
+        restingSection: nil,
+        defaultLimit: 4
+    )
 
     static let all: [PaletteSource] = [
         recentTabs,
@@ -15373,7 +15414,8 @@ struct PaletteSource: Hashable, Sendable {
         settingsPages,
         scopes,
         calculator,
-        pasteAndGo
+        pasteAndGo,
+        bookmarks
     ]
 
     static func named(_ name: String?) -> PaletteSource? {

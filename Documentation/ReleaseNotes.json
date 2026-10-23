@@ -4325,6 +4325,10 @@
     "bookmarks-button-and-library": {
       "category": "new",
       "message": "Bookmark pages you want to keep without filling your sidebar. The bookmark button next to the address field opens your Space's bookmarks: search them, sort them into folders, and show any bookmark or folder in every Space. Press Shift-Command-D to bookmark a page and Option-Command-B to open your bookmarks."
+    },
+    "bookmarks-in-address-suggestions": {
+      "category": "new",
+      "message": "The address field suggests your bookmarks as you type, including those shown in every Space, and @bookmarks searches only them."
     }
   }
 }
