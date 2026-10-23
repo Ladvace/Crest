@@ -4429,6 +4429,10 @@
     "readme-fork-wording": {
       "category": "internal",
       "message": "Describe the fork more plainly in the README and drop the upstream star history."
+    },
+    "sparkle-296-dotnet-204": {
+      "category": "internal",
+      "message": "Update Sparkle to 2.9.6 and the .NET SDK to 10.0.204."
     }
   }
 }
