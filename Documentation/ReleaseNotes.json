@@ -4373,6 +4373,10 @@
     "icon-only-sidebar": {
       "category": "new",
       "message": "Narrow the Mac sidebar past its smallest width and it becomes a column of tab icons, named on hover, with a search field that widens it again. The sidebar's edge is easier to grab and lights up under the pointer."
+    },
+    "imported-extensions-progress": {
+      "category": "improved",
+      "message": "After an import, the sidebar shows quietly how many extensions are still being added, until they are all installed."
     }
   }
 }

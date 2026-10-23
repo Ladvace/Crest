@@ -6,6 +6,14 @@ import SwiftUI
 /// and package storage remain owned by Chromium's independent Space profiles.
 @Observable @MainActor
 final class ChromiumExtensionStore {
+    /// How far an import's extensions have come while they install: how many
+    /// it brought, how many are done, and the one installing now.
+    struct ImportedExtensionsProgress: Equatable {
+        var total: Int
+        var finished: Int
+        var current: String?
+    }
+
     struct Installed: Identifiable {
         let id: String
         let name: String
@@ -31,6 +39,9 @@ final class ChromiumExtensionStore {
     var revision = 0
     private(set) var installed: [UUID: [Installed]] = [:]
     private(set) var installation: ChromiumExtensionInstallation?
+    /// How far an import's extensions have come while they install, or nil
+    /// when none are waiting.
+    private(set) var importedExtensions: ImportedExtensionsProgress?
     /// The extensions an import brought that still await their install review.
     @ObservationIgnored private var pendingImports: [ImportExtensionInstall] = []
     @ObservationIgnored private var importsTask: Task<Void, Never>?
@@ -366,6 +377,11 @@ final class ChromiumExtensionStore {
     /// once, when the queue empties, what it installed and what it could not.
     func installImported(_ installs: [ImportExtensionInstall]) {
         pendingImports += installs
+        if !installs.isEmpty {
+            var progress = importedExtensions ?? ImportedExtensionsProgress(total: 0, finished: 0)
+            progress.total += installs.count
+            importedExtensions = progress
+        }
         guard importsTask == nil else { return }
         importsTask = Task { [weak self] in
             await self?.runPendingImports()
@@ -375,9 +391,14 @@ final class ChromiumExtensionStore {
     private func runPendingImports() async {
         var added: [String] = []
         var failed: [String] = []
-        defer { reportImportedInstalls(added: added, failed: failed) }
+        defer {
+            importedExtensions = nil
+            reportImportedInstalls(added: added, failed: failed)
+        }
         while !pendingImports.isEmpty, !Task.isCancelled {
             let next = pendingImports.removeFirst()
+            importedExtensions?.current = next.name
+            defer { importedExtensions?.finished += 1 }
             var wanted: [BrowserSpaceIdentity] = []
             for id in next.spaceIDs {
                 guard let space = await importedSpace(id) else { continue }

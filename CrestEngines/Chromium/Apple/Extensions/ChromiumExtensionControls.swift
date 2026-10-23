@@ -19,6 +19,14 @@ struct BrowserPinnedExtensionStrip: View {
         // show: hanging the preparation off the populated row alone left a
         // Space that had never opened a page with a row that never filled.
         VStack(spacing: 0) {
+            if let progress = store.importedExtensions {
+                BrowserImportedExtensionsProgressRow(
+                    progress: progress,
+                    downloaded: store.installation?.downloaded
+                )
+                .padding(.top, BrowserSidebarMetrics.topSectionSpacing)
+                .transition(.opacity)
+            }
             if !actions.isEmpty {
                 BrowserPinnedExtensionStripContent(
                     actions: actions,
@@ -39,6 +47,9 @@ struct BrowserPinnedExtensionStrip: View {
             }
         }
         .animation(reduceMotion ? nil : SpacePagerSettlement.standardAnimation, value: actions.map(\.id))
+        .animation(
+            reduceMotion ? nil : SpacePagerSettlement.standardAnimation, value: store.importedExtensions == nil
+        )
         .task(id: PreparationKey(space: space.id, profile: space.profileID)) {
             await store.prepare(space.identity, in: browser)
         }
@@ -112,5 +123,40 @@ struct ChromiumExtensionControls: View {
             await Task.yield()
             action()
         }
+    }
+}
+
+/// A quiet line while an import's extensions install: a ring that fills as
+/// the one downloading now comes in, and how many are done. The notice when
+/// they finish says what was installed.
+private struct BrowserImportedExtensionsProgressRow: View {
+    let progress: ChromiumExtensionStore.ImportedExtensionsProgress
+    /// How much of the extension installing now has downloaded, when known.
+    let downloaded: Double?
+
+    var body: some View {
+        HStack(spacing: CrestSpacing.small) {
+            Group {
+                if let downloaded {
+                    ProgressView(value: downloaded)
+                } else {
+                    ProgressView()
+                }
+            }
+            .progressViewStyle(.circular)
+            .controlSize(.mini)
+            Text("Adding extensions")
+                .lineLimit(1)
+            Spacer(minLength: 0)
+            Text("\(min(progress.finished + 1, progress.total)) of \(progress.total)")
+                .monospacedDigit()
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, CrestSpacing.small)
+        .help(progress.current.map { String(localized: "Installing \($0)") } ?? "")
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(
+            Text("Adding extensions, \(min(progress.finished + 1, progress.total)) of \(progress.total)"))
     }
 }
