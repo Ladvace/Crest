@@ -127,6 +127,7 @@ final class WebKitEngineBinding: EngineBinding {
         if contentRules.provider == nil {
             contentRules.provider = BrowserContentRuleListProvider.forLaunch(core: engines.core)
         }
+        contentRules.keepFilterListsCurrent()
         engines.core.followPrompts(self)
     }
 

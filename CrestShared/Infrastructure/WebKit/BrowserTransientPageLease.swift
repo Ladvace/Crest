@@ -29,7 +29,7 @@ final class BrowserTransientPageLease {
     @ObservationIgnored private let userActivity: () -> Void
     @ObservationIgnored private let onDownloadOnlyNavigation: (() -> Void)?
     @ObservationIgnored private var contentBlockingPolicy: ContentBlockingPolicy
-    @ObservationIgnored private var balancedContentRuleLists: [WKContentRuleList]
+    @ObservationIgnored private var contentRuleLists: [WKContentRuleList]
     @ObservationIgnored private var isInvalidated = false
     /// The core page memory pressure unloaded, which the core remembers until
     /// the lease brings the page back or lets it go and releases it for good.
@@ -41,7 +41,7 @@ final class BrowserTransientPageLease {
         page: BrowserPlatformPage,
         url: URL,
         contentBlockingPolicy: ContentBlockingPolicy,
-        balancedContentRuleLists: [WKContentRuleList],
+        contentRuleLists: [WKContentRuleList],
         rebuild: @escaping () -> BrowserPlatformPage?,
         userActivity: @escaping () -> Void,
         onDownloadOnlyNavigation: (() -> Void)? = nil,
@@ -53,7 +53,7 @@ final class BrowserTransientPageLease {
         profileID = page.profileID
         reloadURL = url
         self.contentBlockingPolicy = contentBlockingPolicy
-        self.balancedContentRuleLists = balancedContentRuleLists
+        self.contentRuleLists = contentRuleLists
         self.rebuild = rebuild
         self.userActivity = userActivity
         self.onDownloadOnlyNavigation = onDownloadOnlyNavigation
@@ -75,7 +75,7 @@ final class BrowserTransientPageLease {
         guard !isInvalidated, page == nil, let page = rebuild() else { return }
         page.applyContentBlocking(
             policy: contentBlockingPolicy,
-            balancedRuleLists: balancedContentRuleLists
+            ruleLists: contentRuleLists
         )
         page.monitorUserActivity(userActivity)
         page.corePage.load(reloadURL)
@@ -137,13 +137,13 @@ final class BrowserTransientPageLease {
 
     func applyContentBlocking(
         policy: ContentBlockingPolicy,
-        balancedRuleLists: [WKContentRuleList]
+        ruleLists: [WKContentRuleList]
     ) {
         contentBlockingPolicy = policy
-        self.balancedContentRuleLists = balancedRuleLists
+        self.contentRuleLists = ruleLists
         page?.applyContentBlocking(
             policy: policy,
-            balancedRuleLists: balancedRuleLists
+            ruleLists: ruleLists
         )
     }
 

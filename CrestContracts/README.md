@@ -191,8 +191,8 @@ one with `SubstitutesForLockedSpace`, or nowhere when every Space is locked.
 `RouteLocalDocument` answers the same for a document, which opens in the Space
 on screen. `LinkNavigation` answers what following a
 link from a page does. `PresentPage` and `NormalizeBranding` answer page
-surfaces and branding range rules, and the `BalancedProtectionRules` query
-answers the Balanced rule list.
+surfaces and branding range rules, and the `ContentBlockingRules` query
+translates a policy's filter lists into WebKit content rule lists.
 
 Window state is device-local and never enters the session. The
 `OpenWindow`, `CloseWindow`, `ShowSpace`, `ShowTab`, `DismissShownTab`,

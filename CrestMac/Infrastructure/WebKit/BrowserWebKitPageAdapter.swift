@@ -290,12 +290,12 @@ final class BrowserWebKitPageAdapter: BrowserPageEngineAdapter {
 
     func applyContentBlocking(
         policy: ContentBlockingPolicy,
-        balancedRuleLists: [WKContentRuleList],
+        ruleLists: [WKContentRuleList],
         reloadsImmediately: Bool
     ) {
         contentRuleSession.apply(
             policy: policy,
-            balancedRuleLists: balancedRuleLists,
+            ruleLists: ruleLists,
             to: webView,
             reloadsImmediately: reloadsImmediately
         )

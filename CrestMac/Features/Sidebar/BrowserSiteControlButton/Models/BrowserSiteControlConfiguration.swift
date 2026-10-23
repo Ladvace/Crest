@@ -1,6 +1,7 @@
 import Foundation
 
 struct BrowserSiteControlConfiguration {
+    let browser: BrowserStore
     let page: BrowserPage
     /// The page's Space in the read model, which the engine's extension
     /// controls act for.

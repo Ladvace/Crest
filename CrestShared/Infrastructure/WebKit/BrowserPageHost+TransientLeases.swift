@@ -10,7 +10,7 @@ extension BrowserPageHost {
     /// `engineNavigation`. Nil when the core refuses the page.
     func makeTransientPageLease(
         url: URL, in space: SpaceModel, presentation: TransientPresentation,
-        engineNavigation: BrowserEngineNavigation?, balancedContentRuleLists: [WKContentRuleList],
+        engineNavigation: BrowserEngineNavigation?, contentRuleLists: [WKContentRuleList],
         onUserActivity: @escaping () -> Void, onDownloadOnlyNavigation: (() -> Void)?,
         makePage: @escaping @MainActor () -> BrowserPlatformPage?
     ) -> BrowserPlatformTransientPageLease? {
@@ -23,7 +23,7 @@ extension BrowserPageHost {
         }
         let lease = BrowserPlatformTransientPageLease(
             page: initialPage, url: url, contentBlockingPolicy: space.settings.browsingPreferences.contentBlocking,
-            balancedContentRuleLists: balancedContentRuleLists, rebuild: makePage, userActivity: onUserActivity,
+            contentRuleLists: contentRuleLists, rebuild: makePage, userActivity: onUserActivity,
             onDownloadOnlyNavigation: onDownloadOnlyNavigation)
         keep(lease)
         return lease

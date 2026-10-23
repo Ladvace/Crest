@@ -809,7 +809,7 @@ private struct MobileBrowserRootFixture {
 private final class EmptyMobileRootContentRuleListProvider:
     BrowserContentRuleListProviding
 {
-    func balancedRuleLists() async throws -> [WKContentRuleList] { [] }
+    func ruleLists(for policy: ContentBlockingPolicy, exemptHosts: [String]) async throws -> [WKContentRuleList] { [] }
 }
 
 @MainActor

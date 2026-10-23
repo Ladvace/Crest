@@ -112,7 +112,7 @@ extension BrowserPageOwner {
     var contentBlockingErrorDescription: String? { contentBlocking.errorDescription }
 
     func prepareContentBlocking() async {
-        await contentBlocking.prepare()
+        await contentBlocking.prepare(in: browser.workspaceModel)
     }
 
     /// Gives every page its Space's content blocking in the window's
@@ -123,17 +123,18 @@ extension BrowserPageOwner {
         let presented = presentedTabIDsAcrossWindows
         for (tabID, runtime) in host.runtimes {
             let page = runtime.page
+            let policy = update.policy(for: page.spaceID)
             page.applyContentBlocking(
-                policy: update.policy(for: page.spaceID),
-                balancedRuleLists: contentBlocking.balancedRuleLists ?? [],
-                activation: update.activation(for: page.spaceID, isPresented: presented.contains(tabID))
+                policy: policy,
+                ruleLists: contentBlocking.ruleLists(for: policy),
+                activation: update.activation(
+                    for: page.spaceID, host: page.pageEngine.currentURL?.host(),
+                    isPresented: presented.contains(tabID))
             )
         }
         for lease in host.liveTransientLeases {
-            lease.applyContentBlocking(
-                policy: update.policy(for: lease.spaceID),
-                balancedRuleLists: contentBlocking.balancedRuleLists ?? []
-            )
+            let policy = update.policy(for: lease.spaceID)
+            lease.applyContentBlocking(policy: policy, ruleLists: contentBlocking.ruleLists(for: policy))
         }
     }
 

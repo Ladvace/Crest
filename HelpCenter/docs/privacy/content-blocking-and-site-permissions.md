@@ -11,13 +11,19 @@ Privacy decisions belong to the current Space. A permission granted to a work ac
 
 ## Content blocking
 
-Crest includes a small built-in ad and tracker ruleset that can be enabled or disabled per Space. It uses WebKit, so it applies on iPhone, iPad, and WebKit pages on Mac. Use the site controls or assign **Toggle Content Blocking** a shortcut when a site needs a quick exception.
+Each Space chooses how much to block in its privacy settings, under **Block ads and trackers**:
 
-To change it for a Space, turn **Block known ads and trackers** on or off in that Space’s privacy settings. On Mac, open Settings, select the Space in the sidebar, then select **Privacy**. On iPhone and iPad, open **Settings → Privacy** and choose the Space.
+- **Standard** blocks ads and trackers with EasyList and EasyPrivacy, the community lists most ad blockers use. It is the default.
+- **Strict** adds uBlock Origin's own lists and hides cookie notices. A few sites may need an exception.
+- **Off** lets pages load everything.
 
-Chromium pages on Mac have no built-in blocking. Install a content-blocking extension, such as uBlock Origin Lite, in each Space that needs it. Extensions do not run on WebKit pages.
+Crest downloads the lists from their maintainers, checks them for updates once a day, and blocks with WebKit's built-in content rules, so blocking costs pages nothing while they load. **Update Now** checks right away. Until the lists first download, Crest blocks a short list of well-known ad and analytics sites.
 
-For broader filter-list coverage, install a content-blocking extension in the Space that needs it. Built-in protection and an extension can have different rule coverage, so check which layer is active before assuming the page itself is broken.
+When a site breaks, open its site controls and turn off **Block Ads and Trackers**. The site is then left alone in every Space until you turn it back on, there or in privacy settings.
+
+On Mac, open Settings, select the Space in the sidebar, then select **Privacy**. On iPhone and iPad, open **Settings → Privacy** and choose the Space.
+
+Chromium pages on Mac block with uBlock Origin Lite instead, which Crest installs in a Space the first time that Space blocks. Turning blocking off for the Space turns the extension off, and a site exception there comes from the extension's own controls. If you remove the extension, Crest doesn't install it again.
 
 ## Malicious sites and downloads
 

@@ -672,7 +672,8 @@ final class BrowserPagePool:
     ) -> BrowserTransientPageLease? {
         host.makeTransientPageLease(
             url: url, in: space, presentation: presentation, engineNavigation: engineNavigation,
-            balancedContentRuleLists: contentBlocking.balancedRuleLists ?? [], onUserActivity: onUserActivity,
+            contentRuleLists: contentBlocking.ruleLists(for: space.settings.browsingPreferences.contentBlocking),
+            onUserActivity: onUserActivity,
             onDownloadOnlyNavigation: onDownloadOnlyNavigation
         ) { [weak self] in
             self?.makePage(space: space, presentation: presentation, opener: opener)
@@ -834,7 +835,7 @@ final class BrowserPagePool:
         }
         let lease = BrowserTransientPageLease(
             page: page, url: url, contentBlockingPolicy: space.settings.browsingPreferences.contentBlocking,
-            balancedContentRuleLists: contentBlocking.balancedRuleLists ?? [],
+            contentRuleLists: contentBlocking.ruleLists(for: space.settings.browsingPreferences.contentBlocking),
             rebuild: { [weak self] in self?.makePage(space: space, presentation: .quickWindow) },
             userActivity: onUserActivity, loadsURL: false)
         host.keep(lease)

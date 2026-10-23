@@ -61,6 +61,7 @@
                 chromium.follow(application)
                 chromiumEngine = chromium
                 adoptLegacyWindowList(into: application)
+                Task { @MainActor in keepContentBlocker() }
                 return application
             }
         }
@@ -146,6 +147,23 @@
         }
 
         static var extensionSpaces: [BrowserSpaceIdentity] { shell?.application?.extensionSpaces ?? [] }
+
+        /// Keeps each Space's ad and tracker blocker in line with its content
+        /// blocking, now and whenever a Space's blocking or the Spaces change.
+        static func keepContentBlocker() {
+            guard let browser = shell?.application?.browser else { return }
+            let spaces = withObservationTracking {
+                _ = browser.spaceModels.map { $0.settings.browsingPreferences.contentBlocking }
+                return extensionSpaces
+            } onChange: {
+                Task { @MainActor in keepContentBlocker() }
+            }
+            Task {
+                await extensions.keepContentBlocker(in: spaces) { id in
+                    browser.spaceModel(id)?.settings.browsingPreferences.contentBlocking.blocksContent == true
+                }
+            }
+        }
 
         /// The Space whose profile is `profileID`, when its extensions may act.
         static func extensionSpace(forProfile profileID: UUID) -> BrowserSpaceIdentity? {

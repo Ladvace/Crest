@@ -4337,6 +4337,10 @@
     "development-copies-start-fresh": {
       "category": "internal",
       "message": "Development copies of Crest start like a first install and can read another browser's Keychain item to test imports; test runs never can."
+    },
+    "ad-and-tracker-filter-lists": {
+      "category": "new",
+      "message": "Crest blocks ads and trackers with the same filter lists Brave uses, kept up to date on their own. Choose how much each Space blocks, and turn blocking off for a site from its site controls."
     }
   }
 }

@@ -130,7 +130,9 @@ internal static partial class StoredSessionCodec {
             TolerantFlag(value[Key.SavedTabFaviconReturnsToSavedUrl]) ?? defaults.SavedTabFaviconReturnsToSavedUrl,
             TolerantFlag(value[Key.SplitFocusFollowsMouse]) ?? defaults.SplitFocusFollowsMouse,
             TolerantFlag(value[Key.AutomaticallyShowsDeveloperToolbar]) ?? defaults.AutomaticallyShowsDeveloperToolbar,
-            DecodePalettePreferences(value[Key.Palette]));
+            DecodePalettePreferences(value[Key.Palette]),
+            [.. Items(value[Key.ContentBlockingExemptions]).Select(TolerantText).Select(AppPreferences.ExemptHost).OfType<string>()
+                .Distinct().Order(StringComparer.Ordinal).Take(AppPreferences.MaximumContentBlockingExemptions)]);
     }
 
     /// The app-wide preferences. The palette's are written only once they
@@ -150,6 +152,8 @@ internal static partial class StoredSessionCodec {
             [Key.AutomaticallyShowsDeveloperToolbar] = preferences.AutomaticallyShowsDeveloperToolbar
         };
         if (!preferences.Palette.Equals(PalettePreferences.Default)) value[Key.Palette] = Encode(preferences.Palette);
+        if (preferences.ContentBlockingExemptions.Count > 0)
+            value[Key.ContentBlockingExemptions] = new JsonArray([.. preferences.ContentBlockingExemptions.Select(host => (JsonNode?)host)]);
         return value;
     }
 

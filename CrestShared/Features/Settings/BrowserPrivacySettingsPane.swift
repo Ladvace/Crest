@@ -40,14 +40,15 @@ struct BrowserPrivacySettingsPane: View {
                     )
                 }
 
-                // Where blocking comes only from extensions, a toggle could reach
-                // no page, so the section is left out.
-                if supportsContentBlocking {
-                    BrowserContentBlockingSettingsSection(
-                        policy: contentBlockingPolicyBinding,
-                        errorDescription: contentBlockingErrorDescription
-                    )
-                }
+                // Where blocking comes from an extension the choice turns the
+                // extension on or off, so the section stays.
+                BrowserContentBlockingSettingsSection(
+                    policy: contentBlockingPolicyBinding,
+                    errorDescription: contentBlockingErrorDescription,
+                    browser: browser,
+                    filterLists: browser.core.engines.webKit?.contentRules.filterLists,
+                    blocksWithExtension: !supportsContentBlocking
+                )
 
                 if browser.core.state.offers(.permissions) {
                     BrowserSavedSitePermissionSection(

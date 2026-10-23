@@ -93,12 +93,12 @@ extension BrowserPage {
 
     func applyContentBlocking(
         policy: ContentBlockingPolicy,
-        balancedRuleLists: [WKContentRuleList],
+        ruleLists: [WKContentRuleList],
         activation: BrowserContentRuleListActivation = .onNextNavigation
     ) {
         webKitAdapter?.applyContentBlocking(
             policy: policy,
-            balancedRuleLists: balancedRuleLists,
+            ruleLists: ruleLists,
             reloadsImmediately: activation == .immediately && pageEngine.currentURL != nil
         )
     }

@@ -1343,7 +1343,7 @@ private final class StubMobileContentRuleListProvider: BrowserContentRuleListPro
         self.generations = generations
     }
 
-    func balancedRuleLists() async throws -> [WKContentRuleList] {
+    func ruleLists(for policy: ContentBlockingPolicy, exemptHosts: [String]) async throws -> [WKContentRuleList] {
         defer { requestCount += 1 }
         return generations[min(requestCount, generations.count - 1)]
     }

@@ -635,12 +635,12 @@ final class MobileBrowserPage: NSObject, BrowserMediaSessionCommandEndpoint {
 
     func applyContentBlocking(
         policy: ContentBlockingPolicy,
-        balancedRuleLists: [WKContentRuleList],
+        ruleLists: [WKContentRuleList],
         activation: BrowserContentRuleListActivation = .onNextNavigation
     ) {
         contentRuleSession.apply(
             policy: policy,
-            balancedRuleLists: balancedRuleLists,
+            ruleLists: ruleLists,
             to: webView,
             reloadsImmediately: activation == .immediately && webView.url != nil
         )

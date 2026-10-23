@@ -1,53 +1,65 @@
 # Content blocking
 
-Crest's Balanced protection is one bundled ruleset that WebKit applies through
-its native content-rule-list API. Each Space turns it on or off independently.
+Each Space blocks ads and trackers with one of three policies: Standard
+(EasyList and EasyPrivacy), Strict (those lists plus uBlock Origin's own
+lists and EasyList Cookie) or Off. Sites a person exempts are left alone in
+every Space.
 
-## Built-in protection
+## Filter lists
 
-The bundled rules block a deliberately small set of well-known third-party ad
-and analytics hosts. They give a privacy baseline without downloading remote
-rule sources, parsing third-party filter syntax, or placing another project's
-converter inside Crest's trusted update path.
+Crest ships no filter list. `FilterList` in `CrestCore` names each list, its
+address and its license, and each policy names the lists it blocks with.
+`FilterListLibrary` downloads them from their maintainers into Application
+Support, checks for a newer version once a day with the server's ETag, and
+keeps only what reads as an Adblock Plus list. An isolated launch downloads
+nothing.
 
-The portable core owns the rules. `ContentBlockingPolicy.Balanced` in
-`CrestCore` carries the blocked host suffixes and a versioned identifier, and
-the `BalancedProtectionRules` query returns them as a `ContentRuleList`: that
-identifier with the WebKit content-rule source. WebKit's binding compiles the
-source once, caches the resulting `WKContentRuleList` under the identifier, and
-builds each page in a Space where Balanced protection is on with it. If the core cannot answer, nothing
-is compiled. Turning protection on or off reloads the visible pages so the
-change takes effect without touching another Space.
+Until a policy's lists are downloaded, it blocks third-party loads from a short
+list of well-known advertising and analytics hosts, the policy's
+`BlockedHostSuffixes`, so a first launch is never unprotected.
 
-## Extensions provide broader blocking
+## WebKit
 
-Crest does not ship a downloadable filter-list catalog or accept custom
-Adblock-style list URLs. People who want broader coverage, cosmetic filtering,
-regional lists or project-specific rules can install a content-blocking
-extension. Extensions keep their own source, update and licensing decisions,
-so Crest never redistributes or converts those lists.
+The portable core owns the translation. The `ContentBlockingRules` query takes
+a policy, the text of its downloaded lists and the exempt sites, and answers
+WebKit content rule lists (`WebKitFilterTranslation`):
 
-The split is intentional:
+- Network rules (`||host^`, anchored and plain patterns with `*` and `^`, the
+  `third-party`, `domain` and resource-type options) become `block` rules, and
+  `@@` exceptions become `ignore-previous-rules`. A rule for a whole host also
+  blocks the host's own pages, as uBlock's strict blocking does; no other rule
+  blocks a page.
+- Element hiding (`##selector`, per site or for every site, and `#@#`
+  exceptions) becomes `css-display-none`, with a site's exception expressed as
+  `unless-domain` on the selector it spares.
+- Regular-expression rules, scriptlets, procedural selectors, redirects and
+  options that rewrite a request are left out rather than approximated.
 
-- Crest owns a small first-party baseline that can be reviewed.
-- Extensions own advanced blocking and the list ecosystems people choose.
-- A failed extension cannot change Crest's bundled rules or another Space's
-  extension state.
+WebKit compiles at most 150,000 rules into a list, and an exception cancels
+only the rules before it in its own list, so every list ends with all the
+exceptions and, last, an `ignore-previous-rules` rule for the exempt sites.
+Exempting a site therefore compiles the rules again, which takes seconds; the
+page reloads once they are ready.
+
+A list's identifier carries a digest of its rules. `BrowserContentRuleListProvider`
+looks up rules compiled before from the same lists and exemptions, compiles
+anything new into `WKContentRuleListStore`, and removes compiled rules no
+policy uses. If WebKit refuses a list, the policy falls back to its hosts. A
+list update applies to each page on its next navigation; changing a Space's
+policy or a site's exemption reloads the presented pages it affects.
 
 ## Chromium
 
-Crest's built-in protection is a WebKit content-rule list, so it has no effect
-on Chromium. Chromium's own subresource filter depends on Safe Browsing list
-distribution that Crest does not run, and Crest does not convert its rules into
-a second format for one engine. The Chromium registration therefore declares
-`content-blocking` unavailable. The Privacy settings section shows no Balanced
-control and says instead that blocking comes from the extensions the person
-installs, and the page menu item is not installed. Blocking on Chromium comes
-from an extension such as uBlock Origin Lite.
+The Chromium host exposes no per-request hook, and adding one would change the
+engine's inputs. Chromium Spaces block with uBlock Origin Lite instead:
+`ChromiumExtensionStore.keepContentBlocker` installs it in a Space the first
+time the Space blocks, without asking, enables it while the Space blocks and
+disables it while it doesn't. A Space it was installed in once is never given
+it again, so a person can remove it. The Chromium registration still declares
+`content-blocking` unavailable, since Crest's own rules never reach its pages.
 
 ## Compatibility
 
-Balanced protection can occasionally break a site because it blocks known
-third-party hosts. On WebKit, the page and command menus let the person turn
-content blocking off for the current Space. An extension may add its own site
-controls.
+A list can occasionally break a site. The site controls turn blocking off for
+that site in every Space; Settings › Privacy lists the exempt sites and turns
+blocking back on.

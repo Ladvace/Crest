@@ -395,7 +395,8 @@ final class MobileBrowserPageStore:
         let transientTab = BrowserPageTab.transient(showing: url)
         return host.makeTransientPageLease(
             url: url, in: space, presentation: presentation, engineNavigation: engineNavigation,
-            balancedContentRuleLists: contentBlocking.balancedRuleLists ?? [], onUserActivity: onUserActivity,
+            contentRuleLists: contentBlocking.ruleLists(for: space.settings.browsingPreferences.contentBlocking),
+            onUserActivity: onUserActivity,
             onDownloadOnlyNavigation: onDownloadOnlyNavigation
         ) { [weak self] in
             self?.makeTransientPage(tab: transientTab, in: space, presenting: presentation, opener: opener)

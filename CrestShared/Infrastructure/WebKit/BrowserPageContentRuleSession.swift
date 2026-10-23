@@ -22,24 +22,24 @@ final class BrowserPageContentRuleSession {
     /// because the filter lists were updated.
     func apply(
         policy: ContentBlockingPolicy,
-        balancedRuleLists: [WKContentRuleList],
+        ruleLists: [WKContentRuleList],
         to webView: WKWebView,
         reloadsImmediately: Bool
     ) {
-        let desired = policy.blocksContent ? balancedRuleLists : []
+        let desired = policy.blocksContent ? ruleLists : []
         guard
-            ruleLists.count != desired.count
-                || !zip(ruleLists, desired).allSatisfy({ $0 === $1 })
+            self.ruleLists.count != desired.count
+                || !zip(self.ruleLists, desired).allSatisfy({ $0 === $1 })
         else { return }
 
         let controller = webView.configuration.userContentController
-        for ruleList in ruleLists {
+        for ruleList in self.ruleLists {
             controller.remove(ruleList)
         }
         for ruleList in desired {
             controller.add(ruleList)
         }
-        ruleLists = desired
+        self.ruleLists = desired
         isActive = !desired.isEmpty
         if reloadsImmediately { webView.reload() }
     }

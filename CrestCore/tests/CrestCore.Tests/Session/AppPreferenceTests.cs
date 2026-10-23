@@ -81,6 +81,23 @@ public sealed partial class BrowserContractsTests {
     }
 
     [Fact]
+    public void SitesExemptFromContentBlockingAreKeptByTheirHostAndSurviveSaving() {
+        using var device = new TestDevice(SavedSession().Document["session"]!);
+        device.Send(new SetSiteContentBlocking(device.Workspace, "WWW.News.Example", Blocks: false));
+        device.Send(new SetSiteContentBlocking(device.Workspace, "calm.example", Blocks: false));
+        device.Send(new SetSiteContentBlocking(device.Workspace, "not a host", Blocks: false));
+        device.Send(new SetSiteContentBlocking(device.Workspace, "calm.example", Blocks: true));
+        var stored = device.Authority.Current.AppPreferences!;
+        Assert.Equal(["news.example"], stored.ContentBlockingExemptions);
+        Assert.Equal(stored, StoredSessionCodec.DecodeAppPreferences(StoredSessionCodec.Encode(stored)));
+
+        // Blocking again on a subdomain of an exempt site ends that site's
+        // exemption, which would otherwise keep leaving the subdomain alone.
+        device.Send(new SetSiteContentBlocking(device.Workspace, "video.news.example", Blocks: true));
+        Assert.Empty(device.Authority.Current.AppPreferences!.ContentBlockingExemptions);
+    }
+
+    [Fact]
     public void CloudReplacementNeverCarriesOrReplacesAppPreferences() {
         var fixture = SavedSession(); var session = fixture.Document["session"]!.AsObject();
         session["appPreferences"] = new JsonObject { ["startupBehavior"] = "lastActiveTab", ["futureChoice"] = 3 };

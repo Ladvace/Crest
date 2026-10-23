@@ -21,6 +21,7 @@ struct BrowserSiteControlContent: View {
                 page: configuration.page,
                 dismiss: dismiss
             )
+            BrowserSiteContentBlockingToggle(configuration: configuration)
             BrowserEngineSiteControlsSection(
                 page: configuration.page,
                 space: configuration.space,

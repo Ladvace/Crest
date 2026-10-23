@@ -2,8 +2,9 @@ import Observation
 import WebKit
 
 /// One page owner's view of WebKit's built-in content blocking: the rules
-/// WebKit's binding compiled for every page it builds, and which Spaces of the
-/// owner's workspace changed their protection since the owner last applied it.
+/// WebKit's binding compiled for every page it builds, and which Spaces and
+/// sites of the owner's workspace changed their protection since the owner
+/// last applied it.
 @MainActor
 @Observable
 final class BrowserContentBlockingController {
@@ -14,8 +15,9 @@ final class BrowserContentBlockingController {
 
     /// Why the rules could not be compiled, when they could not.
     var errorDescription: String? { rules.errorDescription }
-    /// The compiled rules a Space that blocks content applies, once compiled.
-    var balancedRuleLists: [WKContentRuleList]? { rules.balancedRuleLists }
+    /// Advances each time the compiled rules change, such as when the filter
+    /// lists update.
+    var revision: Int { rules.revision }
 
     // MARK: - Initializers
 
@@ -26,8 +28,10 @@ final class BrowserContentBlockingController {
 
     // MARK: - Actions - Rules
 
-    func prepare() async {
-        await rules.prepare()
+    /// Compiles the rules every Space of `workspace` blocks with.
+    func prepare(in workspace: WorkspaceModel?) async {
+        let state = BrowserContentBlockingSessionState(workspace: workspace)
+        await rules.prepare(policies: state.blockingPolicies, exemptHosts: state.exemptHosts)
     }
 
     func invalidateRuleLists() {
@@ -38,9 +42,7 @@ final class BrowserContentBlockingController {
     /// what changed since the last reconciliation.
     func reconcile(in workspace: WorkspaceModel?) async -> BrowserContentBlockingUpdate {
         let state = BrowserContentBlockingSessionState(workspace: workspace)
-        if state.policiesBySpaceID.values.contains(where: \.blocksContent) {
-            await prepare()
-        }
+        await rules.prepare(policies: state.blockingPolicies, exemptHosts: state.exemptHosts)
         let update = BrowserContentBlockingUpdate(state: state, previousState: reconciledState)
         reconciledState = state
         return update

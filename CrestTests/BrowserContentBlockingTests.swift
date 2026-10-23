@@ -7,7 +7,7 @@ import XCTest
 @MainActor
 final class BrowserContentBlockingTests: XCTestCase {
     @MainActor
-    func testBalancedProtectionCompilesOnlyCrestsBundledRuleList() async throws {
+    func testProtectionWithoutDownloadedListsCompilesOnlyItsFallbackRules() async throws {
         let store = try isolatedRuleListStore()
         defer { store.remove() }
         let compiler = RecordingBuiltInRuleListCompiler()
@@ -18,8 +18,9 @@ final class BrowserContentBlockingTests: XCTestCase {
             compiler: compiler
         )
 
-        let ruleLists = try await provider.balancedRuleLists()
-        let rules = try core.query(BalancedProtectionRules())
+        let ruleLists = try await provider.ruleLists(for: .balanced, exemptHosts: [])
+        let rules = try XCTUnwrap(
+            core.query(ContentBlockingRules(policy: .balanced, lists: [], exemptHosts: [])).lists.first)
 
         XCTAssertEqual(ruleLists.map(\.identifier), [rules.identifier])
         XCTAssertEqual(compiler.identifiers, [rules.identifier])
@@ -148,7 +149,7 @@ final class BrowserContentBlockingTests: XCTestCase {
                 })
             defer { page.release(keepingState: false) }
 
-            page.applyContentBlocking(policy: .off, balancedRuleList: crestRuleList)
+            page.applyContentBlocking(policy: .off, ruleList: crestRuleList)
             let startingNavigationCount = page.completedNavigationCount
             page.webView.loadFileURL(documentURL, allowingReadAccessTo: directory)
             try await waitForNavigation(after: startingNavigationCount, on: page)
@@ -441,7 +442,7 @@ private final class StubContentRuleListProvider: BrowserContentRuleListProviding
         self.generations = generations
     }
 
-    func balancedRuleLists() async throws -> [WKContentRuleList] {
+    func ruleLists(for policy: ContentBlockingPolicy, exemptHosts: [String]) async throws -> [WKContentRuleList] {
         defer { requestCount += 1 }
         return generations[min(requestCount, generations.count - 1)]
     }

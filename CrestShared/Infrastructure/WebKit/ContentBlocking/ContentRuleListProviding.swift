@@ -2,5 +2,7 @@ import WebKit
 
 @MainActor
 protocol BrowserContentRuleListProviding: AnyObject {
-    func balancedRuleLists() async throws -> [WKContentRuleList]
+    /// The compiled rules `policy` blocks with, leaving the sites
+    /// `exemptHosts` names alone.
+    func ruleLists(for policy: ContentBlockingPolicy, exemptHosts: [String]) async throws -> [WKContentRuleList]
 }

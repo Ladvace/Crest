@@ -52,7 +52,8 @@ public sealed class StoredFormatTests {
         Assert.Equal(["oneDay", "oneWeek", "thirtyDays", "ninetyDays", "oneYear", "forever"], DataRetention.All.Select(retention => retention.Name));
         Assert.Equal(["after1Hour", "after6Hours", "after12Hours", "after24Hours", "never"],
             QuickWindowArchivePolicy.All.Select(policy => policy.Name));
-        Assert.Equal(["balanced", "off"], ContentBlockingPolicy.All.Select(policy => policy.Name));
+        Assert.Equal(["balanced", "off", "strict"], ContentBlockingPolicy.All.Select(policy => policy.Name));
+        Assert.Equal(["easylist", "easyprivacy", "ublock-filters", "ublock-privacy", "easylist-cookie"], FilterList.All.Select(list => list.Name));
         Assert.Equal(["google", "duckDuckGo", "bing", "ecosia", "brave", "startpage", "kagi", "yahoo", "qwant", "chatGPT", "claude",
             "perplexity", "googleAIMode", "grok", "leChat", "duckAI", "copilotSearch", "kagiAssistant", "youTube", "wikipedia", "gitHub",
             "reddit", "x", "stackOverflow", "mdn", "amazon", "imdb", "spotify", "figmaCommunity", "googleMaps", "appleMaps", "googleImages",

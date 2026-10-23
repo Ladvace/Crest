@@ -121,6 +121,7 @@ enum Change: Equatable, Sendable {
     case appPreferencesChanged(AppPreferencesChanged)
     case archiveChanged(ArchiveChanged)
     case authenticationAsked(AuthenticationAsked)
+    case bookmarksChanged(BookmarksChanged)
     case closeReady(CloseReady)
     case cloudMergeBegan(CloudMergeBegan)
     case cloudSyncAdvanced(CloudSyncAdvanced)
@@ -552,6 +553,7 @@ extension Change {
         case .appPreferencesChanged(let change): change.apply(to: state)
         case .archiveChanged(let change): change.apply(to: state)
         case .authenticationAsked(let change): change.apply(to: state)
+        case .bookmarksChanged(let change): change.apply(to: state)
         case .closeReady(let change): change.apply(to: state)
         case .cloudMergeBegan(let change): change.apply(to: state)
         case .cloudSyncAdvanced(let change): change.apply(to: state)
@@ -624,6 +626,7 @@ extension Change {
         case .appPreferencesChanged(let change): change.apply(to: core, in: &batch)
         case .archiveChanged(let change): change.apply(to: core, in: &batch)
         case .authenticationAsked(let change): change.apply(to: core, in: &batch)
+        case .bookmarksChanged(let change): change.apply(to: core, in: &batch)
         case .closeReady(let change): change.apply(to: core, in: &batch)
         case .cloudMergeBegan(let change): change.apply(to: core, in: &batch)
         case .cloudSyncAdvanced(let change): change.apply(to: core, in: &batch)
@@ -696,6 +699,7 @@ extension Change {
         case .appPreferencesChanged(let change): change.note(in: &receipts)
         case .archiveChanged(let change): change.note(in: &receipts)
         case .authenticationAsked(let change): change.note(in: &receipts)
+        case .bookmarksChanged(let change): change.note(in: &receipts)
         case .closeReady(let change): change.note(in: &receipts)
         case .cloudMergeBegan(let change): change.note(in: &receipts)
         case .cloudSyncAdvanced(let change): change.note(in: &receipts)
@@ -1055,6 +1059,7 @@ struct AppConfiguration: Equatable, Sendable {
 }
 
 struct AppPreferences: Equatable, Sendable {
+    static let maximumContentBlockingExemptions: Int = 1000
     static let `default` = AppPreferences(
         startup: StartupBehavior.showStartPage,
         offersTranslation: true,
@@ -1089,7 +1094,8 @@ struct AppPreferences: Equatable, Sendable {
             learnsChoices: true,
             searchesSitesWithTab: true,
             showsReasons: false
-        )
+        ),
+        contentBlockingExemptions: []
     )
 
     var startup: StartupBehavior
@@ -1103,6 +1109,7 @@ struct AppPreferences: Equatable, Sendable {
     var splitFocusFollowsMouse: Bool
     var automaticallyShowsDeveloperToolbar: Bool
     var palette: PalettePreferences
+    var contentBlockingExemptions: [String]
 }
 
 struct AppPreferencesChanged: CoreChange, Equatable, Sendable {
@@ -1256,11 +1263,6 @@ struct AwaitDownloadApproval: Intent, DownloadIntent, Equatable, Sendable {
     let downloadID: UUID
 }
 
-struct BalancedProtectionRules: Query, Equatable, Sendable {
-    typealias Answer = ContentRuleList
-
-}
-
 struct BeforeUnloadAnswered: EngineEvent, Equatable, Sendable {
     let pageID: UUID
     let proceeds: Bool
@@ -1368,6 +1370,12 @@ struct BookmarkState: Equatable, Sendable, Identifiable {
     var seed: Seed {
         Seed(id: id, parentID: parentID, title: title, url: url, showsInEverySpace: showsInEverySpace)
     }
+}
+
+struct BookmarksChanged: CoreChange, Equatable, Sendable {
+    let workspaceID: UUID
+    let spaceID: UUID
+    let bookmarks: [BookmarkState]
 }
 
 struct BookmarksHaveNoLinks: Equatable, Sendable {
@@ -1834,6 +1842,14 @@ struct ConfigureCloudSync: Intent, CloudSyncControlIntent, Equatable, Sendable {
     let canReachCloud: Bool
 }
 
+struct ContentBlockingRules: Query, Equatable, Sendable {
+    typealias Answer = ContentRuleLists
+
+    let policy: ContentBlockingPolicy
+    let lists: [String]
+    let exemptHosts: [String]
+}
+
 struct ContentFrame: Equatable, Sendable, Identifiable {
     let id: String
     let isMainFrame: Bool
@@ -1857,6 +1873,10 @@ struct ContentMessagePosted: Equatable, Sendable {
 struct ContentRuleList: Equatable, Sendable {
     let identifier: String
     let source: String
+}
+
+struct ContentRuleLists: Equatable, Sendable {
+    let lists: [ContentRuleList]
 }
 
 struct ContentScriptEvaluated: Equatable, Sendable {
@@ -3170,6 +3190,20 @@ struct ImportReviewedSpaces: Intent, ImportWorkspace, SessionIntent, Equatable, 
     let windowID: UUID
 }
 
+struct ImportSignInDestinations: Query, Equatable, Sendable {
+    typealias Answer = ImportPasswordRoutes
+
+    let workspaceID: UUID
+    let sites: [ImportPasswordSource]
+}
+
+struct ImportSignInSources: Query, Equatable, Sendable {
+    typealias Answer = ImportPasswordRoutes
+
+    let workspaceID: UUID
+    let sites: [ImportPasswordSource]
+}
+
 struct ImportSpaceExtensions: Equatable, Sendable {
     var spaceID: UUID
     var extensions: [ImportExtension]
@@ -3179,6 +3213,11 @@ struct ImportSpaceNames: Equatable, Sendable {
     let source: ImportSource
     let spaceName: String
     let numberedSpaceName: String
+}
+
+struct ImportSpaceProfile: Equatable, Sendable {
+    var spaceID: UUID
+    var profileID: String
 }
 
 struct ImportSpaces: Intent, ImportWorkspace, SessionIntent, Equatable, Sendable {
@@ -3199,6 +3238,7 @@ struct ImportedSpaces: Equatable, Sendable {
     let spaces: [SpaceState]
     let extensions: [ImportSpaceExtensions]
     let leftOut: [ImportLeftOut]
+    let profiles: [ImportSpaceProfile]?
 }
 
 struct ImportedTab: Equatable, Sendable {
@@ -3220,6 +3260,11 @@ struct IncludeImportExtension: Intent, SetupFlowIntent, Equatable, Sendable {
 }
 
 struct IncludeImportPasswords: Intent, SetupFlowIntent, Equatable, Sendable {
+    let sourceSpaceID: UUID
+    let included: Bool
+}
+
+struct IncludeImportSignIns: Intent, SetupFlowIntent, Equatable, Sendable {
     let sourceSpaceID: UUID
     let included: Bool
 }
@@ -5201,6 +5246,14 @@ struct RestoreArchivedTab: Intent, SessionIntent, Equatable, Sendable {
     let tabID: UUID
 }
 
+struct RestoreArchivedTabs: Intent, SessionIntent, Equatable, Sendable {
+    let workspaceID: UUID
+    let windowID: UUID
+    let spaceID: UUID
+    let tabIDs: [UUID]
+    let shownTabID: UUID?
+}
+
 struct RestoreInteractionState: PageRequest, Equatable, Sendable {
     typealias Answer = Bool
 
@@ -5246,6 +5299,8 @@ struct ReviewImport: Intent, SetupFlowIntent, Equatable, Sendable {
     let extensions: [ImportSpaceExtensions]?
     let leftOut: [ImportLeftOut]?
     let title: String?
+    let signIns: [ImportPasswordSource]?
+    let profiles: [ImportSpaceProfile]?
 }
 
 struct RouteExternalLink: Query, Equatable, Sendable {
@@ -5671,6 +5726,12 @@ struct SetSearchSuggestions: Intent, SearchCatalogIntent, Equatable, Sendable {
     let enabled: Bool
 }
 
+struct SetSiteContentBlocking: Intent, SessionIntent, Equatable, Sendable {
+    let workspaceID: UUID
+    let host: String
+    let blocks: Bool
+}
+
 struct SetSitePermission: PageRequest, Equatable, Sendable {
     typealias Answer = Bool
 
@@ -5833,6 +5894,7 @@ struct SetupImportReview: Equatable, Sendable {
     let nextSpaceID: UUID?
     let showsLastSpace: Bool
     let includedPasswordCount: Int
+    let includedSignInSiteCount: Int
     let includedExtensionCount: Int
     let newSpaceCapacity: Int
     let extensionInstalls: [ImportExtensionInstall]
@@ -5851,8 +5913,12 @@ struct SetupReviewSpace: Equatable, Sendable {
     let passwordCount: Int
     let extensions: [ImportExtension]
     let includedExtensionIDs: [String]
+    let includesSignIns: Bool
+    let signInSiteCount: Int
+    let sourceProfileID: String?
     let shownName: String
     let bringsPasswords: Bool
+    let bringsSignIns: Bool
     let broughtExtensions: [ImportExtension]
 }
 
@@ -9078,6 +9144,7 @@ struct ContentBlockingPolicy: Hashable, Sendable {
     var switchTitle: LocalizedStringResource { facts.switchTitle }
     var identifier: String? { facts.identifier }
     var blockedHostSuffixes: [String] { facts.blockedHostSuffixes }
+    var filterListNames: [String] { facts.filterListNames }
     var blocksContent: Bool { facts.blocksContent }
     private let facts: Facts
 
@@ -9088,6 +9155,7 @@ struct ContentBlockingPolicy: Hashable, Sendable {
         switchTitle: LocalizedStringResource,
         identifier: String?,
         blockedHostSuffixes: [String],
+        filterListNames: [String],
         blocksContent: Bool
     ) {
         self.tag = tag
@@ -9097,6 +9165,7 @@ struct ContentBlockingPolicy: Hashable, Sendable {
             switchTitle: switchTitle,
             identifier: identifier,
             blockedHostSuffixes: blockedHostSuffixes,
+            filterListNames: filterListNames,
             blocksContent: blocksContent
         )
     }
@@ -9104,7 +9173,7 @@ struct ContentBlockingPolicy: Hashable, Sendable {
     static let balanced = ContentBlockingPolicy(
         tag: 0,
         name: "balanced",
-        title: LocalizedStringResource("Balanced"),
+        title: LocalizedStringResource("Standard"),
         switchTitle: LocalizedStringResource("Turn Off Content Blocking in This Space"),
         identifier: "com.pauldavis.crest.content-blocking.balanced.v2",
         blockedHostSuffixes: [
@@ -9128,19 +9197,51 @@ struct ContentBlockingPolicy: Hashable, Sendable {
             "outbrain.com",
             "snap.licdn.com"
         ],
+        filterListNames: ["easylist", "easyprivacy"],
         blocksContent: true
     )
     static let off = ContentBlockingPolicy(
         tag: 1,
         name: "off",
         title: LocalizedStringResource("Off"),
-        switchTitle: LocalizedStringResource("Turn On Balanced Content Blocking in This Space"),
+        switchTitle: LocalizedStringResource("Turn On Content Blocking in This Space"),
         identifier: nil,
         blockedHostSuffixes: [],
+        filterListNames: [],
         blocksContent: false
     )
+    static let strict = ContentBlockingPolicy(
+        tag: 2,
+        name: "strict",
+        title: LocalizedStringResource("Strict"),
+        switchTitle: LocalizedStringResource("Turn Off Content Blocking in This Space"),
+        identifier: "com.pauldavis.crest.content-blocking.strict.v1",
+        blockedHostSuffixes: [
+            "doubleclick.net",
+            "googleadservices.com",
+            "googlesyndication.com",
+            "google-analytics.com",
+            "googletagmanager.com",
+            "ads-twitter.com",
+            "analytics.twitter.com",
+            "scorecardresearch.com",
+            "quantserve.com",
+            "hotjar.com",
+            "segment.io",
+            "segment.com",
+            "mixpanel.com",
+            "amplitude.com",
+            "clarity.ms",
+            "nr-data.net",
+            "taboola.com",
+            "outbrain.com",
+            "snap.licdn.com"
+        ],
+        filterListNames: ["easylist", "easyprivacy", "ublock-filters", "ublock-privacy", "easylist-cookie"],
+        blocksContent: true
+    )
 
-    static let all: [ContentBlockingPolicy] = [balanced, off]
+    static let all: [ContentBlockingPolicy] = [balanced, off, strict]
 
     static func named(_ name: String?) -> ContentBlockingPolicy? {
         all.first { $0.name == name }
@@ -9160,6 +9261,7 @@ struct ContentBlockingPolicy: Hashable, Sendable {
         let switchTitle: LocalizedStringResource
         let identifier: String?
         let blockedHostSuffixes: [String]
+        let filterListNames: [String]
         let blocksContent: Bool
 
         init(
@@ -9168,6 +9270,7 @@ struct ContentBlockingPolicy: Hashable, Sendable {
             switchTitle: LocalizedStringResource,
             identifier: String?,
             blockedHostSuffixes: [String],
+            filterListNames: [String],
             blocksContent: Bool
         ) {
             self.name = name
@@ -9175,6 +9278,7 @@ struct ContentBlockingPolicy: Hashable, Sendable {
             self.switchTitle = switchTitle
             self.identifier = identifier
             self.blockedHostSuffixes = blockedHostSuffixes
+            self.filterListNames = filterListNames
             self.blocksContent = blocksContent
         }
     }
@@ -12909,6 +13013,85 @@ struct ExternalSchemeDisposition: Hashable, Sendable {
         init(kind: Kinds, name: String) {
             self.kind = kind
             self.name = name
+        }
+    }
+}
+
+/// The members of the core's `FilterList`. A member's wire tag is its index in `all`.
+struct FilterList: Hashable, Sendable {
+    let tag: Int
+    var name: String { facts.name }
+    var title: String { facts.title }
+    var address: String { facts.address }
+    var licenseAddress: String { facts.licenseAddress }
+    private let facts: Facts
+
+    private init(tag: Int, name: String, title: String, address: String, licenseAddress: String) {
+        self.tag = tag
+        facts = Facts(name: name, title: title, address: address, licenseAddress: licenseAddress)
+    }
+
+    static let easyList = FilterList(
+        tag: 0,
+        name: "easylist",
+        title: "EasyList",
+        address: "https://easylist.to/easylist/easylist.txt",
+        licenseAddress: "https://easylist.to/pages/licence.html"
+    )
+    static let easyPrivacy = FilterList(
+        tag: 1,
+        name: "easyprivacy",
+        title: "EasyPrivacy",
+        address: "https://easylist.to/easylist/easyprivacy.txt",
+        licenseAddress: "https://easylist.to/pages/licence.html"
+    )
+    static let uBlockFilters = FilterList(
+        tag: 2,
+        name: "ublock-filters",
+        title: "uBlock filters",
+        address: "https://ublockorigin.github.io/uAssets/filters/filters.txt",
+        licenseAddress: "https://github.com/uBlockOrigin/uAssets/blob/master/LICENSE"
+    )
+    static let uBlockPrivacy = FilterList(
+        tag: 3,
+        name: "ublock-privacy",
+        title: "uBlock filters – Privacy",
+        address: "https://ublockorigin.github.io/uAssets/filters/privacy.txt",
+        licenseAddress: "https://github.com/uBlockOrigin/uAssets/blob/master/LICENSE"
+    )
+    static let cookieNotices = FilterList(
+        tag: 4,
+        name: "easylist-cookie",
+        title: "EasyList Cookie",
+        address: "https://secure.fanboy.co.nz/fanboy-cookiemonster.txt",
+        licenseAddress: "https://easylist.to/pages/licence.html"
+    )
+
+    static let all: [FilterList] = [easyList, easyPrivacy, uBlockFilters, uBlockPrivacy, cookieNotices]
+
+    static func named(_ name: String?) -> FilterList? {
+        all.first { $0.name == name }
+    }
+
+    static func == (lhs: FilterList, rhs: FilterList) -> Bool {
+        lhs.tag == rhs.tag
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(tag)
+    }
+
+    private final class Facts: Sendable {
+        let name: String
+        let title: String
+        let address: String
+        let licenseAddress: String
+
+        init(name: String, title: String, address: String, licenseAddress: String) {
+            self.name = name
+            self.title = title
+            self.address = address
+            self.licenseAddress = licenseAddress
         }
     }
 }
@@ -17275,6 +17458,7 @@ struct ShortcutCommand: Hashable, Sendable {
         case findPrevious
         case bookmarkPage
         case showBookmarks
+        case toggleBookmarksBar
     }
 
     let tag: Int
@@ -19221,6 +19405,34 @@ struct ShortcutCommand: Hashable, Sendable {
         offersInPalette: true,
         isReservedFromPages: false
     )
+    static let toggleBookmarksBar = ShortcutCommand(
+        tag: 72,
+        kind: .toggleBookmarksBar,
+        name: "toggleBookmarksBar",
+        section: ShortcutSection.view,
+        title: LocalizedStringResource("Show or Hide Bookmarks Bar"),
+        searchTerms: LocalizedStringResource("bookmarks bar toolbar"),
+        menuTitle: nil,
+        symbol: "menubar.rectangle",
+        requiredCapability: nil,
+        selects: nil,
+        number: nil,
+        defaultShortcuts: [
+            ShortcutDefault(
+                platform: DevicePlatform.desktop,
+                keys: KeyCombination(key: "b", isSpecialKey: false, modifiers: [.command, .shift]),
+                yieldsToOverrides: false
+            ),
+            ShortcutDefault(
+                platform: DevicePlatform.mobile,
+                keys: KeyCombination(key: "b", isSpecialKey: false, modifiers: [.command, .shift]),
+                yieldsToOverrides: false
+            )
+        ],
+        paletteRest: nil,
+        offersInPalette: true,
+        isReservedFromPages: false
+    )
 
     static let all: [ShortcutCommand] = [
         newWindow,
@@ -19294,7 +19506,8 @@ struct ShortcutCommand: Hashable, Sendable {
         findNext,
         findPrevious,
         bookmarkPage,
-        showBookmarks
+        showBookmarks,
+        toggleBookmarksBar
     ]
 
     static func named(_ name: String?) -> ShortcutCommand? {
@@ -19394,7 +19607,11 @@ struct ShortcutMenu: Hashable, Sendable {
         name: "view",
         title: LocalizedStringResource("View"),
         groups: [
-            [ShortcutCommand.toggleSidebar, ShortcutCommand.toggleTranslationToolbar],
+            [
+                ShortcutCommand.toggleSidebar,
+                ShortcutCommand.toggleBookmarksBar,
+                ShortcutCommand.toggleTranslationToolbar
+            ],
             [
                 ShortcutCommand.showHistory,
                 ShortcutCommand.showArchive,
@@ -20387,9 +20604,9 @@ struct SpaceAccent: Hashable, Sendable {
         house: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.118, green: 0.157, blue: 0.2, alpha: 1),
-                    BrandColor(red: 0.243, green: 0.306, blue: 0.369, alpha: 1),
-                    BrandColor(red: 0.525, green: 0.678, blue: 0.769, alpha: 1)
+                    BrandColor(red: 0.059, green: 0.086, blue: 0.2, alpha: 1),
+                    BrandColor(red: 0.122, green: 0.2, blue: 0.471, alpha: 1),
+                    BrandColor(red: 0.271, green: 0.42, blue: 0.82, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -20400,7 +20617,7 @@ struct SpaceAccent: Hashable, Sendable {
             gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.341, green: 0.384, blue: 0.427, alpha: 1),
+            symbolColor: BrandColor(red: 0.78, green: 0.855, blue: 1, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -20451,9 +20668,9 @@ struct SpaceAccent: Hashable, Sendable {
         house: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.208, green: 0.086, blue: 0.043, alpha: 1),
-                    BrandColor(red: 0.545, green: 0.239, blue: 0.106, alpha: 1),
-                    BrandColor(red: 0.816, green: 0.62, blue: 0.396, alpha: 1)
+                    BrandColor(red: 0.345, green: 0.118, blue: 0.251, alpha: 1),
+                    BrandColor(red: 0.851, green: 0.4, blue: 0.404, alpha: 1),
+                    BrandColor(red: 0.98, green: 0.749, blue: 0.506, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -20464,7 +20681,7 @@ struct SpaceAccent: Hashable, Sendable {
             gradientAngle: 160,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.894, green: 0.718, blue: 0.333, alpha: 1),
+            symbolColor: BrandColor(red: 1, green: 0.949, blue: 0.859, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -20515,9 +20732,9 @@ struct SpaceAccent: Hashable, Sendable {
         house: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.082, green: 0.137, blue: 0.094, alpha: 1),
-                    BrandColor(red: 0.204, green: 0.341, blue: 0.22, alpha: 1),
-                    BrandColor(red: 0.737, green: 0.655, blue: 0.4, alpha: 1)
+                    BrandColor(red: 0.035, green: 0.125, blue: 0.086, alpha: 1),
+                    BrandColor(red: 0.11, green: 0.31, blue: 0.196, alpha: 1),
+                    BrandColor(red: 0.443, green: 0.627, blue: 0.302, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -20528,7 +20745,7 @@ struct SpaceAccent: Hashable, Sendable {
             gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.871, green: 0.729, blue: 0.318, alpha: 1),
+            symbolColor: BrandColor(red: 0.863, green: 0.957, blue: 0.718, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -20579,9 +20796,9 @@ struct SpaceAccent: Hashable, Sendable {
         house: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.235, green: 0.055, blue: 0.102, alpha: 1),
-                    BrandColor(red: 0.447, green: 0.125, blue: 0.188, alpha: 1),
-                    BrandColor(red: 0.788, green: 0.635, blue: 0.329, alpha: 1)
+                    BrandColor(red: 0.212, green: 0.067, blue: 0.2, alpha: 1),
+                    BrandColor(red: 0.62, green: 0.165, blue: 0.329, alpha: 1),
+                    BrandColor(red: 0.945, green: 0.525, blue: 0.267, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -20592,7 +20809,7 @@ struct SpaceAccent: Hashable, Sendable {
             gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.851, green: 0.682, blue: 0.318, alpha: 1),
+            symbolColor: BrandColor(red: 1, green: 0.851, blue: 0.663, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -20809,13 +21026,13 @@ struct SpaceHouse: Hashable, Sendable {
     static let winter = SpaceHouse(
         tag: 0,
         name: "winter",
-        title: LocalizedStringResource("Winter"),
+        title: LocalizedStringResource("Midnight"),
         look: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.118, green: 0.157, blue: 0.2, alpha: 1),
-                    BrandColor(red: 0.243, green: 0.306, blue: 0.369, alpha: 1),
-                    BrandColor(red: 0.525, green: 0.678, blue: 0.769, alpha: 1)
+                    BrandColor(red: 0.059, green: 0.086, blue: 0.2, alpha: 1),
+                    BrandColor(red: 0.122, green: 0.2, blue: 0.471, alpha: 1),
+                    BrandColor(red: 0.271, green: 0.42, blue: 0.82, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -20826,7 +21043,7 @@ struct SpaceHouse: Hashable, Sendable {
             gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.341, green: 0.384, blue: 0.427, alpha: 1),
+            symbolColor: BrandColor(red: 0.78, green: 0.855, blue: 1, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -20868,13 +21085,13 @@ struct SpaceHouse: Hashable, Sendable {
     static let lion = SpaceHouse(
         tag: 1,
         name: "lion",
-        title: LocalizedStringResource("Lion"),
+        title: LocalizedStringResource("Sunset"),
         look: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.235, green: 0.055, blue: 0.102, alpha: 1),
-                    BrandColor(red: 0.447, green: 0.125, blue: 0.188, alpha: 1),
-                    BrandColor(red: 0.788, green: 0.635, blue: 0.329, alpha: 1)
+                    BrandColor(red: 0.212, green: 0.067, blue: 0.2, alpha: 1),
+                    BrandColor(red: 0.62, green: 0.165, blue: 0.329, alpha: 1),
+                    BrandColor(red: 0.945, green: 0.525, blue: 0.267, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -20885,7 +21102,7 @@ struct SpaceHouse: Hashable, Sendable {
             gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.851, green: 0.682, blue: 0.318, alpha: 1),
+            symbolColor: BrandColor(red: 1, green: 0.851, blue: 0.663, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -20927,13 +21144,13 @@ struct SpaceHouse: Hashable, Sendable {
     static let storm = SpaceHouse(
         tag: 2,
         name: "storm",
-        title: LocalizedStringResource("Storm"),
+        title: LocalizedStringResource("Aurora"),
         look: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.082, green: 0.094, blue: 0.141, alpha: 1),
-                    BrandColor(red: 0.192, green: 0.22, blue: 0.282, alpha: 1),
-                    BrandColor(red: 0.69, green: 0.561, blue: 0.29, alpha: 1)
+                    BrandColor(red: 0.039, green: 0.118, blue: 0.165, alpha: 1),
+                    BrandColor(red: 0.051, green: 0.408, blue: 0.427, alpha: 1),
+                    BrandColor(red: 0.384, green: 0.765, blue: 0.478, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -20944,7 +21161,7 @@ struct SpaceHouse: Hashable, Sendable {
             gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.835, green: 0.655, blue: 0.231, alpha: 1),
+            symbolColor: BrandColor(red: 0.776, green: 1, blue: 0.871, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -20986,13 +21203,13 @@ struct SpaceHouse: Hashable, Sendable {
     static let dragon = SpaceHouse(
         tag: 3,
         name: "dragon",
-        title: LocalizedStringResource("Dragon"),
+        title: LocalizedStringResource("Ember"),
         look: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.102, green: 0.063, blue: 0.051, alpha: 1),
-                    BrandColor(red: 0.478, green: 0.118, blue: 0.071, alpha: 1),
-                    BrandColor(red: 0.745, green: 0.267, blue: 0.22, alpha: 1)
+                    BrandColor(red: 0.141, green: 0.047, blue: 0.039, alpha: 1),
+                    BrandColor(red: 0.565, green: 0.129, blue: 0.086, alpha: 1),
+                    BrandColor(red: 0.957, green: 0.439, blue: 0.196, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -21003,7 +21220,7 @@ struct SpaceHouse: Hashable, Sendable {
             gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.749, green: 0.18, blue: 0.137, alpha: 1),
+            symbolColor: BrandColor(red: 1, green: 0.82, blue: 0.588, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -21045,13 +21262,13 @@ struct SpaceHouse: Hashable, Sendable {
     static let meadow = SpaceHouse(
         tag: 4,
         name: "meadow",
-        title: LocalizedStringResource("Meadow"),
+        title: LocalizedStringResource("Forest"),
         look: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.082, green: 0.137, blue: 0.094, alpha: 1),
-                    BrandColor(red: 0.204, green: 0.341, blue: 0.22, alpha: 1),
-                    BrandColor(red: 0.737, green: 0.655, blue: 0.4, alpha: 1)
+                    BrandColor(red: 0.035, green: 0.125, blue: 0.086, alpha: 1),
+                    BrandColor(red: 0.11, green: 0.31, blue: 0.196, alpha: 1),
+                    BrandColor(red: 0.443, green: 0.627, blue: 0.302, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -21062,7 +21279,7 @@ struct SpaceHouse: Hashable, Sendable {
             gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.871, green: 0.729, blue: 0.318, alpha: 1),
+            symbolColor: BrandColor(red: 0.863, green: 0.957, blue: 0.718, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -21104,13 +21321,13 @@ struct SpaceHouse: Hashable, Sendable {
     static let iron = SpaceHouse(
         tag: 5,
         name: "iron",
-        title: LocalizedStringResource("Iron"),
+        title: LocalizedStringResource("Graphite"),
         look: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.055, green: 0.102, blue: 0.11, alpha: 1),
-                    BrandColor(red: 0.173, green: 0.227, blue: 0.235, alpha: 1),
-                    BrandColor(red: 0.612, green: 0.592, blue: 0.506, alpha: 1)
+                    BrandColor(red: 0.086, green: 0.094, blue: 0.11, alpha: 1),
+                    BrandColor(red: 0.22, green: 0.239, blue: 0.271, alpha: 1),
+                    BrandColor(red: 0.455, green: 0.482, blue: 0.529, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -21121,7 +21338,7 @@ struct SpaceHouse: Hashable, Sendable {
             gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.796, green: 0.651, blue: 0.302, alpha: 1),
+            symbolColor: BrandColor(red: 0.91, green: 0.922, blue: 0.945, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -21163,13 +21380,13 @@ struct SpaceHouse: Hashable, Sendable {
     static let river = SpaceHouse(
         tag: 6,
         name: "river",
-        title: LocalizedStringResource("River"),
+        title: LocalizedStringResource("Ocean"),
         look: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.059, green: 0.118, blue: 0.18, alpha: 1),
-                    BrandColor(red: 0.133, green: 0.282, blue: 0.424, alpha: 1),
-                    BrandColor(red: 0.659, green: 0.361, blue: 0.255, alpha: 1)
+                    BrandColor(red: 0.027, green: 0.098, blue: 0.196, alpha: 1),
+                    BrandColor(red: 0.039, green: 0.298, blue: 0.502, alpha: 1),
+                    BrandColor(red: 0.153, green: 0.62, blue: 0.78, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -21180,7 +21397,7 @@ struct SpaceHouse: Hashable, Sendable {
             gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.851, green: 0.871, blue: 0.894, alpha: 1),
+            symbolColor: BrandColor(red: 0.765, green: 0.953, blue: 1, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -21222,13 +21439,13 @@ struct SpaceHouse: Hashable, Sendable {
     static let sun = SpaceHouse(
         tag: 7,
         name: "sun",
-        title: LocalizedStringResource("Sun"),
+        title: LocalizedStringResource("Dawn"),
         look: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.208, green: 0.086, blue: 0.043, alpha: 1),
-                    BrandColor(red: 0.545, green: 0.239, blue: 0.106, alpha: 1),
-                    BrandColor(red: 0.816, green: 0.62, blue: 0.396, alpha: 1)
+                    BrandColor(red: 0.345, green: 0.118, blue: 0.251, alpha: 1),
+                    BrandColor(red: 0.851, green: 0.4, blue: 0.404, alpha: 1),
+                    BrandColor(red: 0.98, green: 0.749, blue: 0.506, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -21239,7 +21456,7 @@ struct SpaceHouse: Hashable, Sendable {
             gradientAngle: 160,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.894, green: 0.718, blue: 0.333, alpha: 1),
+            symbolColor: BrandColor(red: 1, green: 0.949, blue: 0.859, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -21281,13 +21498,13 @@ struct SpaceHouse: Hashable, Sendable {
     static let vigil = SpaceHouse(
         tag: 8,
         name: "vigil",
-        title: LocalizedStringResource("Vigil"),
+        title: LocalizedStringResource("Grape"),
         look: SpaceBranding(
             colors: ColorPalette(
                 colors: [
-                    BrandColor(red: 0.063, green: 0.067, blue: 0.071, alpha: 1),
-                    BrandColor(red: 0.153, green: 0.165, blue: 0.18, alpha: 1),
-                    BrandColor(red: 0.482, green: 0.514, blue: 0.549, alpha: 1)
+                    BrandColor(red: 0.106, green: 0.059, blue: 0.204, alpha: 1),
+                    BrandColor(red: 0.325, green: 0.18, blue: 0.553, alpha: 1),
+                    BrandColor(red: 0.651, green: 0.502, blue: 0.898, alpha: 1)
                 ]
             ),
             bannerPattern: SpaceBannerPattern.solid,
@@ -21298,7 +21515,7 @@ struct SpaceHouse: Hashable, Sendable {
             gradientAngle: 90,
             showsTexture: false,
             iconStyle: SpaceIconStyle.simpleSymbol,
-            symbolColor: BrandColor(red: 0.812, green: 0.82, blue: 0.831, alpha: 1),
+            symbolColor: BrandColor(red: 0.906, green: 0.855, blue: 1, alpha: 1),
             crest: SpaceCrest(
                 backplate: CrestBackplate.shield,
                 fieldDivision: CrestFieldDivision.plain,
@@ -22588,6 +22805,222 @@ struct Tincture: Hashable, Sendable {
         title: LocalizedStringResource("Bone"),
         color: BrandColor(red: 0.812, green: 0.82, blue: 0.831, alpha: 1)
     )
+    static let midnightNight = Tincture(
+        tag: 55,
+        name: "midnightNight",
+        title: LocalizedStringResource("Night"),
+        color: BrandColor(red: 0.059, green: 0.086, blue: 0.2, alpha: 1)
+    )
+    static let midnightDeep = Tincture(
+        tag: 56,
+        name: "midnightDeep",
+        title: LocalizedStringResource("Deep Blue"),
+        color: BrandColor(red: 0.122, green: 0.2, blue: 0.471, alpha: 1)
+    )
+    static let midnightAzure = Tincture(
+        tag: 57,
+        name: "midnightAzure",
+        title: LocalizedStringResource("Azure Glow"),
+        color: BrandColor(red: 0.271, green: 0.42, blue: 0.82, alpha: 1)
+    )
+    static let midnightStar = Tincture(
+        tag: 58,
+        name: "midnightStar",
+        title: LocalizedStringResource("Starlight"),
+        color: BrandColor(red: 0.78, green: 0.855, blue: 1, alpha: 1)
+    )
+    static let sunsetPlum = Tincture(
+        tag: 59,
+        name: "sunsetPlum",
+        title: LocalizedStringResource("Plum"),
+        color: BrandColor(red: 0.212, green: 0.067, blue: 0.2, alpha: 1)
+    )
+    static let sunsetMagenta = Tincture(
+        tag: 60,
+        name: "sunsetMagenta",
+        title: LocalizedStringResource("Magenta"),
+        color: BrandColor(red: 0.62, green: 0.165, blue: 0.329, alpha: 1)
+    )
+    static let sunsetOrange = Tincture(
+        tag: 61,
+        name: "sunsetOrange",
+        title: LocalizedStringResource("Sunset Orange"),
+        color: BrandColor(red: 0.945, green: 0.525, blue: 0.267, alpha: 1)
+    )
+    static let sunsetApricot = Tincture(
+        tag: 62,
+        name: "sunsetApricot",
+        title: LocalizedStringResource("Apricot"),
+        color: BrandColor(red: 1, green: 0.851, blue: 0.663, alpha: 1)
+    )
+    static let auroraDeep = Tincture(
+        tag: 63,
+        name: "auroraDeep",
+        title: LocalizedStringResource("Deep Sea"),
+        color: BrandColor(red: 0.039, green: 0.118, blue: 0.165, alpha: 1)
+    )
+    static let auroraTeal = Tincture(
+        tag: 64,
+        name: "auroraTeal",
+        title: LocalizedStringResource("Aurora Teal"),
+        color: BrandColor(red: 0.051, green: 0.408, blue: 0.427, alpha: 1)
+    )
+    static let auroraGreen = Tincture(
+        tag: 65,
+        name: "auroraGreen",
+        title: LocalizedStringResource("Aurora Green"),
+        color: BrandColor(red: 0.384, green: 0.765, blue: 0.478, alpha: 1)
+    )
+    static let auroraMint = Tincture(
+        tag: 66,
+        name: "auroraMint",
+        title: LocalizedStringResource("Mint"),
+        color: BrandColor(red: 0.776, green: 1, blue: 0.871, alpha: 1)
+    )
+    static let emberCoal = Tincture(
+        tag: 67,
+        name: "emberCoal",
+        title: LocalizedStringResource("Coal"),
+        color: BrandColor(red: 0.141, green: 0.047, blue: 0.039, alpha: 1)
+    )
+    static let emberRed = Tincture(
+        tag: 68,
+        name: "emberRed",
+        title: LocalizedStringResource("Ember Red"),
+        color: BrandColor(red: 0.565, green: 0.129, blue: 0.086, alpha: 1)
+    )
+    static let emberFlame = Tincture(
+        tag: 69,
+        name: "emberFlame",
+        title: LocalizedStringResource("Flame"),
+        color: BrandColor(red: 0.957, green: 0.439, blue: 0.196, alpha: 1)
+    )
+    static let emberGlow = Tincture(
+        tag: 70,
+        name: "emberGlow",
+        title: LocalizedStringResource("Glow"),
+        color: BrandColor(red: 1, green: 0.82, blue: 0.588, alpha: 1)
+    )
+    static let forestPine = Tincture(
+        tag: 71,
+        name: "forestPine",
+        title: LocalizedStringResource("Pine"),
+        color: BrandColor(red: 0.035, green: 0.125, blue: 0.086, alpha: 1)
+    )
+    static let forestGreen = Tincture(
+        tag: 72,
+        name: "forestGreen",
+        title: LocalizedStringResource("Forest Green"),
+        color: BrandColor(red: 0.11, green: 0.31, blue: 0.196, alpha: 1)
+    )
+    static let forestFern = Tincture(
+        tag: 73,
+        name: "forestFern",
+        title: LocalizedStringResource("Fern"),
+        color: BrandColor(red: 0.443, green: 0.627, blue: 0.302, alpha: 1)
+    )
+    static let forestSpring = Tincture(
+        tag: 74,
+        name: "forestSpring",
+        title: LocalizedStringResource("Spring"),
+        color: BrandColor(red: 0.863, green: 0.957, blue: 0.718, alpha: 1)
+    )
+    static let graphiteDark = Tincture(
+        tag: 75,
+        name: "graphiteDark",
+        title: LocalizedStringResource("Graphite"),
+        color: BrandColor(red: 0.086, green: 0.094, blue: 0.11, alpha: 1)
+    )
+    static let graphiteSlate = Tincture(
+        tag: 76,
+        name: "graphiteSlate",
+        title: LocalizedStringResource("Slate Grey"),
+        color: BrandColor(red: 0.22, green: 0.239, blue: 0.271, alpha: 1)
+    )
+    static let graphiteSteel = Tincture(
+        tag: 77,
+        name: "graphiteSteel",
+        title: LocalizedStringResource("Steel Grey"),
+        color: BrandColor(red: 0.455, green: 0.482, blue: 0.529, alpha: 1)
+    )
+    static let graphiteFrost = Tincture(
+        tag: 78,
+        name: "graphiteFrost",
+        title: LocalizedStringResource("Frost"),
+        color: BrandColor(red: 0.91, green: 0.922, blue: 0.945, alpha: 1)
+    )
+    static let oceanAbyss = Tincture(
+        tag: 79,
+        name: "oceanAbyss",
+        title: LocalizedStringResource("Abyss"),
+        color: BrandColor(red: 0.027, green: 0.098, blue: 0.196, alpha: 1)
+    )
+    static let oceanBlue = Tincture(
+        tag: 80,
+        name: "oceanBlue",
+        title: LocalizedStringResource("Ocean Blue"),
+        color: BrandColor(red: 0.039, green: 0.298, blue: 0.502, alpha: 1)
+    )
+    static let oceanLagoon = Tincture(
+        tag: 81,
+        name: "oceanLagoon",
+        title: LocalizedStringResource("Lagoon"),
+        color: BrandColor(red: 0.153, green: 0.62, blue: 0.78, alpha: 1)
+    )
+    static let oceanFoam = Tincture(
+        tag: 82,
+        name: "oceanFoam",
+        title: LocalizedStringResource("Foam"),
+        color: BrandColor(red: 0.765, green: 0.953, blue: 1, alpha: 1)
+    )
+    static let dawnMulberry = Tincture(
+        tag: 83,
+        name: "dawnMulberry",
+        title: LocalizedStringResource("Mulberry"),
+        color: BrandColor(red: 0.345, green: 0.118, blue: 0.251, alpha: 1)
+    )
+    static let dawnCoral = Tincture(
+        tag: 84,
+        name: "dawnCoral",
+        title: LocalizedStringResource("Coral"),
+        color: BrandColor(red: 0.851, green: 0.4, blue: 0.404, alpha: 1)
+    )
+    static let dawnPeach = Tincture(
+        tag: 85,
+        name: "dawnPeach",
+        title: LocalizedStringResource("Peach"),
+        color: BrandColor(red: 0.98, green: 0.749, blue: 0.506, alpha: 1)
+    )
+    static let dawnCream = Tincture(
+        tag: 86,
+        name: "dawnCream",
+        title: LocalizedStringResource("Cream"),
+        color: BrandColor(red: 1, green: 0.949, blue: 0.859, alpha: 1)
+    )
+    static let grapeAubergine = Tincture(
+        tag: 87,
+        name: "grapeAubergine",
+        title: LocalizedStringResource("Aubergine"),
+        color: BrandColor(red: 0.106, green: 0.059, blue: 0.204, alpha: 1)
+    )
+    static let grapeViolet = Tincture(
+        tag: 88,
+        name: "grapeViolet",
+        title: LocalizedStringResource("Violet"),
+        color: BrandColor(red: 0.325, green: 0.18, blue: 0.553, alpha: 1)
+    )
+    static let grapeLavender = Tincture(
+        tag: 89,
+        name: "grapeLavender",
+        title: LocalizedStringResource("Lavender"),
+        color: BrandColor(red: 0.651, green: 0.502, blue: 0.898, alpha: 1)
+    )
+    static let grapeLilac = Tincture(
+        tag: 90,
+        name: "grapeLilac",
+        title: LocalizedStringResource("Lilac"),
+        color: BrandColor(red: 0.906, green: 0.855, blue: 1, alpha: 1)
+    )
 
     static let all: [Tincture] = [
         ink,
@@ -22644,7 +23077,43 @@ struct Tincture: Hashable, Sendable {
         sunTenne,
         sunGules,
         sunOr,
-        vigilBone
+        vigilBone,
+        midnightNight,
+        midnightDeep,
+        midnightAzure,
+        midnightStar,
+        sunsetPlum,
+        sunsetMagenta,
+        sunsetOrange,
+        sunsetApricot,
+        auroraDeep,
+        auroraTeal,
+        auroraGreen,
+        auroraMint,
+        emberCoal,
+        emberRed,
+        emberFlame,
+        emberGlow,
+        forestPine,
+        forestGreen,
+        forestFern,
+        forestSpring,
+        graphiteDark,
+        graphiteSlate,
+        graphiteSteel,
+        graphiteFrost,
+        oceanAbyss,
+        oceanBlue,
+        oceanLagoon,
+        oceanFoam,
+        dawnMulberry,
+        dawnCoral,
+        dawnPeach,
+        dawnCream,
+        grapeAubergine,
+        grapeViolet,
+        grapeLavender,
+        grapeLilac
     ]
 
     static func named(_ name: String?) -> Tincture? {
