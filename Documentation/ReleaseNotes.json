@@ -4333,6 +4333,10 @@
     "imports-bring-bookmarks-as-bookmarks": {
       "category": "improved",
       "message": "Bookmarks imported from Chrome, Safari and other browsers arrive as bookmarks in their folders, instead of filling a Space's sidebar with saved tabs, and no longer take room from its tabs."
+    },
+    "development-copies-start-fresh": {
+      "category": "internal",
+      "message": "Development copies of Crest start like a first install and can read another browser's Keychain item to test imports; test runs never can."
     }
   }
 }

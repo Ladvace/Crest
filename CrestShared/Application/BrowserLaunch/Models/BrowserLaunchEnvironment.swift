@@ -19,6 +19,12 @@ struct BrowserLaunchEnvironment: Equatable, Sendable {
     let isolatedSoftwareUpdateFeedURL: URL?
     let isXCTestRuntime: Bool
     let isSwiftUIPreviewRuntime: Bool
+    /// Whether a development copy asked to open another browser's Keychain
+    /// item for an import, which an isolated launch otherwise never does.
+    let allowsImportKeychainWhenIsolated: Bool
+    /// Whether an isolated launch with no session yet starts from the one a
+    /// first launch starts with, rather than the preview fixture.
+    let startsLikeFirstLaunch: Bool
     /// Whether this launch stays out of the installed profile. The core decides
     /// from the flags above.
     private(set) var requiresIsolation = true
@@ -75,6 +81,8 @@ struct BrowserLaunchEnvironment: Equatable, Sendable {
         )
         self.isXCTestRuntime = isXCTestRuntime
         self.isSwiftUIPreviewRuntime = isSwiftUIPreviewRuntime
+        allowsImportKeychainWhenIsolated = Self.isEnabled(.allowImportKeychain, in: values)
+        startsLikeFirstLaunch = Self.isEnabled(.firstLaunchSession, in: values)
         // Isolation is decided before any core exists, so the core answers it
         // without an app.
         let plan =
@@ -83,6 +91,14 @@ struct BrowserLaunchEnvironment: Equatable, Sendable {
         requiresIsolation = plan.requiresIsolation
         usesEphemeralProfileStorage = plan.usesEphemeralProfileStorage
         presentsInstalledApplicationUI = plan.presentsInstalledApplicationUI
+    }
+
+    /// Whether an import may open another browser's Keychain item to unlock
+    /// its passwords and sign-ins: always in an ordinary launch, and in an
+    /// isolated one only when a development copy asked for it, never under
+    /// tests.
+    var opensImportKeychain: Bool {
+        !requiresIsolation || (allowsImportKeychainWhenIsolated && !isXCTestRuntime)
     }
 
     /// The preferences domain a named isolated profile persists into.
@@ -134,6 +150,8 @@ struct BrowserLaunchEnvironment: Equatable, Sendable {
         case resetSession = "CREST_RESET_SESSION"
         case showcaseSession = "CREST_SHOWCASE_SESSION"
         case useInMemoryCredentials = "CREST_USE_IN_MEMORY_CREDENTIALS"
+        case allowImportKeychain = "CREST_ALLOW_IMPORT_KEYCHAIN"
+        case firstLaunchSession = "CREST_FIRST_LAUNCH_SESSION"
         case showOnboarding = "CREST_SHOW_ONBOARDING"
         case showSetup = "CREST_SHOW_SETUP"
         case forceOnboardingSetup = "CREST_FORCE_ONBOARDING_SETUP"

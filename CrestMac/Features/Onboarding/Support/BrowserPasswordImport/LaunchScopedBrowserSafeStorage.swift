@@ -7,11 +7,7 @@ struct LaunchScopedBrowserSafeStorage: BrowserSafeStorageSecretProviding {
             SecurityBrowserSafeStorage()
         }
     ) {
-        if launchEnvironment.requiresIsolation {
-            safeStorage = nil
-        } else {
-            safeStorage = systemStorage()
-        }
+        safeStorage = launchEnvironment.opensImportKeychain ? systemStorage() : nil
     }
 
     func secret(for application: ImportSource) throws -> String {

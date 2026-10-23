@@ -168,9 +168,10 @@ extension BrowserStore {
 
     /// The session an isolated launch starts from, or nil for the one a first
     /// launch starts with, which an isolated run of cloud sync or onboarding
-    /// takes.
+    /// takes, and a development copy that asks to start like a first launch.
     private static func isolatedFixtureSeed(for launchEnvironment: BrowserLaunchEnvironment) -> SessionState.Seed? {
         if launchEnvironment.requestsIsolatedCloudSync
+            || launchEnvironment.startsLikeFirstLaunch
             || launchEnvironment.forcesOnboardingWelcome
             || launchEnvironment.forcesMacOnboardingSetup
             || launchEnvironment.forcesMobileOnboardingSetup

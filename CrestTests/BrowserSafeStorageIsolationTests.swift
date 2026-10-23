@@ -47,6 +47,28 @@ final class BrowserSafeStorageIsolationTests: XCTestCase {
         )
     }
 
+    /// A development copy may ask to open another browser's Keychain item,
+    /// but a test run never does, whatever it asks.
+    func testAnIsolatedCopyOpensTheImportKeychainOnlyWhenItAsksOutsideTests() throws {
+        let asking = ["CREST_ISOLATED_SESSION": "1", "CREST_ALLOW_IMPORT_KEYCHAIN": "1"]
+        let developmentCopy = LaunchScopedBrowserSafeStorage(
+            launchEnvironment: BrowserLaunchEnvironment(values: asking, isXCTestRuntime: false),
+            systemStorage: { TestSafeStorage(secret: "development-secret") }
+        )
+        XCTAssertEqual(try developmentCopy.secret(for: .arc), "development-secret")
+
+        let testRun = LaunchScopedBrowserSafeStorage(
+            launchEnvironment: BrowserLaunchEnvironment(values: asking, isXCTestRuntime: true),
+            systemStorage: {
+                XCTFail("A test run must not construct the system safe-storage provider.")
+                return TestSafeStorage(secret: "unexpected-secret")
+            }
+        )
+        XCTAssertThrowsError(try testRun.secret(for: .arc)) { error in
+            XCTAssertEqual(error as? BrowserPasswordImportError, .safeStorageUnavailable)
+        }
+    }
+
     private struct TestSafeStorage: BrowserSafeStorageSecretProviding {
         let secret: String
 
