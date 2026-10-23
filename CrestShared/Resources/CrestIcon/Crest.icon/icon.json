@@ -27,13 +27,9 @@
               "value": "none"
             }
           ],
-          "image-name": "CrestArkLowerDot.svg",
-          "name": "CrestArkLowerDot",
+          "image-name": "CrestArkBar.svg",
+          "name": "CrestArkBar",
           "opacity-specializations": [
-            {
-              "appearance": "dark",
-              "value": 0
-            },
             {
               "appearance": "tinted",
               "value": 0
@@ -54,38 +50,8 @@
               "value": "none"
             }
           ],
-          "image-name": "CrestArkDarkLowerDot.svg",
-          "name": "CrestArkDarkLowerDot",
-          "opacity-specializations": [
-            {
-              "value": 0
-            },
-            {
-              "appearance": "dark",
-              "value": 1
-            },
-            {
-              "appearance": "tinted",
-              "value": 0
-            }
-          ]
-        },
-        {
-          "fill-specializations": [
-            {
-              "value": "none"
-            },
-            {
-              "appearance": "dark",
-              "value": "none"
-            },
-            {
-              "appearance": "tinted",
-              "value": "none"
-            }
-          ],
-          "image-name": "CrestArkTintedLowerDot.svg",
-          "name": "CrestArkTintedLowerDot",
+          "image-name": "CrestArkTintedBar.svg",
+          "name": "CrestArkTintedBar",
           "opacity-specializations": [
             {
               "value": 0
@@ -93,63 +59,6 @@
             {
               "appearance": "dark",
               "value": 0
-            },
-            {
-              "appearance": "tinted",
-              "value": 1
-            }
-          ]
-        },
-        {
-          "fill-specializations": [
-            {
-              "value": "none"
-            },
-            {
-              "appearance": "dark",
-              "value": "none"
-            },
-            {
-              "appearance": "tinted",
-              "value": "none"
-            }
-          ],
-          "image-name": "CrestArkUpperDot.svg",
-          "name": "CrestArkUpperDot",
-          "opacity-specializations": [
-            {
-              "appearance": "dark",
-              "value": 0
-            },
-            {
-              "appearance": "tinted",
-              "value": 0
-            }
-          ]
-        },
-        {
-          "fill-specializations": [
-            {
-              "value": "none"
-            },
-            {
-              "appearance": "dark",
-              "value": "none"
-            },
-            {
-              "appearance": "tinted",
-              "value": "none"
-            }
-          ],
-          "image-name": "CrestArkDarkUpperDot.svg",
-          "name": "CrestArkDarkUpperDot",
-          "opacity-specializations": [
-            {
-              "value": 0
-            },
-            {
-              "appearance": "dark",
-              "value": 1
             },
             {
               "appearance": "tinted",

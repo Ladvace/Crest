@@ -18,8 +18,7 @@ struct CrestStartPageMark: View {
                 CrestBannerShape()
                     .fill(palette.banner)
 
-                dot(at: CrestStartPageMarkMetrics.upperDotCenter, side: side, color: palette.upperDot)
-                dot(at: CrestStartPageMarkMetrics.lowerDotCenter, side: side, color: palette.lowerDot)
+                bar(side: side, color: palette.bar)
             }
             .frame(width: side, height: side)
             .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
@@ -38,15 +37,13 @@ struct CrestStartPageMark: View {
 }
 
 extension CrestStartPageMark {
-    /// One of the mark's dots, at `center` as a fraction of the tile.
-    private func dot(at center: CGPoint, side: CGFloat, color: Color) -> some View {
-        Circle()
+    /// The bar across the banner's top, wider than the banner.
+    private func bar(side: CGFloat, color: Color) -> some View {
+        let frame = CrestStartPageMarkMetrics.barFrame
+        return RoundedRectangle(cornerRadius: side * CrestStartPageMarkMetrics.barCornerRadiusRatio)
             .fill(color)
-            .frame(
-                width: side * CrestStartPageMarkMetrics.dotRadiusRatio * 2,
-                height: side * CrestStartPageMarkMetrics.dotRadiusRatio * 2
-            )
-            .position(x: side * center.x, y: side * center.y)
+            .frame(width: side * frame.width, height: side * frame.height)
+            .position(x: side * frame.midX, y: side * frame.midY)
     }
 }
 

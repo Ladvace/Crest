@@ -4409,6 +4409,10 @@
     "smooth-sidebar-resize": {
       "category": "fixed",
       "message": "Resizing the sidebar is smooth again."
+    },
+    "crestark-bar-logo": {
+      "category": "improved",
+      "message": "CrestArk has a new logo, a navy banner under a yellow bar, on its app icon, in setup, Getting Started and the Start Page."
     }
   }
 }
