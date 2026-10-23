@@ -79,6 +79,7 @@ final class BrowserMacMenuBar: NSObject, NSMenuDelegate, NSMenuItemValidation {
         if ProductIdentity.checksForUpdates { applicationItem(.updates, in: app) }
         app.addItem(.separator())
         applicationItem(.settings, in: app)
+        applicationItem(.stopAllAgents, in: app)
         NSApp.servicesMenu = submenu(String(localized: "Services"), in: app)
         app.addItem(.separator())
         standard(

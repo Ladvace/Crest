@@ -33,17 +33,35 @@ enum BrowserSpaceSwitcherLayout {
     static let scrollingTrackTopInset: CGFloat = 6
 
     /// Resolves the compact picker's centred viewport inside the utility
-    /// buttons that flank it.
-    ///
-    /// The larger utility side is reserved on both sides. That keeps the
-    /// picker centred when one accessory is absent or wider, while the actual
-    /// leading and trailing widths still determine the no-overlap edges.
+    /// buttons that flank it, and how much of it Spaces drawn in `style` take.
     static func compactStripAllocation(
         availableWidth: CGFloat,
         spaceCount: Int,
         leadingUtilityWidth: CGFloat,
-        trailingUtilityWidth: CGFloat
+        trailingUtilityWidth: CGFloat,
+        style: CrestSpaceIconPickerStyle = .compact
     ) -> BrowserSpaceSwitcherCompactAllocation {
+        BrowserSpaceSwitcherCompactAllocation(
+            pickerViewportWidth: compactPickerViewportWidth(
+                availableWidth: availableWidth,
+                leadingUtilityWidth: leadingUtilityWidth,
+                trailingUtilityWidth: trailingUtilityWidth
+            ),
+            pickerContentWidth: style.contentWidth(spaceCount: max(0, spaceCount)),
+            overflowButtonWidth: style.overflowButtonWidth
+        )
+    }
+
+    /// The width the compact picker has between the utility buttons.
+    ///
+    /// The larger utility side is reserved on both sides. That keeps the
+    /// picker centred when one accessory is absent or wider, while the actual
+    /// leading and trailing widths still determine the no-overlap edges.
+    static func compactPickerViewportWidth(
+        availableWidth: CGFloat,
+        leadingUtilityWidth: CGFloat,
+        trailingUtilityWidth: CGFloat
+    ) -> CGFloat {
         let width = max(0, availableWidth)
         let leadingWidth = max(0, leadingUtilityWidth)
         let trailingWidth = max(0, trailingUtilityWidth)
@@ -54,17 +72,17 @@ enum BrowserSpaceSwitcherLayout {
             trailingReservation
         )
         let contentWidth = max(0, width - 2 * compactStripHorizontalInset)
-        let pickerViewportWidth = max(
+        return max(
             0,
             contentWidth - 2 * balancedSideReservation
         )
+    }
 
-        return BrowserSpaceSwitcherCompactAllocation(
-            pickerViewportWidth: pickerViewportWidth,
-            pickerContentWidth: compactPickerContentWidth(
-                spaceCount: spaceCount
-            )
-        )
+    /// The band a compact strip with its track drawn in `style` occupies:
+    /// the usual band, grown by as much as a larger track grows, so the track
+    /// never comes closer to the window's edge than the usual one does.
+    static func compactStripHeight(for style: CrestSpaceIconPickerStyle) -> CGFloat {
+        compactStripHeight + max(0, style.height - CrestSpaceIconPickerStyle.compact.height)
     }
 
     /// The size a Space's icon is drawn at, and the room around each icon.
@@ -104,14 +122,6 @@ enum BrowserSpaceSwitcherLayout {
 
     private static func utilityReservation(for width: CGFloat) -> CGFloat {
         width > 0 ? width + compactStripSpacing : 0
-    }
-
-    private static func compactPickerContentWidth(spaceCount: Int) -> CGFloat {
-        let count = max(0, spaceCount)
-        guard count > 0 else { return 0 }
-        return 2 * CrestSpaceIconPickerMetrics.trackPadding
-            + CGFloat(count) * segmentWidth
-            + CGFloat(count - 1) * CrestLayout.hairline
     }
 }
 

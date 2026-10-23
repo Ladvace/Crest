@@ -6,10 +6,11 @@ struct BrowserOnboardingModernSheet: View {
     @Binding var branding: SpaceBranding
     @Binding var symbol: String
 
-    /// The color sets a modern Space may wear: the accents' own, then each
-    /// template's sidebar colors.
+    /// The color sets a modern Space may wear: the accents' own, each
+    /// scheme's, then each template's sidebar colors.
     private var presets: [[BrandColor]] {
-        SpaceAccent.all.map(\.legacyColors) + SpaceHouse.all.map { Array($0.look.colors) }
+        SpaceAccent.all.map(\.legacyColors) + SpaceScheme.all.map { Array($0.look.colors) }
+            + SpaceHouse.all.map { Array($0.look.colors) }
     }
 
     var body: some View {

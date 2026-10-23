@@ -14,7 +14,7 @@ struct BrowserSpaceBrandingEditor: View {
     @State private var gesturePreview: SpaceBranding?
 
     private var defaults: SpaceBranding {
-        SpaceHouse.startingPoint(of: branding)?.look ?? initialAppearance ?? branding
+        branding.startingLook ?? initialAppearance ?? branding
     }
 
     private var context: BrowserCrestStudioContext {
@@ -85,6 +85,9 @@ struct BrowserSpaceBrandingEditor: View {
                         BrowserSpaceLookTile(
                             look: house.applying(to: gesturePreview ?? branding), symbol: symbol, size: 52)
                     }
+                }
+                ForEach(SpaceScheme.all, id: \.self) { scheme in
+                    BrowserSpaceSchemeChoice(scheme: scheme, branding: $branding, symbol: symbol, size: 52)
                 }
             }
             Text("Choose a starting point, then make it yours. Reset controls return to this preset.")

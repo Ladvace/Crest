@@ -60,6 +60,8 @@ public sealed class Tincture {
     public static readonly Tincture SunGules = new("sunGules", "Sunset Red", new(0.722, 0.165, 0.118));
     public static readonly Tincture SunOr = new("sunOr", "Saffron", new(0.894, 0.718, 0.333));
     public static readonly Tincture VigilBone = new("vigilBone", "Bone", new(0.812, 0.820, 0.831));
+    public static readonly Tincture NeutralSmoke = new("neutralSmoke", "Smoke", new(0.337, 0.337, 0.337));
+    public static readonly Tincture NeutralGray = new("neutralGray", "Gray", new(0.588, 0.588, 0.588));
 
     // The gradients the templates are made of.
     public static readonly Tincture MidnightNight = new("midnightNight", "Night", new(0.059, 0.086, 0.2));
@@ -105,11 +107,11 @@ public sealed class Tincture {
         MeadowForest, MeadowMoss, MeadowWheat, IronBlack, IronPewter, IronPatina, RiverNavy, RiverLapis, RiverRust,
         SunUmber, SunTerracotta, SunDune, VigilOnyx, VigilCharcoal, VigilAsh, WinterArgent, WinterWolf, LionGules, LionOr,
         StormOr, StormSable, DragonSable, DragonFire, MeadowVert, MeadowRose, IronOr, RiverAzure, RiverGules, RiverArgent,
-        SunTenne, SunGules, SunOr, VigilBone, MidnightNight, MidnightDeep, MidnightAzure, MidnightStar, SunsetPlum, SunsetMagenta,
-        SunsetOrange, SunsetApricot, AuroraDeep, AuroraTeal, AuroraGreen, AuroraMint, EmberCoal, EmberRed, EmberFlame, EmberGlow,
-        ForestPine, ForestGreen, ForestFern, ForestSpring, GraphiteDark, GraphiteSlate, GraphiteSteel, GraphiteFrost, OceanAbyss,
-        OceanBlue, OceanLagoon, OceanFoam, DawnMulberry, DawnCoral, DawnPeach, DawnCream, GrapeAubergine, GrapeViolet,
-        GrapeLavender, GrapeLilac
+        SunTenne, SunGules, SunOr, VigilBone, NeutralSmoke, NeutralGray, MidnightNight, MidnightDeep, MidnightAzure,
+        MidnightStar, SunsetPlum, SunsetMagenta, SunsetOrange, SunsetApricot, AuroraDeep, AuroraTeal, AuroraGreen,
+        AuroraMint, EmberCoal, EmberRed, EmberFlame, EmberGlow, ForestPine, ForestGreen, ForestFern, ForestSpring,
+        GraphiteDark, GraphiteSlate, GraphiteSteel, GraphiteFrost, OceanAbyss, OceanBlue, OceanLagoon, OceanFoam,
+        DawnMulberry, DawnCoral, DawnPeach, DawnCream, GrapeAubergine, GrapeViolet, GrapeLavender, GrapeLilac
     ];
 
     public string Name { get; }

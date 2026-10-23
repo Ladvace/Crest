@@ -39,9 +39,9 @@ struct BrowserSettingsSpacePage: View {
         .browserSpaceDeletionConfirmation($pendingDeletionID, browser: browser, dataDeleter: dataDeleter)
     }
 
-    /// The template this Space's look started from, as the template draws it.
+    /// The look this Space started from, as its template or scheme draws it.
     private var startingAppearance: SpaceBranding? {
-        SpaceHouse.startingPoint(of: space.settings.look)?.look
+        space.settings.look.startingLook
     }
 
     private func resetAppearance() {

@@ -81,8 +81,9 @@ struct BrowserCrestForgeStage: View {
         }
     }
 
-    /// The colors in columns of `columnWidth`; the sidebar's three take
-    /// wider ones where that keeps their names whole.
+    /// The colors in columns of `columnWidth`: a crest's layers, or an
+    /// icon's one color, then the sidebar's three, which take wider columns
+    /// where that keeps their names whole.
     private func swatches(columnWidth: CGFloat, sidebarColumnWidth: CGFloat? = nil) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             swatchGroup("Icon") {
@@ -124,7 +125,7 @@ struct BrowserCrestForgeStage: View {
     }
 
     private func swatchGroup<Content: View>(
-        _ title: LocalizedStringKey, @ViewBuilder content: () -> Content
+        _ title: LocalizedStringResource, @ViewBuilder content: () -> Content
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)

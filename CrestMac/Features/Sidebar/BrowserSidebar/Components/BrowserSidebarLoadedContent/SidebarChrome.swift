@@ -17,6 +17,7 @@ struct SidebarChrome: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.browserChromeAppearance) private var appearance
+    @Environment(\.colorScheme) private var colorScheme
     /// How far the window's own buttons reach into the navigation strip.
     @State private var windowButtonsWidth: CGFloat = 0
     /// Whether the strip holds the toggle beside the navigation, past the
@@ -104,7 +105,7 @@ struct SidebarChrome: View {
             }
             .environment(
                 \.colorScheme,
-                space.settings.look.foregroundTone.colorScheme
+                space.settings.look.shown.colorScheme(over: colorScheme)
             )
             .modifier(SpaceForegroundBlend(spaces: context.availableSpaces, selectedSpaceID: space.id))
             .blur(radius: isLocked ? BrowserSidebarMetrics.lockedSpaceBlurRadius : 0)

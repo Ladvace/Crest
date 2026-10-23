@@ -17,7 +17,10 @@ struct BrowserCrestStudioStep: Hashable, Identifiable, Sendable {
 
     static let start = BrowserCrestStudioStep(
         kind: .start, name: "start", title: "Start from", symbol: "sparkles",
-        summary: { branding in SpaceHouse.all.first { $0.isWorn(by: branding) }?.title ?? "Custom" })
+        summary: { branding in
+            SpaceHouse.all.first { $0.isWorn(by: branding) }?.title
+                ?? SpaceScheme.all.first { $0.isWorn(by: branding) }?.title ?? "Custom"
+        })
     static let icon = BrowserCrestStudioStep(
         kind: .icon, name: "icon", title: "Icon", symbol: "face.smiling",
         summary: { $0.symbolColor == nil ? "Space color" : "Custom color" })

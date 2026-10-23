@@ -23,25 +23,30 @@ extension SpaceBranding {
         color(for: .pattern) ?? primaryColor
     }
 
-    /// The tone that reads best over the banner, unless the text color mode
-    /// names one.
-    var foregroundTone: BrowserSpaceForegroundTone {
-        if let override = textColorMode.foregroundTone { return override }
-        return (colors.isEmpty ? [.indigo] : colors).foregroundTone(
-            strength: bannerStrength, readabilityFade: readabilityFade)
-    }
-
     /// The icon's own color, or the Space's primary color, which it follows
     /// as the palette changes, when it has none. A color that would barely
     /// stand out from the sidebar gives way to the sidebar's text color.
     var resolvedSymbolColor: BrandColor {
         let color = symbolColor ?? primaryColor
-        let tone = foregroundTone
+        // The tone the Space's own colors give its sidebar, which a Neutral
+        // look's appearance can't change: its colors are already grays.
+        let tone = (colors.isEmpty ? [.indigo] : colors).foregroundTone(
+            strength: bannerStrength, readabilityFade: readabilityFade)
         let contrast = (colors.isEmpty ? [.indigo] : colors).minimumContrast(
             of: color, under: tone, strength: bannerStrength, readabilityFade: readabilityFade)
         guard contrast < Self.minimumSymbolContrast else { return color }
         return tone == .light
             ? BrandColor(red: 1, green: 1, blue: 1, alpha: 1) : BrandColor(red: 0, green: 0, blue: 0, alpha: 1)
+    }
+
+    // MARK: - Actions - Text
+
+    /// The tone that reads best over the banner, unless the text color mode
+    /// names one or follows the device, whose appearance reads in `system`.
+    func foregroundTone(system: BrowserSpaceForegroundTone) -> BrowserSpaceForegroundTone {
+        if let override = textColorMode.foregroundTone(system: system) { return override }
+        return (colors.isEmpty ? [.indigo] : colors).foregroundTone(
+            strength: bannerStrength, readabilityFade: readabilityFade)
     }
 
     // MARK: - Actions - Colors

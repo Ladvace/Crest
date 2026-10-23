@@ -857,6 +857,12 @@ struct AdoptWindowRecords: Intent, WindowIntent, Equatable, Sendable {
     let records: Data?
 }
 
+struct AgentActivity: Equatable, Sendable {
+    let kind: AgentActivityKind
+    let subject: String
+    let at: Date
+}
+
 struct AgentIdentity: Equatable, Sendable {
     static let maximumField: Int = 255
     static let maximumPath: Int = 1024
@@ -904,6 +910,8 @@ struct AgentSessionState: Equatable, Sendable {
     let name: String
     let color: BrandColor?
     let tabIDs: [UUID]
+    let opensWindows: Bool
+    let activity: [AgentActivity]
 }
 
 struct AgentSessionsChanged: CoreChange, Equatable, Sendable {
@@ -980,6 +988,10 @@ struct AgentsUnavailable: Equatable, Sendable {
 struct AllowAgentSpace: Intent, AgentIntent, Equatable, Sendable {
     let spaceID: UUID
     let allowed: Bool
+}
+
+struct AllowAgentWindows: Intent, AgentIntent, Equatable, Sendable {
+    let sessionID: UUID
 }
 
 struct AlreadyInSpace: Equatable, Sendable {
@@ -4078,6 +4090,12 @@ struct NotPrivateWorkspace: Equatable, Sendable {
     let workspaceID: UUID
 }
 
+struct NoteAgentActivity: Intent, AgentIntent, Equatable, Sendable {
+    let sessionID: UUID
+    let kind: AgentActivityKind
+    let subject: String
+}
+
 struct NotificationDisplayCheck: Query, Equatable, Sendable {
     typealias Answer = NotificationDisplayVerdict
 
@@ -6324,6 +6342,7 @@ struct SpaceSettings: Equatable, Sendable {
     let isSavedTabsExpanded: Bool
     let savedTabsExpansionModifiedAt: Date?
     let credentialsEnabledModifiedAt: Date?
+    let accessPolicyModifiedAt: Date?
     let look: SpaceBranding
     let requiresAuthentication: Bool
 
@@ -6340,6 +6359,7 @@ struct SpaceSettings: Equatable, Sendable {
         var isSavedTabsExpanded: Bool
         var savedTabsExpansionModifiedAt: Date?
         var credentialsEnabledModifiedAt: Date?
+        var accessPolicyModifiedAt: Date?
     }
 
     /// The record's fields alone, as a platform sends it back.
@@ -6354,7 +6374,8 @@ struct SpaceSettings: Equatable, Sendable {
             accessPolicy: accessPolicy,
             isSavedTabsExpanded: isSavedTabsExpanded,
             savedTabsExpansionModifiedAt: savedTabsExpansionModifiedAt,
-            credentialsEnabledModifiedAt: credentialsEnabledModifiedAt
+            credentialsEnabledModifiedAt: credentialsEnabledModifiedAt,
+            accessPolicyModifiedAt: accessPolicyModifiedAt
         )
     }
 }
@@ -6566,6 +6587,9 @@ struct StepSplitMember: Intent, SessionIntent, Equatable, Sendable {
 
 struct StopAgentTab: Intent, AgentIntent, Equatable, Sendable {
     let tabID: UUID
+}
+
+struct StopAllAgents: Intent, AgentIntent, Equatable, Sendable {
 }
 
 struct StopLoading: PageRequest, Equatable, Sendable {
@@ -7558,6 +7582,97 @@ struct AdjacentDirection: Hashable, Sendable {
         init(name: String, step: Int) {
             self.name = name
             self.step = step
+        }
+    }
+}
+
+/// The members of the core's `AgentActivityKind`. A member's wire tag is its index in `all`.
+struct AgentActivityKind: Hashable, Sendable {
+    let tag: Int
+    var name: String { facts.name }
+    var title: LocalizedStringResource { facts.title }
+    var symbol: String { facts.symbol }
+    private let facts: Facts
+
+    private init(tag: Int, name: String, title: LocalizedStringResource, symbol: String) {
+        self.tag = tag
+        facts = Facts(name: name, title: title, symbol: symbol)
+    }
+
+    static let openedTab = AgentActivityKind(
+        tag: 0,
+        name: "openedTab",
+        title: LocalizedStringResource("Opened a tab"),
+        symbol: "plus.square"
+    )
+    static let loadedPage = AgentActivityKind(
+        tag: 1,
+        name: "loadedPage",
+        title: LocalizedStringResource("Loaded a page"),
+        symbol: "arrow.right.circle"
+    )
+    static let closedTab = AgentActivityKind(
+        tag: 2,
+        name: "closedTab",
+        title: LocalizedStringResource("Closed a tab"),
+        symbol: "xmark.square"
+    )
+    static let openedWindow = AgentActivityKind(
+        tag: 3,
+        name: "openedWindow",
+        title: LocalizedStringResource("Opened a window"),
+        symbol: "macwindow.badge.plus"
+    )
+    static let openedPrivateWindow = AgentActivityKind(
+        tag: 4,
+        name: "openedPrivateWindow",
+        title: LocalizedStringResource("Opened a private window"),
+        symbol: "eyeglasses"
+    )
+    static let deletedHistory = AgentActivityKind(
+        tag: 5,
+        name: "deletedHistory",
+        title: LocalizedStringResource("Deleted history"),
+        symbol: "clock.arrow.trianglehead.counterclockwise.rotate.90"
+    )
+    static let ranScript = AgentActivityKind(
+        tag: 6,
+        name: "ranScript",
+        title: LocalizedStringResource("Ran a script"),
+        symbol: "curlybraces"
+    )
+
+    static let all: [AgentActivityKind] = [
+        openedTab,
+        loadedPage,
+        closedTab,
+        openedWindow,
+        openedPrivateWindow,
+        deletedHistory,
+        ranScript
+    ]
+
+    static func named(_ name: String?) -> AgentActivityKind? {
+        all.first { $0.name == name }
+    }
+
+    static func == (lhs: AgentActivityKind, rhs: AgentActivityKind) -> Bool {
+        lhs.tag == rhs.tag
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(tag)
+    }
+
+    private final class Facts: Sendable {
+        let name: String
+        let title: LocalizedStringResource
+        let symbol: String
+
+        init(name: String, title: LocalizedStringResource, symbol: String) {
+            self.name = name
+            self.title = title
+            self.symbol = symbol
         }
     }
 }
@@ -21635,12 +21750,106 @@ struct SpaceIconStyle: Hashable, Sendable {
     }
 }
 
+/// The members of the core's `SpaceScheme`. A member's wire tag is its index in `all`.
+struct SpaceScheme: Hashable, Sendable {
+    let tag: Int
+    var name: String { facts.name }
+    var title: LocalizedStringResource { facts.title }
+    var look: SpaceBranding { facts.look }
+    private let facts: Facts
+
+    private init(tag: Int, name: String, title: LocalizedStringResource, look: SpaceBranding) {
+        self.tag = tag
+        facts = Facts(name: name, title: title, look: look)
+    }
+
+    static let neutral = SpaceScheme(
+        tag: 0,
+        name: "neutral",
+        title: LocalizedStringResource("Neutral"),
+        look: SpaceBranding(
+            colors: ColorPalette(colors: [BrandColor(red: 0.337, green: 0.337, blue: 0.337, alpha: 1)]),
+            bannerPattern: SpaceBannerPattern.diagonal,
+            bannerStrength: 0.15,
+            readabilityFade: 0,
+            keepsControlsReadable: false,
+            themeMode: SpaceThemeMode.gradient,
+            gradientAngle: 0,
+            showsTexture: true,
+            iconStyle: SpaceIconStyle.simpleSymbol,
+            symbolColor: BrandColor(red: 0.588, green: 0.588, blue: 0.588, alpha: 1),
+            crest: SpaceCrest(
+                backplate: CrestBackplate.shield,
+                fieldDivision: CrestFieldDivision.plain,
+                ordinary: CrestOrdinary.none,
+                trim: CrestTrim.none,
+                symbol: CrestSymbol.mountain,
+                chargeLayout: CrestChargeLayout.single,
+                backplateColorIndex: 1,
+                secondaryFieldColorIndex: 1,
+                ordinaryColorIndex: 2,
+                trimColorIndex: 1,
+                symbolColorIndex: 2,
+                startingPresetID: nil,
+                edgeColorIndex: 1,
+                palette: nil,
+                charge: nil,
+                plateScale: 1,
+                edgeWidth: 0,
+                divisionCount: 4,
+                finish: CrestFinish.flat,
+                ordinaryWidth: 1,
+                trimWeight: 1,
+                trimDetail: 12,
+                chargeScale: 1,
+                chargeOffset: 0,
+                chargeWeight: CrestChargeWeight.bold,
+                sheenAngle: 45,
+                sealTeeth: 12,
+                showsOutline: false,
+                depth: CrestDepth.none
+            ),
+            renderingVersion: 2,
+            folderColorIntensity: 0,
+            textColorMode: SpaceTextColorMode.system,
+            hasCustomAppearance: false
+        )
+    )
+
+    static let all: [SpaceScheme] = [neutral]
+
+    static func named(_ name: String?) -> SpaceScheme? {
+        all.first { $0.name == name }
+    }
+
+    static func == (lhs: SpaceScheme, rhs: SpaceScheme) -> Bool {
+        lhs.tag == rhs.tag
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(tag)
+    }
+
+    private final class Facts: Sendable {
+        let name: String
+        let title: LocalizedStringResource
+        let look: SpaceBranding
+
+        init(name: String, title: LocalizedStringResource, look: SpaceBranding) {
+            self.name = name
+            self.title = title
+            self.look = look
+        }
+    }
+}
+
 /// The members of the core's `SpaceTextColorMode`. A member's wire tag is its index in `all`.
 struct SpaceTextColorMode: Hashable, Sendable {
     enum Kinds: Sendable {
         case automatic
         case light
         case dark
+        case system
     }
 
     let tag: Int
@@ -21662,8 +21871,14 @@ struct SpaceTextColorMode: Hashable, Sendable {
     )
     static let light = SpaceTextColorMode(tag: 1, kind: .light, name: "light", title: LocalizedStringResource("Light"))
     static let dark = SpaceTextColorMode(tag: 2, kind: .dark, name: "dark", title: LocalizedStringResource("Dark"))
+    static let system = SpaceTextColorMode(
+        tag: 3,
+        kind: .system,
+        name: "system",
+        title: LocalizedStringResource("System")
+    )
 
-    static let all: [SpaceTextColorMode] = [automatic, light, dark]
+    static let all: [SpaceTextColorMode] = [automatic, light, dark, system]
 
     static func named(_ name: String?) -> SpaceTextColorMode? {
         all.first { $0.name == name }
@@ -22805,218 +23020,230 @@ struct Tincture: Hashable, Sendable {
         title: LocalizedStringResource("Bone"),
         color: BrandColor(red: 0.812, green: 0.82, blue: 0.831, alpha: 1)
     )
-    static let midnightNight = Tincture(
+    static let neutralSmoke = Tincture(
         tag: 55,
+        name: "neutralSmoke",
+        title: LocalizedStringResource("Smoke"),
+        color: BrandColor(red: 0.337, green: 0.337, blue: 0.337, alpha: 1)
+    )
+    static let neutralGray = Tincture(
+        tag: 56,
+        name: "neutralGray",
+        title: LocalizedStringResource("Gray"),
+        color: BrandColor(red: 0.588, green: 0.588, blue: 0.588, alpha: 1)
+    )
+    static let midnightNight = Tincture(
+        tag: 57,
         name: "midnightNight",
         title: LocalizedStringResource("Night"),
         color: BrandColor(red: 0.059, green: 0.086, blue: 0.2, alpha: 1)
     )
     static let midnightDeep = Tincture(
-        tag: 56,
+        tag: 58,
         name: "midnightDeep",
         title: LocalizedStringResource("Deep Blue"),
         color: BrandColor(red: 0.122, green: 0.2, blue: 0.471, alpha: 1)
     )
     static let midnightAzure = Tincture(
-        tag: 57,
+        tag: 59,
         name: "midnightAzure",
         title: LocalizedStringResource("Azure Glow"),
         color: BrandColor(red: 0.271, green: 0.42, blue: 0.82, alpha: 1)
     )
     static let midnightStar = Tincture(
-        tag: 58,
+        tag: 60,
         name: "midnightStar",
         title: LocalizedStringResource("Starlight"),
         color: BrandColor(red: 0.78, green: 0.855, blue: 1, alpha: 1)
     )
     static let sunsetPlum = Tincture(
-        tag: 59,
+        tag: 61,
         name: "sunsetPlum",
         title: LocalizedStringResource("Plum"),
         color: BrandColor(red: 0.212, green: 0.067, blue: 0.2, alpha: 1)
     )
     static let sunsetMagenta = Tincture(
-        tag: 60,
+        tag: 62,
         name: "sunsetMagenta",
         title: LocalizedStringResource("Magenta"),
         color: BrandColor(red: 0.62, green: 0.165, blue: 0.329, alpha: 1)
     )
     static let sunsetOrange = Tincture(
-        tag: 61,
+        tag: 63,
         name: "sunsetOrange",
         title: LocalizedStringResource("Sunset Orange"),
         color: BrandColor(red: 0.945, green: 0.525, blue: 0.267, alpha: 1)
     )
     static let sunsetApricot = Tincture(
-        tag: 62,
+        tag: 64,
         name: "sunsetApricot",
         title: LocalizedStringResource("Apricot"),
         color: BrandColor(red: 1, green: 0.851, blue: 0.663, alpha: 1)
     )
     static let auroraDeep = Tincture(
-        tag: 63,
+        tag: 65,
         name: "auroraDeep",
         title: LocalizedStringResource("Deep Sea"),
         color: BrandColor(red: 0.039, green: 0.118, blue: 0.165, alpha: 1)
     )
     static let auroraTeal = Tincture(
-        tag: 64,
+        tag: 66,
         name: "auroraTeal",
         title: LocalizedStringResource("Aurora Teal"),
         color: BrandColor(red: 0.051, green: 0.408, blue: 0.427, alpha: 1)
     )
     static let auroraGreen = Tincture(
-        tag: 65,
+        tag: 67,
         name: "auroraGreen",
         title: LocalizedStringResource("Aurora Green"),
         color: BrandColor(red: 0.384, green: 0.765, blue: 0.478, alpha: 1)
     )
     static let auroraMint = Tincture(
-        tag: 66,
+        tag: 68,
         name: "auroraMint",
         title: LocalizedStringResource("Mint"),
         color: BrandColor(red: 0.776, green: 1, blue: 0.871, alpha: 1)
     )
     static let emberCoal = Tincture(
-        tag: 67,
+        tag: 69,
         name: "emberCoal",
         title: LocalizedStringResource("Coal"),
         color: BrandColor(red: 0.141, green: 0.047, blue: 0.039, alpha: 1)
     )
     static let emberRed = Tincture(
-        tag: 68,
+        tag: 70,
         name: "emberRed",
         title: LocalizedStringResource("Ember Red"),
         color: BrandColor(red: 0.565, green: 0.129, blue: 0.086, alpha: 1)
     )
     static let emberFlame = Tincture(
-        tag: 69,
+        tag: 71,
         name: "emberFlame",
         title: LocalizedStringResource("Flame"),
         color: BrandColor(red: 0.957, green: 0.439, blue: 0.196, alpha: 1)
     )
     static let emberGlow = Tincture(
-        tag: 70,
+        tag: 72,
         name: "emberGlow",
         title: LocalizedStringResource("Glow"),
         color: BrandColor(red: 1, green: 0.82, blue: 0.588, alpha: 1)
     )
     static let forestPine = Tincture(
-        tag: 71,
+        tag: 73,
         name: "forestPine",
         title: LocalizedStringResource("Pine"),
         color: BrandColor(red: 0.035, green: 0.125, blue: 0.086, alpha: 1)
     )
     static let forestGreen = Tincture(
-        tag: 72,
+        tag: 74,
         name: "forestGreen",
         title: LocalizedStringResource("Forest Green"),
         color: BrandColor(red: 0.11, green: 0.31, blue: 0.196, alpha: 1)
     )
     static let forestFern = Tincture(
-        tag: 73,
+        tag: 75,
         name: "forestFern",
         title: LocalizedStringResource("Fern"),
         color: BrandColor(red: 0.443, green: 0.627, blue: 0.302, alpha: 1)
     )
     static let forestSpring = Tincture(
-        tag: 74,
+        tag: 76,
         name: "forestSpring",
         title: LocalizedStringResource("Spring"),
         color: BrandColor(red: 0.863, green: 0.957, blue: 0.718, alpha: 1)
     )
     static let graphiteDark = Tincture(
-        tag: 75,
+        tag: 77,
         name: "graphiteDark",
         title: LocalizedStringResource("Graphite"),
         color: BrandColor(red: 0.086, green: 0.094, blue: 0.11, alpha: 1)
     )
     static let graphiteSlate = Tincture(
-        tag: 76,
+        tag: 78,
         name: "graphiteSlate",
         title: LocalizedStringResource("Slate Grey"),
         color: BrandColor(red: 0.22, green: 0.239, blue: 0.271, alpha: 1)
     )
     static let graphiteSteel = Tincture(
-        tag: 77,
+        tag: 79,
         name: "graphiteSteel",
         title: LocalizedStringResource("Steel Grey"),
         color: BrandColor(red: 0.455, green: 0.482, blue: 0.529, alpha: 1)
     )
     static let graphiteFrost = Tincture(
-        tag: 78,
+        tag: 80,
         name: "graphiteFrost",
         title: LocalizedStringResource("Frost"),
         color: BrandColor(red: 0.91, green: 0.922, blue: 0.945, alpha: 1)
     )
     static let oceanAbyss = Tincture(
-        tag: 79,
+        tag: 81,
         name: "oceanAbyss",
         title: LocalizedStringResource("Abyss"),
         color: BrandColor(red: 0.027, green: 0.098, blue: 0.196, alpha: 1)
     )
     static let oceanBlue = Tincture(
-        tag: 80,
+        tag: 82,
         name: "oceanBlue",
         title: LocalizedStringResource("Ocean Blue"),
         color: BrandColor(red: 0.039, green: 0.298, blue: 0.502, alpha: 1)
     )
     static let oceanLagoon = Tincture(
-        tag: 81,
+        tag: 83,
         name: "oceanLagoon",
         title: LocalizedStringResource("Lagoon"),
         color: BrandColor(red: 0.153, green: 0.62, blue: 0.78, alpha: 1)
     )
     static let oceanFoam = Tincture(
-        tag: 82,
+        tag: 84,
         name: "oceanFoam",
         title: LocalizedStringResource("Foam"),
         color: BrandColor(red: 0.765, green: 0.953, blue: 1, alpha: 1)
     )
     static let dawnMulberry = Tincture(
-        tag: 83,
+        tag: 85,
         name: "dawnMulberry",
         title: LocalizedStringResource("Mulberry"),
         color: BrandColor(red: 0.345, green: 0.118, blue: 0.251, alpha: 1)
     )
     static let dawnCoral = Tincture(
-        tag: 84,
+        tag: 86,
         name: "dawnCoral",
         title: LocalizedStringResource("Coral"),
         color: BrandColor(red: 0.851, green: 0.4, blue: 0.404, alpha: 1)
     )
     static let dawnPeach = Tincture(
-        tag: 85,
+        tag: 87,
         name: "dawnPeach",
         title: LocalizedStringResource("Peach"),
         color: BrandColor(red: 0.98, green: 0.749, blue: 0.506, alpha: 1)
     )
     static let dawnCream = Tincture(
-        tag: 86,
+        tag: 88,
         name: "dawnCream",
         title: LocalizedStringResource("Cream"),
         color: BrandColor(red: 1, green: 0.949, blue: 0.859, alpha: 1)
     )
     static let grapeAubergine = Tincture(
-        tag: 87,
+        tag: 89,
         name: "grapeAubergine",
         title: LocalizedStringResource("Aubergine"),
         color: BrandColor(red: 0.106, green: 0.059, blue: 0.204, alpha: 1)
     )
     static let grapeViolet = Tincture(
-        tag: 88,
+        tag: 90,
         name: "grapeViolet",
         title: LocalizedStringResource("Violet"),
         color: BrandColor(red: 0.325, green: 0.18, blue: 0.553, alpha: 1)
     )
     static let grapeLavender = Tincture(
-        tag: 89,
+        tag: 91,
         name: "grapeLavender",
         title: LocalizedStringResource("Lavender"),
         color: BrandColor(red: 0.651, green: 0.502, blue: 0.898, alpha: 1)
     )
     static let grapeLilac = Tincture(
-        tag: 90,
+        tag: 92,
         name: "grapeLilac",
         title: LocalizedStringResource("Lilac"),
         color: BrandColor(red: 0.906, green: 0.855, blue: 1, alpha: 1)
@@ -23078,6 +23305,8 @@ struct Tincture: Hashable, Sendable {
         sunGules,
         sunOr,
         vigilBone,
+        neutralSmoke,
+        neutralGray,
         midnightNight,
         midnightDeep,
         midnightAzure,
@@ -23615,6 +23844,10 @@ final class SpaceSettingsModel: ObservedModel {
         access(keyPath: \.credentialsEnabledModifiedAt)
         return credentialsEnabledModifiedAtStorage
     }
+    var accessPolicyModifiedAt: Date? {
+        access(keyPath: \.accessPolicyModifiedAt)
+        return accessPolicyModifiedAtStorage
+    }
     var look: SpaceBranding {
         access(keyPath: \.look)
         return lookStorage
@@ -23634,6 +23867,7 @@ final class SpaceSettingsModel: ObservedModel {
     @ObservationIgnored private var isSavedTabsExpandedStorage: Bool
     @ObservationIgnored private var savedTabsExpansionModifiedAtStorage: Date?
     @ObservationIgnored private var credentialsEnabledModifiedAtStorage: Date?
+    @ObservationIgnored private var accessPolicyModifiedAtStorage: Date?
     @ObservationIgnored private var lookStorage: SpaceBranding
     @ObservationIgnored private var requiresAuthenticationStorage: Bool
 
@@ -23649,6 +23883,7 @@ final class SpaceSettingsModel: ObservedModel {
             isSavedTabsExpanded: isSavedTabsExpanded,
             savedTabsExpansionModifiedAt: savedTabsExpansionModifiedAt,
             credentialsEnabledModifiedAt: credentialsEnabledModifiedAt,
+            accessPolicyModifiedAt: accessPolicyModifiedAt,
             look: look,
             requiresAuthentication: requiresAuthentication
         )
@@ -23665,6 +23900,7 @@ final class SpaceSettingsModel: ObservedModel {
         isSavedTabsExpandedStorage = value.isSavedTabsExpanded
         savedTabsExpansionModifiedAtStorage = value.savedTabsExpansionModifiedAt
         credentialsEnabledModifiedAtStorage = value.credentialsEnabledModifiedAt
+        accessPolicyModifiedAtStorage = value.accessPolicyModifiedAt
         lookStorage = value.look
         requiresAuthenticationStorage = value.requiresAuthentication
     }
@@ -23709,6 +23945,10 @@ final class SpaceSettingsModel: ObservedModel {
         if credentialsEnabledModifiedAtStorage != value.credentialsEnabledModifiedAt {
             credentialsEnabledModifiedAtStorage = value.credentialsEnabledModifiedAt
             withMutation(keyPath: \.credentialsEnabledModifiedAt) {}
+        }
+        if accessPolicyModifiedAtStorage != value.accessPolicyModifiedAt {
+            accessPolicyModifiedAtStorage = value.accessPolicyModifiedAt
+            withMutation(keyPath: \.accessPolicyModifiedAt) {}
         }
         if lookStorage != value.look {
             lookStorage = value.look

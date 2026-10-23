@@ -9,7 +9,10 @@ import SwiftUI
 /// choose, and two shared arrangements underneath
 /// it. Accessories are inputs the scrolling arrangement simply ignores.
 struct BrowserSpaceSwitcher: View {
+    // MARK: - Variables
+
     @Environment(BrowserSidebarInteractionState.self) private var sidebarInteraction
+    private let appearance = BrowserDeviceAppearanceStore.shared
 
     let browser: BrowserStore
 
@@ -20,6 +23,8 @@ struct BrowserSpaceSwitcher: View {
     let capabilities: BrowserInteractionCapabilities
     let selectSpace: (UUID) -> Void
     var accessories = BrowserSpaceSwitcherAccessories()
+
+    // MARK: - Actions - Drawing
 
     var body: some View {
         switch capabilities.spaceSwitcherArrangement {
@@ -38,6 +43,8 @@ struct BrowserSpaceSwitcher: View {
                 selectedSpaceID: selectedSpaceID,
                 reorderState: sidebarInteraction.sidebarReorderState,
                 metrics: metrics,
+                iconSizing: appearance.spaceIconSizing,
+                chosenIconScale: appearance.spaceIconScale,
                 selectSpace: selectSpace
             )
         }
