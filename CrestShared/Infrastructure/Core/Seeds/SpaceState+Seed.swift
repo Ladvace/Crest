@@ -19,6 +19,7 @@ extension SpaceState.Seed {
         splitGroups: [SplitGroupState.Seed] = [],
         archivedTabs: [ArchivedTabState.Seed] = [],
         history: [HistoryEntryState] = [],
+        bookmarks: [BookmarkState.Seed]? = nil,
         browsingPreferences: BrowsingPreferences = .seeded,
         credentialPreferences: CredentialPreferences = .seeded,
         accessPolicy: SpaceAccessPolicy = .open,
@@ -32,7 +33,8 @@ extension SpaceState.Seed {
                 browsingPreferences: browsingPreferences,
                 credentialPreferences: credentialPreferences, accessPolicy: accessPolicy,
                 isSavedTabsExpanded: isSavedTabsExpanded, savedTabsExpansionModifiedAt: savedTabsExpansionModifiedAt),
-            folders: folders, tabs: tabs, splitGroups: splitGroups, archivedTabs: archivedTabs, history: history)
+            folders: folders, tabs: tabs, splitGroups: splitGroups, archivedTabs: archivedTabs, history: history,
+            bookmarks: bookmarks)
     }
 
     /// The `number`th blank Space of a session, counting from one: named for

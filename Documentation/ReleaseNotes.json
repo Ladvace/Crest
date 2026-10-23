@@ -4381,6 +4381,10 @@
     "readable-sleeping-tabs": {
       "category": "fixed",
       "message": "Tabs that haven't loaded yet are dimmed more gently, so they stay readable on light sidebars."
+    },
+    "crestark-readme-and-logo": {
+      "category": "internal",
+      "message": "Describe CrestArk in the README, with screenshots, a comparison with Crest and the new logo."
     }
   }
 }

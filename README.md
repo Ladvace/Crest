@@ -1,33 +1,82 @@
 <div align="center">
-  <img src="Website/assets/crest-logo.svg" width="128" alt="Crest app icon">
-  <h1>Crest</h1>
-  <p><strong>An open source browser for Mac, iPhone, and iPad.</strong></p>
-  <p>Built with SwiftUI, running Chromium and WebKit on Mac, with separate Spaces for different parts of your life.</p>
+  <img src="Website/assets/crest-logo.svg" width="128" alt="CrestArk app icon">
+  <h1>CrestArk</h1>
+  <p><strong>An Arc-style browser for Mac, built on Crest.</strong></p>
+  <p>A personal fork of <a href="https://github.com/pauljoda/Crest">Crest</a> by Paul Davis, with Spaces, Chromium and WebKit, and a few more of the things Arc users miss.</p>
   <p>
-    <a href="https://github.com/pauljoda/Crest/actions/workflows/ci.yml"><img alt="Build Crest" src="https://github.com/pauljoda/Crest/actions/workflows/ci.yml/badge.svg"></a>
-    <a href="https://github.com/pauljoda/Crest/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/pauljoda/Crest?display_name=tag&sort=semver"></a>
     <a href="LICENSE"><img alt="MPL-2.0 license" src="https://img.shields.io/badge/license-MPL--2.0-315f93"></a>
-  </p>
-  <p>
-    <a href="https://crestbrowser.com/"><strong>Visit the product site</strong></a>
-    ·
-    <a href="https://crestbrowser.com/guides/">Read the guides</a>
-    ·
-    <a href="https://github.com/pauljoda/Crest/releases/latest">Download for Mac</a>
-    ·
-    <a href="https://github.com/users/pauljoda/projects/3">Roadmap</a>
-    ·
-    <a href="https://www.reddit.com/r/CrestBrowser">Community</a>
   </p>
 </div>
 
-Browse Mac releases by channel: [Stable](https://github.com/pauljoda/Crest/releases?q=prerelease%3Afalse),
-[Nightly](https://github.com/pauljoda/Crest/releases?q=prerelease%3Atrue+%22Nightly+builds%22), or
-[Development](https://github.com/pauljoda/Crest/releases?q=prerelease%3Atrue+%22Development+builds%22).
+<p align="center">
+  <a href="Website/assets/crestark-work-mac.png"><img src="Website/assets/crestark-work-mac.png" width="100%" alt="CrestArk on Mac: a Work Space with a gradient sidebar, the bookmarks bar above two pages in a Split View, and the Space icons and + button at the bottom of the sidebar"></a>
+</p>
+
+## What's different from Crest
+
+CrestArk follows Crest's architecture and keeps its features. This is what it
+adds and takes away. Downloads, App Store links, releases and sponsorship
+further down this page belong to the original Crest.
+
+### Side by side
+
+The same sample Space in the original Crest and in CrestArk.
+
+| Crest | CrestArk |
+| --- | --- |
+| <a href="Website/assets/crest-work-mac.png"><img src="Website/assets/crest-work-mac.png" alt="The original Crest: a heraldic crest beside the Space name, a patterned two-color banner down the sidebar, and no bookmarks bar"></a> | <a href="Website/assets/crestark-work-mac.png"><img src="Website/assets/crestark-work-mac.png" alt="CrestArk: the Space's own icon, a smooth gradient sidebar, and a bookmarks bar above the pages"></a> |
+| <img src="Website/assets/compare-crest-top.png" alt="Original Crest's sidebar top: the Space named with a heraldic crest, and no bookmark or copy-link buttons in the address field"> | <img src="Website/assets/compare-crestark-top.png" alt="CrestArk's sidebar top: the Space named with its icon, the sidebar button beside the window controls, and a bookmark button in the address field"> |
+| <img src="Website/assets/compare-crest-bottom.png" alt="Original Crest's bottom bar: sidebar button, crest badges for each Space, and the archive on the right"> | <img src="Website/assets/compare-crestark-bottom.png" alt="CrestArk's bottom bar: archive on the left, bare Space icons, and a + menu on the right"> |
+
+### Added
+
+- **Bookmarks.** Each Space keeps bookmarks in nested folders, and a bookmark
+  or folder can show in every Space. The bookmarks button opens on the page
+  you're viewing: save it as it is, type another address, or type
+  `folder/address` to file it, creating the folder if needed. The same field
+  searches your bookmarks. A bookmarks bar above the page holds what fits,
+  puts the rest behind **+N**, and reorders by drag. The address field
+  suggests bookmarks, and `@bookmarks` searches only them. Imports bring
+  other browsers' bookmarks in as bookmarks.
+- **Ad and tracker blocking from filter lists.** WebKit pages block with
+  EasyList and EasyPrivacy (Balanced) or those plus uBlock Origin's lists
+  (Strict), kept up to date. Chromium Spaces get uBlock Origin Lite when
+  their blocking is on. Turn blocking off for one site from its site controls.
+- **Arc imports, as they were.** Each Space's colors with their grain and
+  intensity, its archived tabs, and its folders, pinned or not. A Space from
+  Arc or another Chromium browser can also **stay signed in**: its cookies
+  are decrypted in memory and set only in the Space they came from, matched
+  to the right Arc profile, so each Space keeps its own accounts.
+- **Undo for Clear Tabs.** Clearing a Space's open tabs asks first, and
+  Command-Z brings them back.
+- **An Arc-like sidebar.** A **+** menu at the bottom creates a Space,
+  folder, split or tab, and the sidebar button sits beside the window
+  controls. As the sidebar narrows, the address bar compacts and every Space
+  but the current one becomes a dot that names itself on hover. Pinned
+  sites resize to fill the row.
+- **Calmer chrome.** Popovers are readable in light and dark and use your
+  system accent. Hover highlights follow the pointer instantly. Extensions
+  without a toolbar icon show their installed icon.
 
 <p align="center">
-  <a href="Website/assets/crest-work-mac.png"><img src="Website/assets/crest-work-mac.png" width="100%" alt="Crest on Mac with Lion Work first, Winter Personal second, and Audience research open beside the Launch Atlas folder"></a>
+  <a href="Website/assets/crestark-bookmarks-mac.png"><img src="Website/assets/crestark-bookmarks-mac.png" width="49%" alt="The bookmarks popover filled in with the current page, above a list of bookmarks and a Research folder"></a>
+  <a href="Website/assets/crestark-site-controls-mac.png"><img src="Website/assets/crestark-site-controls-mac.png" width="49%" alt="Site controls with the Block Ads and Trackers switch for the current site"></a>
 </p>
+<p align="center">
+  <a href="Website/assets/crestark-new-menu-mac.png"><img src="Website/assets/crestark-new-menu-mac.png" width="60%" alt="The + menu at the bottom of the sidebar with Create Space, Create Folder, New Split and New Tab"></a>
+</p>
+
+### Removed
+
+- **Heraldic crests.** Spaces show their SF Symbol or emoji alone; the crest
+  shapes, fields, bands, emblems, borders, finishes and their artwork are
+  gone. A Space saved with a crest shows its plain icon.
+- **Banner patterns and the setup look.** Every Space's sidebar is a
+  gradient or a solid color, and setup goes from the welcome straight to
+  import.
+- **The fixed Balanced host list,** replaced by the filter lists above.
+- **The page slide when switching Spaces.** The sidebar still slides.
+- **Outlines and shadows on the selected tab and folders** by default.
 
 ## A browser with boundaries
 
@@ -54,10 +103,6 @@ supports.
 
 **Appearance** lets you dock the sidebar on either edge, go borderless, adjust tab shape and scale, choose a pin layout, and tune tab and address-field colors, or let them follow each Space's accent. Start with a preset, see changes live, and reset individual settings. Choose an app icon palette, folder colors and icons, and a default page zoom from 50% to 300%.
 
-<p align="center">
-  <a href="Website/assets/crest-look-and-feel-mac.png"><img src="Website/assets/crest-look-and-feel-mac.png" width="49%" alt="Appearance settings with window, accent, tab, and pin controls"></a>
-</p>
-
 ## Browsing features
 
 - **A sidebar with structure.** Pins for everyday sites, saved tabs with a home URL, nested folders for projects, and current tabs for what you are doing now. Select tabs, Split Views, and folders together to organize them in one step.
@@ -67,8 +112,6 @@ supports.
 - **Shared windows on Mac.** Open another window onto the same Spaces and tabs, with its own selection. Use a disposable Blank Window for temporary tabs with your Space’s signed-in session, or create one by dragging a tab outside the window.
 - **Search and commands.** Open a URL, search the web, find tabs and history in your Space, or run a command from one field. Choose custom search engines and optional suggestions. Mac shortcuts can be rebound.
 - **Getting Started.** Learn tabs, pins, and folders in an interactive browser tab, with Split View practice on Mac.
-
-![Two pages open side by side in a Split View group in Crest on Mac](Website/assets/crest-split-view-mac.png)
 
 ## Page tools
 
@@ -85,7 +128,7 @@ supports.
 
 **Private Spaces** use temporary website storage and stay out of normal history, restoration, and sync. They can require device authentication and relock when Crest leaves the foreground. **Crest Passwords** keeps origin- and Space-matched credentials in the system Keychain, with authentication for sensitive access.
 
-Site permissions and content blocking are controlled per Space. Built-in ad and tracker blocking covers iPhone, iPad, and WebKit pages; on Chromium pages, install a blocking extension. Closed and cleaned-up tabs go to a recoverable Archive, subject to your retention settings. **Keep Loaded** protects a page from ordinary unloading when its live state matters.
+Site permissions and content blocking are controlled per Space. Built-in ad and tracker blocking covers iPhone, iPad, and WebKit pages with filter lists; Chromium Spaces block with uBlock Origin Lite. Closed and cleaned-up tabs go to a recoverable Archive, subject to your retention settings. **Keep Loaded** protects a page from ordinary unloading when its live state matters.
 
 Optional **iCloud sync** carries durable Spaces, tabs, folders, Split View groups, appearance, history, and Archive between devices. Password values stay out of CloudKit; eligible passwords can use iCloud Keychain separately. Start a browser import on Mac, review each destination Space, or export a portable Crest archive.
 
@@ -93,12 +136,10 @@ Read the [privacy policy](https://crestbrowser.com/privacy/), [Space isolation g
 
 ## Get Crest
 
-The same Spaces, shaped for each screen. iPad keeps the sidebar beside your page; iPhone gives your tabs and folders their own view.
+The original Crest is available below; CrestArk has no published builds yet,
+so build it from source as described under [Build Crest](#build-crest).
 
-<p align="center">
-  <a href="Website/assets/crest-work-ipad.png"><img src="Website/assets/crest-work-ipad.png" width="72%" alt="Lion Work first and Winter Personal second on iPad, with Audience research open"></a>
-  <a href="Website/assets/crest-work-iphone-sidebar.png"><img src="Website/assets/crest-work-iphone-sidebar.png" width="25%" alt="The same Spaces, Launch Atlas folder, and selected Audience research tab in the iPhone sidebar"></a>
-</p>
+The same Spaces, shaped for each screen. iPad keeps the sidebar beside your page; iPhone gives your tabs and folders their own view.
 
 | Platform | Install |
 | --- | --- |
@@ -132,7 +173,7 @@ Requirements:
 - .NET SDK pinned by `CrestCore/global.json`, installable with `Scripts/control-plane/install-dotnet.sh`
 
 ```bash
-git clone https://github.com/pauljoda/Crest.git
+git clone https://github.com/Ladvace/Crest.git
 cd Crest
 Scripts/bootstrap.sh
 open Crest.xcodeproj

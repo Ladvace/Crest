@@ -48,7 +48,28 @@ enum SessionShowcaseSeed {
         ]
         return SpaceState.Seed(
             name: "Work", symbol: "hammer.fill", accent: .indigo, branding: SpaceAccent.rose.house, folders: [folder],
-            tabs: tabs, archivedTabs: archivedTabs)
+            tabs: tabs, archivedTabs: archivedTabs, bookmarks: makeWorkBookmarks())
+    }
+
+    /// A few links and a folder, so the bookmarks bar has something to show.
+    private static func makeWorkBookmarks() -> [BookmarkState.Seed] {
+        let research = UUID()
+        func link(_ title: String, _ url: String, in parentID: UUID? = nil) -> BookmarkState.Seed {
+            BookmarkState.Seed(id: UUID(), parentID: parentID, title: title, url: url, showsInEverySpace: false)
+        }
+        return [
+            BookmarkState.Seed(id: research, parentID: nil, title: "Research", url: nil, showsInEverySpace: false),
+            link("Swift", "https://www.swift.org", in: research),
+            link("WebKit", "https://webkit.org", in: research),
+            link("GitHub", "https://github.com"),
+            link("Figma", "https://www.figma.com"),
+            link("Linear", "https://linear.app"),
+            link("Notion", "https://www.notion.so"),
+            link("Hacker News", "https://news.ycombinator.com"),
+            link("MDN", "https://developer.mozilla.org"),
+            link("Wikipedia", "https://www.wikipedia.org"),
+            link("YouTube", "https://www.youtube.com"),
+        ]
     }
 
     private static func makePersonalSpace() -> SpaceState.Seed {
