@@ -4425,6 +4425,10 @@
     "smoother-pointer-and-pins": {
       "category": "fixed",
       "message": "Moving the pointer, switching Spaces and resizing stay smoother: link previews no longer check the whole window on every move, pinned tabs lay out in one pass, and the bookmarks bar and icon-only sidebar build only what changes or shows."
+    },
+    "readme-fork-wording": {
+      "category": "internal",
+      "message": "Describe the fork more plainly in the README and drop the upstream star history."
     }
   }
 }

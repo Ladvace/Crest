@@ -1,8 +1,8 @@
 <div align="center">
   <img src="Website/assets/crest-logo.svg" width="128" alt="CrestArk app icon">
   <h1>CrestArk</h1>
-  <p><strong>An Arc-style browser for Mac, built on Crest.</strong></p>
-  <p>A personal fork of <a href="https://github.com/pauljoda/Crest">Crest</a> by Paul Davis, with Spaces, Chromium and WebKit, and a few more of the things Arc users miss.</p>
+  <p><strong>A personal fork of <a href="https://github.com/pauljoda/Crest">Crest</a> by Paul Davis.</strong></p>
+  <p>Crest with bookmarks, a few interface tweaks, and no banners or emblems (sorry, I don't like them).</p>
   <p>
     <a href="LICENSE"><img alt="MPL-2.0 license" src="https://img.shields.io/badge/license-MPL--2.0-315f93"></a>
   </p>
@@ -225,7 +225,7 @@ Run the relevant behavioral tests and repository checks. Review visual, layout, 
 
 Crest is under active development. The current implementation includes the core browsing, Space isolation, native platform chrome, credentials, data portability, synchronization foundations, Quick Window, Peek, and privacy features described above. The [Crest Roadmap project](https://github.com/users/pauljoda/projects/3) is the public release view; approval-gated and physical-device work remains documented in the [roadmap](Documentation/ROADMAP.md).
 
-## Community and support
+## Community and support (original project)
 
 Use [r/CrestBrowser](https://www.reddit.com/r/CrestBrowser) for questions,
 feedback, ideas, and website or extension compatibility discussion. Use
@@ -239,7 +239,7 @@ support the work through [Ko-fi](https://ko-fi.com/pauljoda/tiers) or
 [GitHub Sponsors](https://github.com/sponsors/pauljoda). Sponsorship does not
 buy roadmap priority or private access.
 
-## Sponsors
+## Sponsors - (Paul Davis, not me)
 
 Monthly support helps pay for hosting, signing, testing, and development across
 Paul's open source projects. Sponsors can be recognized in the public
@@ -312,13 +312,3 @@ license. The Crest name, app icon, logos, and official distribution identity
 are reserved; modified distributions must use their own branding as described
 in [TRADEMARKS.md](TRADEMARKS.md). Third-party notices are collected in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
-## Star History
-
-<a href="https://www.star-history.com/?repos=pauljoda%2Fcrest&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=pauljoda/crest&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=pauljoda/crest&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=pauljoda/crest&type=date&legend=top-left" />
- </picture>
-</a>
