@@ -164,7 +164,7 @@ final class BrowserMacApplication {
             launchEnvironment.isolatedSoftwareUpdateFeedURL
         let softwareUpdates = BrowserSoftwareUpdateService(
             isEnabled: presentsInstalledApplicationUI
-                && (!usesIsolatedLaunch || isolatedSoftwareUpdateFeed != nil),
+                && (usesIsolatedLaunch ? isolatedSoftwareUpdateFeed != nil : ProductIdentity.checksForUpdates),
             preferences: usesIsolatedLaunch ? nil : .standard,
             defaultChannel: isolatedSoftwareUpdateFeed.map { _ in .development },
             feedURLOverride: isolatedSoftwareUpdateFeed

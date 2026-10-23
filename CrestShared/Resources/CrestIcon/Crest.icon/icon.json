@@ -1,320 +1,292 @@
 {
-  "fill-specializations" : [
+  "fill-specializations": [
     {
-      "value" : {
-        "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+      "value": {
+        "automatic-gradient": "extended-srgb:0.97647,0.96471,0.94902,1.00000"
       }
     },
     {
-      "appearance" : "dark",
-      "value" : "system-dark"
+      "appearance": "dark",
+      "value": "system-dark"
     }
   ],
-  "groups" : [
+  "groups": [
     {
-      "layers" : [
+      "layers": [
         {
-          "fill-specializations" : [
+          "fill-specializations": [
             {
-              "value" : "none"
+              "value": "none"
             },
             {
-              "appearance" : "dark",
-              "value" : "none"
+              "appearance": "dark",
+              "value": "none"
+            },
+            {
+              "appearance": "tinted",
+              "value": "none"
             }
           ],
-          "image-name" : "CrestRail.svg",
-          "name" : "CrestRail",
-          "opacity-specializations" : [
+          "image-name": "CrestArkLowerDot.svg",
+          "name": "CrestArkLowerDot",
+          "opacity-specializations": [
             {
-              "value" : 1
+              "appearance": "dark",
+              "value": 0
             },
             {
-              "appearance" : "dark",
-              "value" : 0
-            },
-            {
-              "appearance" : "tinted",
-              "value" : 0
+              "appearance": "tinted",
+              "value": 0
             }
           ]
         },
         {
-          "fill-specializations" : [
+          "fill-specializations": [
             {
-              "value" : "none"
+              "value": "none"
             },
             {
-              "appearance" : "dark",
-              "value" : "none"
+              "appearance": "dark",
+              "value": "none"
+            },
+            {
+              "appearance": "tinted",
+              "value": "none"
             }
           ],
-          "image-name" : "CrestButter.svg",
-          "name" : "CrestButter",
-          "opacity-specializations" : [
+          "image-name": "CrestArkDarkLowerDot.svg",
+          "name": "CrestArkDarkLowerDot",
+          "opacity-specializations": [
             {
-              "appearance" : "dark",
-              "value" : 0
+              "value": 0
             },
             {
-              "appearance" : "tinted",
-              "value" : 0
+              "appearance": "dark",
+              "value": 1
+            },
+            {
+              "appearance": "tinted",
+              "value": 0
             }
           ]
         },
         {
-          "fill-specializations" : [
+          "fill-specializations": [
             {
-              "value" : "none"
+              "value": "none"
             },
             {
-              "appearance" : "dark",
-              "value" : "none"
+              "appearance": "dark",
+              "value": "none"
+            },
+            {
+              "appearance": "tinted",
+              "value": "none"
             }
           ],
-          "image-name" : "CrestSky.svg",
-          "name" : "CrestSky",
-          "opacity-specializations" : [
+          "image-name": "CrestArkTintedLowerDot.svg",
+          "name": "CrestArkTintedLowerDot",
+          "opacity-specializations": [
             {
-              "appearance" : "dark",
-              "value" : 0
+              "value": 0
             },
             {
-              "appearance" : "tinted",
-              "value" : 0
+              "appearance": "dark",
+              "value": 0
+            },
+            {
+              "appearance": "tinted",
+              "value": 1
             }
           ]
         },
         {
-          "fill-specializations" : [
+          "fill-specializations": [
             {
-              "appearance" : "dark",
-              "value" : "none"
+              "value": "none"
+            },
+            {
+              "appearance": "dark",
+              "value": "none"
+            },
+            {
+              "appearance": "tinted",
+              "value": "none"
             }
           ],
-          "image-name" : "CrestDarkRail.svg",
-          "name" : "CrestDarkRail",
-          "opacity-specializations" : [
+          "image-name": "CrestArkUpperDot.svg",
+          "name": "CrestArkUpperDot",
+          "opacity-specializations": [
             {
-              "value" : 0
+              "appearance": "dark",
+              "value": 0
             },
             {
-              "appearance" : "dark",
-              "value" : 1
-            },
-            {
-              "appearance" : "tinted",
-              "value" : 0
+              "appearance": "tinted",
+              "value": 0
             }
           ]
         },
         {
-          "fill-specializations" : [
+          "fill-specializations": [
             {
-              "appearance" : "dark",
-              "value" : "none"
+              "value": "none"
+            },
+            {
+              "appearance": "dark",
+              "value": "none"
+            },
+            {
+              "appearance": "tinted",
+              "value": "none"
             }
           ],
-          "image-name" : "CrestDarkButter.svg",
-          "name" : "CrestDarkButter",
-          "opacity-specializations" : [
+          "image-name": "CrestArkDarkUpperDot.svg",
+          "name": "CrestArkDarkUpperDot",
+          "opacity-specializations": [
             {
-              "value" : 0
+              "value": 0
             },
             {
-              "appearance" : "dark",
-              "value" : 1
+              "appearance": "dark",
+              "value": 1
             },
             {
-              "appearance" : "tinted",
-              "value" : 0
+              "appearance": "tinted",
+              "value": 1
             }
           ]
         },
         {
-          "fill-specializations" : [
+          "fill-specializations": [
             {
-              "appearance" : "dark",
-              "value" : "none"
+              "value": "none"
+            },
+            {
+              "appearance": "dark",
+              "value": "none"
+            },
+            {
+              "appearance": "tinted",
+              "value": "none"
             }
           ],
-          "image-name" : "CrestDarkSky.svg",
-          "name" : "CrestDarkSky",
-          "opacity-specializations" : [
+          "image-name": "CrestArkBanner.svg",
+          "name": "CrestArkBanner",
+          "opacity-specializations": [
             {
-              "value" : 0
+              "appearance": "dark",
+              "value": 0
             },
             {
-              "appearance" : "dark",
-              "value" : 1
-            },
-            {
-              "appearance" : "tinted",
-              "value" : 0
+              "appearance": "tinted",
+              "value": 0
             }
           ]
         },
         {
-          "fill-specializations" : [
+          "fill-specializations": [
             {
-              "appearance" : "tinted",
-              "value" : "none"
-            }
-          ],
-          "image-name" : "CrestTintedRail.svg",
-          "name" : "CrestTintedRail",
-          "opacity-specializations" : [
-            {
-              "value" : 0
+              "value": "none"
             },
             {
-              "appearance" : "tinted",
-              "value" : 1
+              "appearance": "dark",
+              "value": "none"
+            },
+            {
+              "appearance": "tinted",
+              "value": "none"
+            }
+          ],
+          "image-name": "CrestArkDarkBanner.svg",
+          "name": "CrestArkDarkBanner",
+          "opacity-specializations": [
+            {
+              "value": 0
+            },
+            {
+              "appearance": "dark",
+              "value": 1
+            },
+            {
+              "appearance": "tinted",
+              "value": 0
             }
           ]
         },
         {
-          "fill-specializations" : [
+          "fill-specializations": [
             {
-              "appearance" : "tinted",
-              "value" : "none"
-            }
-          ],
-          "image-name" : "CrestTintedButter.svg",
-          "name" : "CrestTintedButter",
-          "opacity-specializations" : [
-            {
-              "value" : 0
+              "value": "none"
             },
             {
-              "appearance" : "tinted",
-              "value" : 1
+              "appearance": "dark",
+              "value": "none"
+            },
+            {
+              "appearance": "tinted",
+              "value": "none"
+            }
+          ],
+          "image-name": "CrestArkTintedBanner.svg",
+          "name": "CrestArkTintedBanner",
+          "opacity-specializations": [
+            {
+              "value": 0
+            },
+            {
+              "appearance": "dark",
+              "value": 0
+            },
+            {
+              "appearance": "tinted",
+              "value": 1
             }
           ]
         },
         {
-          "fill-specializations" : [
+          "fill-specializations": [
             {
-              "appearance" : "tinted",
-              "value" : "none"
+              "value": "none"
+            },
+            {
+              "appearance": "dark",
+              "value": "none"
+            },
+            {
+              "appearance": "tinted",
+              "value": "none"
             }
           ],
-          "image-name" : "CrestTintedSky.svg",
-          "name" : "CrestTintedSky",
-          "opacity-specializations" : [
+          "image-name": "CrestArkBackground.svg",
+          "name": "CrestArkBackground",
+          "opacity-specializations": [
             {
-              "value" : 0
+              "appearance": "dark",
+              "value": 0
             },
             {
-              "appearance" : "tinted",
-              "value" : 1
-            }
-          ]
-        },
-        {
-          "fill-specializations" : [
-            {
-              "appearance" : "tinted",
-              "value" : "none"
-            }
-          ],
-          "image-name" : "CrestTintedCoral.svg",
-          "name" : "CrestTintedCoral",
-          "opacity-specializations" : [
-            {
-              "value" : 0
-            },
-            {
-              "appearance" : "tinted",
-              "value" : 1
-            }
-          ]
-        },
-        {
-          "fill-specializations" : [
-            {
-              "appearance" : "dark",
-              "value" : "none"
-            }
-          ],
-          "image-name" : "CrestDarkCoral.svg",
-          "name" : "CrestDarkCoral",
-          "opacity-specializations" : [
-            {
-              "value" : 0
-            },
-            {
-              "appearance" : "dark",
-              "value" : 1
-            },
-            {
-              "appearance" : "tinted",
-              "value" : 0
-            }
-          ]
-        },
-        {
-          "fill-specializations" : [
-            {
-              "value" : "none"
-            },
-            {
-              "appearance" : "dark",
-              "value" : "none"
-            }
-          ],
-          "image-name" : "CrestCoral.svg",
-          "name" : "CrestCoral",
-          "opacity-specializations" : [
-            {
-              "appearance" : "dark",
-              "value" : 0
-            },
-            {
-              "appearance" : "tinted",
-              "value" : 0
-            }
-          ]
-        },
-        {
-          "fill-specializations" : [
-            {
-              "value" : "none"
-            },
-            {
-              "appearance" : "dark",
-              "value" : "none"
-            }
-          ],
-          "image-name" : "CrestBackground.svg",
-          "name" : "CrestBackground",
-          "opacity-specializations" : [
-            {
-              "appearance" : "dark",
-              "value" : 0
-            },
-            {
-              "appearance" : "tinted",
-              "value" : 0
+              "appearance": "tinted",
+              "value": 0
             }
           ]
         }
       ],
-      "name" : "Crest Appearance Layers",
-      "shadow" : {
-        "kind" : "neutral",
-        "opacity" : 0.6
+      "name": "CrestArk Layers",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
       },
-      "translucency" : {
-        "enabled" : true,
-        "value" : 0.2
+      "translucency": {
+        "enabled": true,
+        "value": 0.2
       }
     }
   ],
-  "supported-platforms" : {
-    "circles" : [
+  "supported-platforms": {
+    "circles": [
       "watchOS"
     ],
-    "squares" : "shared"
+    "squares": "shared"
   }
 }

@@ -8,7 +8,7 @@ final class BrowserSoftwareUpdateModel {
 
     private static let readyMessage = "The update is ready. Crest will relaunch to finish installing it."
     private static let automaticReadyMessage =
-        "The update is ready. Restart Crest now, or quit normally to install it the next time Crest opens."
+        "The update is ready. Restart \(ProductIdentity.name) now, or quit normally to install it the next time \(ProductIdentity.name) opens."
     private static let waitingToQuitMessage = "Waiting for Crest to quit before installing…"
 
     // MARK: - Variables

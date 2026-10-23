@@ -49,7 +49,7 @@ reset_store() {
   local name="$1"
   local hash="$(printf '%s' "$name" | shasum -a 256 | awk '{print $1}')"
   rm -rf "$HOME/Library/Application Support/Crest/ControlPlane/Isolated/$hash"
-  defaults delete "com.pauldavis.crest.isolated.$name" >/dev/null 2>&1 || true
+  defaults delete "com.ladvace.crestark.isolated.$name" >/dev/null 2>&1 || true
 }
 
 if $reset; then

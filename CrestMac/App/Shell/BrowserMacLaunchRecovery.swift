@@ -47,7 +47,7 @@ final class BrowserMacLaunchRecovery {
         let item = NSMenuItem()
         let applicationMenu = NSMenu(title: ProductIdentity.name)
         let quit = NSMenuItem(
-            title: String(localized: "Quit Crest"), action: #selector(NSApplication.terminate(_:)),
+            title: String(localized: "Quit \(ProductIdentity.name)"), action: #selector(NSApplication.terminate(_:)),
             keyEquivalent: "q")
         quit.target = NSApp
         applicationMenu.addItem(quit)

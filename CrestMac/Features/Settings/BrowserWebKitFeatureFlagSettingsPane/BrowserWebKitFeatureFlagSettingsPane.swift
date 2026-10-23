@@ -46,7 +46,7 @@ struct BrowserWebKitFeatureFlagSettingsPane: View {
 
             if store.requiresRestart {
                 Label(
-                    "Restart Crest to apply these changes.",
+                    "Restart \(ProductIdentity.name) to apply these changes.",
                     systemImage: "arrow.clockwise.circle.fill"
                 )
                 .font(.footnote)

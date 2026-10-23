@@ -12,10 +12,10 @@
 	<string>Developer ID Application</string>
 	<key>provisioningProfiles</key>
 	<dict>
-		<key>com.pauldavis.crest</key>
-		<string>Crest Developer ID</string>
+		<key>com.ladvace.crestark</key>
+		<string>CrestArk Developer ID</string>
 	</dict>
 	<key>teamID</key>
-	<string>3U2R97HLXF</string>
+	<string>8T53RHVBUQ</string>
 </dict>
 </plist>

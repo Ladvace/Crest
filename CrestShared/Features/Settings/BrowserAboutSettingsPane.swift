@@ -41,7 +41,7 @@ struct BrowserAboutSettingsPane: View {
                         }
                         .padding(.vertical, CrestSpacing.small)
                     } label: {
-                        Text("What's New in Crest \(buildInformation.version)")
+                        Text("What's New in \(ProductIdentity.name) \(buildInformation.version)")
                             .font(.body.weight(.medium))
                     }
                     .disclosureGroupStyle(
@@ -52,27 +52,28 @@ struct BrowserAboutSettingsPane: View {
 
             Section {
                 BrowserAboutLink(
-                    title: "Share Feedback on r/CrestBrowser",
-                    imageName: "AboutReddit",
-                    destination: BrowserAboutLinks.feedback,
-                    identifier: "about-feedback-link"
-                )
-                BrowserAboutLink(
                     title: "Report an Issue",
                     imageName: "AboutGitHub",
                     destination: BrowserAboutLinks.issues,
                     identifier: "about-issues-link"
                 )
                 BrowserAboutLink(
-                    title: "View the Roadmap",
+                    title: "View the Source",
                     imageName: "AboutGitHub",
-                    destination: BrowserAboutLinks.roadmap,
-                    identifier: "about-roadmap-link"
+                    destination: BrowserAboutLinks.source,
+                    identifier: "about-source-link"
+                )
+                BrowserAboutLink(
+                    title: "Based on Crest by Paul Davis",
+                    imageName: "AboutGitHub",
+                    destination: BrowserAboutLinks.original,
+                    identifier: "about-original-link"
                 )
             } header: {
-                Text("Community and support")
+                Text("Source and support")
             } footer: {
-                CrestFormFootnote("Reddit is public. Leave out private details.")
+                CrestFormFootnote(
+                    "\(ProductIdentity.name) is a fork of Crest, available under the Mozilla Public License 2.0.")
             }
         }
     }

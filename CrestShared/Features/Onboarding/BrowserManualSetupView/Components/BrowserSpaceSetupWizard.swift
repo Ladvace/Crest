@@ -31,7 +31,7 @@ struct BrowserSpaceSetupWizard: View {
             back: { wizard in wizard.back() },
             next: { wizard in wizard.step = .ready })
         static let ready: Step = Step(
-            kind: .ready, position: 1, title: "02 — Your Spaces", continueTitle: "Open Crest",
+            kind: .ready, position: 1, title: "02 — Your Spaces", continueTitle: "Open \(ProductIdentity.name)",
             back: { wizard in wizard.step = .appearance },
             next: { wizard in wizard.finish() })
 

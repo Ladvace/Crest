@@ -238,7 +238,7 @@ CREST_DEFAULT_UPDATE_CHANNEL=development python3 Scripts/control-plane/package-c
 
 codesign --verify --deep --strict --verbose=2 "$built_application_path"
 [[ "$(defaults read "$built_application_path/Contents/Info" CFBundleIdentifier)" \
-  == "com.pauldavis.crest" ]]
+  == "com.ladvace.crestark" ]]
 [[ "$(defaults read "$built_application_path/Contents/Info" CFBundleVersion)" == "$build_number" ]]
 
 # Match only the installed app's own main executable, whatever it is named:

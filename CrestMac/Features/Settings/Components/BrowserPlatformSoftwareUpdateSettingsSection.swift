@@ -5,7 +5,12 @@ struct BrowserPlatformSoftwareUpdateSettingsSection: View {
 
     @Environment(BrowserSoftwareUpdateService.self) private var softwareUpdates
 
+    /// Shown only while the app checks for updates.
     var body: some View {
+        if softwareUpdates.isEnabled { settings }
+    }
+
+    private var settings: some View {
         Section {
             Toggle(
                 "Check for updates automatically",

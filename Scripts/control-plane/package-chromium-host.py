@@ -204,9 +204,9 @@ def main():
         if not args.product and is_product_framework:
             parser.error("Build CrestChromiumUI for a review package; this framework is the normal product composition")
     identity = (
-        "com.pauldavis.crest" if args.product
-        else "com.pauldavis.crest.chromium-baseline" if args.baseline
-        else "com.pauldavis.crest.control-plane.chromium")
+        "com.ladvace.crestark" if args.product
+        else "com.ladvace.crestark.chromium-baseline" if args.baseline
+        else "com.ladvace.crestark.control-plane.chromium")
     product_entitlements = None
     if args.entitlements:
         with args.entitlements.open("rb") as stream:
@@ -313,9 +313,9 @@ def main():
         info = plistlib.load(stream)
     info["CFBundleIdentifier"] = identity
     info["CFBundleDisplayName"] = (
-        "Crest" if args.product
-        else "Crest Chromium Baseline" if args.baseline
-        else "Crest Chromium Experiment")
+        "CrestArk" if args.product
+        else "CrestArk Chromium Baseline" if args.baseline
+        else "CrestArk Chromium Experiment")
     info["CFBundleName"] = info["CFBundleDisplayName"]
     if not args.baseline:
         with (ui / "Resources/Info.plist").open("rb") as stream:

@@ -54,7 +54,7 @@ struct BrowserOnboardingWelcomePage: View {
                 .frame(width: 84, height: 84)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 14) {
-                Text("Welcome to Crest")
+                Text("Welcome to \(ProductIdentity.name)")
                     .font(CrestTypography.display(68))
                     .foregroundStyle(CrestBrandTheme.textDisplay)
                     .accessibilityAddTraits(.isHeader)

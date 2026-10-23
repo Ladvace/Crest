@@ -112,7 +112,7 @@ struct MobileBrowserOnboardingView: View {
 
     private var welcomePrimaryTitle: String {
         if welcomeAction.waitsOnCloud { return "Checking iCloud" }
-        return welcomeAction.opensCrest ? "Open Crest" : "Get Started"
+        return welcomeAction.opensCrest ? "Open \(ProductIdentity.name)" : "Get Started"
     }
 
     private var featureCloseTitle: String? {

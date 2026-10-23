@@ -21,9 +21,10 @@ final class BrowserSoftwareUpdateTests: XCTestCase {
             Bundle.main.object(forInfoDictionaryKey: "SUVerifyUpdateBeforeExtraction") as? Bool,
             true
         )
+        // Sparkle checks on its own only while the app checks a feed at all.
         XCTAssertEqual(
             Bundle.main.object(forInfoDictionaryKey: "SUEnableAutomaticChecks") as? Bool,
-            true
+            ProductIdentity.checksForUpdates
         )
         XCTAssertEqual(
             Bundle.main.object(forInfoDictionaryKey: "SUScheduledCheckInterval")
@@ -32,7 +33,7 @@ final class BrowserSoftwareUpdateTests: XCTestCase {
         )
         XCTAssertEqual(
             Bundle.main.object(forInfoDictionaryKey: "SUAutomaticallyUpdate") as? Bool,
-            true
+            ProductIdentity.checksForUpdates
         )
         // The packaged default follows the branch (Experimental on a branch
         // build, Development or Stable on main); it must always name a

@@ -34,7 +34,7 @@ struct MobileOnboardingWelcomePage: View {
                     }
                     .padding(.vertical, 16)
                     .accessibilityHidden(true)
-                    Text("Welcome to Crest").font(CrestTypography.display(40))
+                    Text("Welcome to \(ProductIdentity.name)").font(CrestTypography.display(40))
                     Text("Keep work, personal browsing, and projects in separate Spaces.")
                         .font(.title3).foregroundStyle(.secondary)
                     VStack(alignment: .leading, spacing: 20) {

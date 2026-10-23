@@ -42,7 +42,6 @@ struct BrowserLookAndFeelSettingsPane: View {
             if usesLiveSidebar {
                 BrowserDefaultPageZoomSettingsSection(preferences: .shared, space: space, showsPreview: false)
             }
-            BrowserPlatformAppIconSettingsSection()
             BrowserPlatformLookAndFeelResetSection()
         }
     }

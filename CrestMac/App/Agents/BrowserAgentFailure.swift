@@ -8,7 +8,7 @@ struct BrowserAgentFailure: Error, Sendable {
     static let notAttached = Self("The helper has not introduced the agent yet.")
     static let unidentified = Self("Crest couldn’t tell which program this agent is.")
     static let declined = Self("The person didn’t allow this agent to use Crest.")
-    static let busy = Self("Crest is asking the person about other agents. Try again shortly.")
+    static let busy = Self("\(ProductIdentity.name) is asking the person about other agents. Try again shortly.")
     static let noWindow = Self(
         "No Crest window is open. Ask the person to open one; Crest never opens one for an agent.")
     static let unsupportedAddress = Self("Agents may open only http and https addresses.")
