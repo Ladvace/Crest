@@ -4393,6 +4393,10 @@
     "rebrand-as-crestark": {
       "category": "new",
       "message": "This browser is now CrestArk, a fork of Crest: it has its own name, icon and identity, links to its own source in About, and no longer installs Crest's updates. Your Spaces and tabs stay where they are; sites on Chromium may ask you to sign in again."
+    },
+    "crestark-logo-in-app": {
+      "category": "improved",
+      "message": "CrestArk's logo appears throughout the app: in setup, Getting Started, the Start Page and Start Page tabs, in light and dark."
     }
   }
 }

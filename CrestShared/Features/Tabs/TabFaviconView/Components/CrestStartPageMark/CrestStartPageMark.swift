@@ -15,22 +15,11 @@ struct CrestStartPageMark: View {
                 )
                 .fill(palette.background)
 
-                ZStack {
-                    CrestBannerShape()
-                        .fill(palette.coral)
+                CrestBannerShape()
+                    .fill(palette.banner)
 
-                    CrestButterPlaneShape()
-                        .fill(palette.butter)
-
-                    CrestSkyPlaneShape()
-                        .fill(palette.sky)
-
-                    Rectangle()
-                        .fill(palette.rail)
-                        .frame(width: side * CrestStartPageMarkMetrics.railWidthRatio)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .clipShape(CrestBannerShape())
+                dot(at: CrestStartPageMarkMetrics.upperDotCenter, side: side, color: palette.upperDot)
+                dot(at: CrestStartPageMarkMetrics.lowerDotCenter, side: side, color: palette.lowerDot)
             }
             .frame(width: side, height: side)
             .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
@@ -45,6 +34,19 @@ struct CrestStartPageMark: View {
                 )
             }
         }
+    }
+}
+
+extension CrestStartPageMark {
+    /// One of the mark's dots, at `center` as a fraction of the tile.
+    private func dot(at center: CGPoint, side: CGFloat, color: Color) -> some View {
+        Circle()
+            .fill(color)
+            .frame(
+                width: side * CrestStartPageMarkMetrics.dotRadiusRatio * 2,
+                height: side * CrestStartPageMarkMetrics.dotRadiusRatio * 2
+            )
+            .position(x: side * center.x, y: side * center.y)
     }
 }
 
