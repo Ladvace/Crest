@@ -325,7 +325,14 @@ internal sealed class NativeWorkspaceImport {
         foreach (var tab in edited)
             if (origins.TryGetValue(tab, out var origin)) reviewed.Add(origin);
         var (split, splits) = Split(input, destination, isNew, existing, edited, ids);
-        destination.State = destination.State with { Folders = [.. folders], Tabs = [.. existing, .. split], SplitGroups = splits };
+        destination.State = destination.State with {
+            Folders = [.. folders],
+            Tabs = [.. existing, .. split],
+            SplitGroups = splits,
+            // A Space joining another brings its bookmarks after the ones it keeps.
+            Bookmarks = isNew ? destination.State.Bookmarks
+                : BookmarkTree.Repaired([.. destination.State.Bookmarks, .. input.State.Bookmarks])
+        };
         // A new Space shows its first imported tab.
         if (isNew && edited.FirstOrDefault() is { } first) destination.ShownTab = first.Id;
     }

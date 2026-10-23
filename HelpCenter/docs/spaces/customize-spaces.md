@@ -22,6 +22,10 @@ Crest Studio is on the Space’s Appearance page. The Space’s icon sits on its
 
 Click or tap a color to choose one of the templates’ tinctures or a custom color. Below the icon, work through **Start from**, **Icon** and **Sidebar**. On iPhone, the steps are a list showing what each has chosen; tap one to open it. **Shuffle** suggests new sidebar and icon colors from the templates, and **Undo** steps back through your changes. **Reset Appearance** is in the **…** menu on the Space’s page.
 
+## Bookmarks
+
+Each Space keeps bookmarks apart from its sidebar, for pages you want to keep but rarely open. Click the bookmark button at the end of the address field to see them: bookmark the page you're on into a folder, search, and open, edit, move or delete bookmarks. Folders nest inside folders. Turn on **Show in all Spaces** for a bookmark or folder to list it in every Space. Press **Shift-Command-D** to bookmark the page and **Option-Command-B** to open your bookmarks; the address field suggests bookmarks as you type, and `@bookmarks` searches only them.
+
 ## Customize folders
 
 Choose folder color intensity and text color on the Space’s Appearance page. Individual folder menus let you set colors, search the full SF Symbols catalog, or choose emoji. You can show a custom icon on its own instead of the animated folder artwork. In **Settings → Appearance**, enable **Tint Folder Title** to use semibold titles in the folder’s color, adjusted for stronger contrast against light or dark sidebars.

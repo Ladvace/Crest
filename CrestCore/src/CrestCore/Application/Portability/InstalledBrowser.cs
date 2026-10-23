@@ -346,8 +346,7 @@ internal sealed partial class InstalledBrowser {
         SpaceState? marks = null;
         if (profile.BookmarksPath is { } bookmarkPath && bookmarks is not null) {
             try {
-                marks = Bookmarks(bookmarkPath, now, bookmarkProblems).Space(Source, ids, now,
-                    SessionDraft.MaximumTabs - (windows?.Tabs.Count ?? 0), FolderTree.MaximumCount - (windows?.Folders.Count ?? 0), out bool cut);
+                marks = Bookmarks(bookmarkPath, now, bookmarkProblems).Space(Source, ids, now, out bool cut);
                 if (cut) bookmarkProblems.Add(new BookmarksOverLimits());
             } catch (Rejected rejected) {
                 bookmarkProblems.Add(rejected.Rejection);
@@ -429,7 +428,13 @@ internal sealed partial class InstalledBrowser {
     /// `first` with the folders and tabs of `second` after its own, or
     /// whichever of the two there is.
     private static SpaceState? Joined(SpaceState? first, SpaceState? second) => first is null ? second : second is null ? first
-        : first with { Folders = [.. first.Folders, .. second.Folders], Tabs = [.. first.Tabs, .. second.Tabs] };
+        : first with {
+            Folders = [.. first.Folders, .. second.Folders],
+            // A Space read from bookmarks alone holds only a Start Page, which
+            // the other's tabs take the place of.
+            Tabs = [.. first.Tabs.Where(tab => tab.Url is not null), .. second.Tabs],
+            Bookmarks = [.. first.Bookmarks, .. second.Bookmarks]
+        };
 
     #endregion
 }

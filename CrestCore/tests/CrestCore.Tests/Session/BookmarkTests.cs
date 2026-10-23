@@ -62,6 +62,28 @@ public sealed partial class BrowserContractsTests {
     }
 
     [Fact]
+    public void ASpaceAnImportJoinsKeepsItsBookmarksAndTakesTheImportedOnesAfterThem() {
+        var fixture = SavedSession();
+        var session = fixture.Document["session"]!.AsObject();
+        session.Remove("disposableSeedMarker");
+        using var device = new TestDevice(session);
+        var window = device.Showing(session);
+        var kept = Guid.NewGuid();
+        device.Send(new AddBookmark(device.Workspace, fixture.Space, kept, null, null, "Kept", "https://kept.example/", false));
+        var joining = ImportedSpace("reading", ImportedTab("https://open.example/"));
+        joining["bookmarks"] = new JsonArray(StoredSessionCodec.Encode(new BookmarkState(Fixed(401), null, "Recipes", null, false)),
+            StoredSessionCodec.Encode(new BookmarkState(Fixed(402), Fixed(401), "Soup", "https://soup.example/", false)));
+        Reviewing(device, joining);
+        device.Send(new BeginImportCommit());
+
+        device.Send(new ImportReviewedSpaces(device.Workspace, window));
+
+        var joined = device.Authority.Current.Spaces.Single(space => space.Id == fixture.Space);
+        Assert.Equal([("Kept", "https://kept.example/"), ("Recipes", null), ("Soup", "https://soup.example/")],
+            joined.Bookmarks.Select(bookmark => (bookmark.Title, bookmark.Url)));
+    }
+
+    [Fact]
     public void BookmarksTravelWithTheSpaceRecord() {
         var session = OneSpaceSession();
         var folder = StoredSessionCodec.Encode(new BookmarkState(Fixed(301), null, "Recipes", null, true));

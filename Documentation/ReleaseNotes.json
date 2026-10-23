@@ -4329,6 +4329,10 @@
     "bookmarks-in-address-suggestions": {
       "category": "new",
       "message": "The address field suggests your bookmarks as you type, including those shown in every Space, and @bookmarks searches only them."
+    },
+    "imports-bring-bookmarks-as-bookmarks": {
+      "category": "improved",
+      "message": "Bookmarks imported from Chrome, Safari and other browsers arrive as bookmarks in their folders, instead of filling a Space's sidebar with saved tabs, and no longer take room from its tabs."
     }
   }
 }

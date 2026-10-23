@@ -37,6 +37,12 @@ public sealed partial class BrowserContractsTests {
     private static (string Title, TabPlacement Placement, string? Url, string? Folder)[] TabsOf(SpaceState space) =>
         [.. space.Tabs.Select(tab => (tab.Title, tab.Placement, tab.Url, space.Folders.FirstOrDefault(folder => folder.Id == tab.FolderId)?.Title))];
 
+    /// A Space's bookmarks in order: each one's title, its address or null for
+    /// a folder, and the title of the folder that holds it.
+    private static (string Title, string? Url, string? Folder)[] BookmarksOf(SpaceState space) =>
+        [.. space.Bookmarks.Select(bookmark =>
+            (bookmark.Title, bookmark.Url, space.Bookmarks.FirstOrDefault(folder => folder.Id == bookmark.ParentId)?.Title))];
+
     /// A Space's folders in order, each with the title of its parent.
     private static (string Title, string? Parent)[] FoldersOf(SpaceState space) =>
         [.. space.Folders.Select(folder => (folder.Title, space.Folders.FirstOrDefault(parent => parent.Id == folder.ParentId)?.Title))];

@@ -167,46 +167,42 @@ public sealed partial class BrowserContractsTests {
 
         Assert.Equal(["Personal", "Work", "Locked"], spaces.Select(space => space.Settings.Name));
         Assert.All(spaces, space => Assert.Equal(("globe", SpaceAccent.Orange), (space.Settings.Symbol, space.Settings.Accent)));
-        // Every bookmark root holding a link becomes a folder, the named ones
-        // after Chrome's own in the order of their keys; an empty root, as
-        // Mobile bookmarks is here, makes none, and a browser page is dropped.
+        // Every bookmark root holding a link becomes a bookmark folder, the
+        // named ones after Chrome's own in the order of their keys; an empty
+        // root, as Mobile bookmarks is here, makes none, and a browser page is
+        // dropped. The folders come first, then the links.
         Assert.Equal([
-            ("Bookmarks bar", null), ("Other bookmarks", null), ("Reference", "Other bookmarks"), ("Untitled Folder", "Other bookmarks"),
-            ("Alpha root", null), ("Zeta root", null)
-        ], FoldersOf(spaces[0]));
+            ("Bookmarks bar", null, null), ("Other bookmarks", null, null), ("Reference", null, "Other bookmarks"),
+            ("Untitled Folder", null, "Other bookmarks"), ("Alpha root", null, null), ("Zeta root", null, null),
+            ("Chromium", "https://www.chromium.org/", "Bookmarks bar"),
+            ("untitled.example", "https://untitled.example/path", "Bookmarks bar"),
+            ("WebKit", "https://webkit.org/", "Reference"), ("Alpha", "https://alpha.example/", "Alpha root"),
+            ("Zeta", "https://zeta.example/", "Zeta root")
+        ], BookmarksOf(spaces[0]));
         Assert.Equal([
-            ("Chromium", TabPlacement.Saved, "https://www.chromium.org/", "Bookmarks bar"),
-            ("untitled.example", TabPlacement.Saved, "https://untitled.example/path", "Bookmarks bar"),
-            ("WebKit", TabPlacement.Saved, "https://webkit.org/", "Reference"),
-            ("Alpha", TabPlacement.Saved, "https://alpha.example/", "Alpha root"),
-            ("Zeta", TabPlacement.Saved, "https://zeta.example/", "Zeta root"),
             ("Open", TabPlacement.Pinned, "https://open.example/", null),
             ("Second", TabPlacement.Current, "https://second.example/", null)
         ], TabsOf(spaces[0]));
-        Assert.Equal(DateTimeOffset.FromUnixTimeSeconds(1_725_526_400), spaces[0].Tabs[0].LastActivatedAt);
         Assert.Equal(["Open", "Second"], spaces[1].Tabs.Select(tab => tab.Title));
         // A profile-encrypted session leaves the profile its bookmarks.
-        Assert.DoesNotContain(spaces[2].Tabs, tab => tab.Placement != TabPlacement.Saved);
-        Assert.Equal(5, spaces[2].Tabs.Count);
+        Assert.DoesNotContain(spaces[2].Tabs, tab => tab.Url is not null);
+        Assert.Equal(5, spaces[2].Bookmarks.Count(bookmark => !bookmark.IsFolder));
     }
 
     [Fact]
-    public void SafariBookmarksKeepTheirFoldersAndEachDateUnitSafariWrote() {
+    public void SafariBookmarksKeepTheirFolders() {
         string root = ImportFixture("safari-profile", "");
         using var app = Importer();
         var space = Assert.Single(app.Query(new ReadImport(ImportSource.Safari, [
             new("safari", "Safari", Path.Combine(root, "Bookmarks.plist"), Path.Combine(root, "LastSession.plist"))
         ])).Spaces);
 
-        Assert.Equal([("Favorites", null), ("Empty", null)], FoldersOf(space));
         Assert.Equal([
-            ("Safari", TabPlacement.Saved, "https://developer.apple.com/safari/", "Favorites"),
-            ("seconds.example", TabPlacement.Saved, "https://seconds.example/", "Favorites"),
-            ("micro.example", TabPlacement.Saved, "https://micro.example/", "Favorites"),
-            ("Top", TabPlacement.Saved, "https://top.example/", null),
-            ("Open", TabPlacement.Current, "https://open.safari.example/", null)
-        ], TabsOf(space));
-        Assert.All(space.Tabs.Take(3), tab => Assert.Equal(DateTimeOffset.FromUnixTimeSeconds(1_600_000_000), tab.LastActivatedAt));
+            ("Favorites", null, null), ("Empty", null, null),
+            ("Safari", "https://developer.apple.com/safari/", "Favorites"), ("seconds.example", "https://seconds.example/", "Favorites"),
+            ("micro.example", "https://micro.example/", "Favorites"), ("Top", "https://top.example/", null)
+        ], BookmarksOf(space));
+        Assert.Equal([("Open", TabPlacement.Current, "https://open.safari.example/", null)], TabsOf(space));
     }
 
     [Fact]
@@ -259,11 +255,13 @@ public sealed partial class BrowserContractsTests {
     }
 
     [Fact]
-    public void AProfileKeepsItsOpenTabsAndAsManyBookmarksAsFitBesideThem() {
+    public void AProfileKeepsItsOpenTabsAndItsBookmarksApart() {
         using var chrome = new BrowserDataFolder();
-        // One bookmark more than a Space keeps tabs, beside two open tabs.
+        // More bookmarks than a Space keeps, beside two open tabs: bookmarks
+        // take no room from tabs, and those past the most a Space keeps are
+        // left out.
         string bookmarks = chrome.Write(Path.Combine("Default", "Bookmarks"),
-            Bar([.. Enumerable.Range(0, SessionDraft.MaximumTabs + 1).Select(index => $"link{index}")]));
+            Bar([.. Enumerable.Range(0, BookmarkState.MaximumCount + 1).Select(index => $"link{index}")]));
         string session = chrome.Copy(ImportFixture("chromium-windows", Path.Combine("Sessions", "Session_1")),
             Path.Combine("Default", "Sessions", "Session_1"));
         using var app = Importer();
@@ -271,8 +269,8 @@ public sealed partial class BrowserContractsTests {
         var read = app.Query(new ReadImport(ImportSource.Chrome, [new("Default", "Personal", bookmarks, session)]));
 
         var space = Assert.Single(read.Spaces);
-        Assert.Equal(SessionDraft.MaximumTabs, space.Tabs.Count);
-        Assert.Equal(2, space.Tabs.Count(tab => tab.Placement != TabPlacement.Saved));
+        Assert.Equal(2, space.Tabs.Count);
+        Assert.Equal(BookmarkState.MaximumCount, space.Bookmarks.Count);
         Assert.Equal([new ImportLeftOut("Personal", new BookmarksOverLimits())], read.LeftOut);
 
         // Firefox's windows, however many, come in its profile's one Space.
@@ -311,11 +309,8 @@ public sealed partial class BrowserContractsTests {
         var spaces = app.Query(new ReadImport(ImportSource.Chrome, found.Profiles)).Spaces;
 
         Assert.Equal([
-            ("a", TabPlacement.Saved, "https://a.example/", "Bar"),
-            ("b", TabPlacement.Saved, "https://b.example/", "Bar"),
-            ("c", TabPlacement.Saved, "https://c.example/", "Bar")
-        ], TabsOf(spaces[0]));
-        Assert.Equal([("Bar", null)], FoldersOf(spaces[0]));
-        Assert.Equal(["https://d.example/"], spaces[1].Tabs.Select(tab => tab.Url));
+            ("Bar", null, null), ("a", "https://a.example/", "Bar"), ("b", "https://b.example/", "Bar"), ("c", "https://c.example/", "Bar")
+        ], BookmarksOf(spaces[0]));
+        Assert.Equal(["https://d.example/"], spaces[1].Bookmarks.Where(bookmark => !bookmark.IsFolder).Select(bookmark => bookmark.Url));
     }
 }

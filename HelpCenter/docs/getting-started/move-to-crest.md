@@ -11,7 +11,7 @@ Browser-to-browser import runs on Mac. Crest prepares a visual review first so y
 
 ## Import during setup
 
-Choose a detected browser, then review each source Space, profile, or window. Depending on what that browser exposes, Crest can bring across Spaces or profiles, tabs, bookmarks, saved folders, split views, tab groups, colors, icons, extensions, and supported passwords.
+Choose a detected browser, then review each source Space, profile, or window. Depending on what that browser exposes, Crest can bring across Spaces or profiles, tabs, bookmarks, saved folders, split views, tab groups, colors, icons, extensions, and supported passwords. Bookmarks arrive in the Space's bookmarks, in their folders, rather than in its sidebar.
 
 | Source | Crest can review |
 | --- | --- |

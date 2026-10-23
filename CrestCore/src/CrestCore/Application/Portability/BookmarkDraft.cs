@@ -5,8 +5,8 @@ namespace CrestCore.Application;
 
 /// Another browser's bookmarks as a reader finds them, from one file or
 /// several: folders and links in order, each link kept where it names a web
-/// page. They become one Space of saved tabs in saved folders, as many of
-/// them as fit.
+/// page. They become one Space's bookmarks, in their folders, as many of
+/// them as a Space keeps.
 internal sealed class BookmarkDraft {
     #region Static Variables
 
@@ -14,7 +14,6 @@ internal sealed class BookmarkDraft {
     public const int MaximumBookmarks = 5_000;
 
     private const string UntitledFolder = "Untitled Folder";
-    private const string BookmarkSymbol = "book.closed";
 
     #endregion
 
@@ -87,36 +86,34 @@ internal sealed class BookmarkDraft {
 
     #region Actions - Spaces
 
-    /// The Space as many of the bookmarks as fit make for `source`, named
-    /// after it, every record a new identity from `ids`: the first
-    /// `folderRoom` folders, and the first `tabRoom` links outside any folder
-    /// or in one of those. Null when no link fits. `cut` says whether a folder
-    /// or link was left out, here or while reading. Throws `Rejected` with
-    /// `BookmarksOverLimits` for folders a Space would not keep, and
-    /// `BookmarksUnrecognized` for anything else a Space would not keep.
-    public SpaceState? Space(ImportSource source, IIdSource ids, DateTimeOffset now, int tabRoom, int folderRoom, out bool cut) {
+    /// The Space the bookmarks make for `source`, named after it, keeping
+    /// them as bookmarks in their folders rather than as tabs, every record a
+    /// new identity from `ids`: folders first, each after its parent, then
+    /// the links, as many as a Space keeps. Null when no link was read. `cut`
+    /// says whether a folder or link was left out, here or while reading.
+    /// Throws `Rejected` with `BookmarksUnrecognized` for anything else a
+    /// Space would not keep.
+    public SpaceState? Space(ImportSource source, IIdSource ids, DateTimeOffset now, out bool cut) {
         ArgumentNullException.ThrowIfNull(source);
-        var keptFolders = folders.Take(Math.Max(0, folderRoom)).Select(folder => new BrowserDataFolder(folder.Id, TabPlacement.Saved,
-            folder.Title, FolderState.DefaultSymbol, FolderState.DefaultColor, folder.Parent, IsCollapsed: false, OrderAnchorTabId: null)).ToArray();
-        var byId = keptFolders.ToDictionary(folder => folder.Id);
-        var keptBookmarks = bookmarks.Where(bookmark => bookmark.Folder is not { } folder || byId.ContainsKey(folder))
-            .Take(Math.Max(0, tabRoom)).ToArray();
-        cut = IsCut || keptFolders.Length < folders.Count || keptBookmarks.Length < bookmarks.Count;
-        if (keptBookmarks.Length == 0) return null;
-        IReadOnlyList<FolderState> ordered;
-        try {
-            ordered = new FolderTree([.. keptFolders.Select(folder => folder.Materialize(folder.Id, folder.ParentId))]).DisplayOrder();
-        } catch (Exception error) when (error is BrowserRuleException or Rejected) {
-            throw new Rejected(new BookmarksOverLimits());
+        ArgumentNullException.ThrowIfNull(ids);
+        cut = IsCut;
+        if (bookmarks.Count == 0) return null;
+        Dictionary<Guid, Guid> folderIds = [];
+        List<BookmarkState> read = [];
+        foreach (var folder in folders) {
+            folderIds[folder.Id] = ids.Next();
+            read.Add(new BookmarkState(folderIds[folder.Id], folder.Parent is { } parent ? folderIds.GetValueOrDefault(parent) : null,
+                folder.Title, Url: null, ShowsInEverySpace: false));
         }
-        var tabs = keptBookmarks.Select(bookmark => new BrowserDataTab(Guid.NewGuid(), bookmark.Title, NativeContent: null,
-            bookmark.Address.Spelling, bookmark.Address.Spelling, BookmarkSymbol, TabPlacement.Saved, bookmark.Folder, SplitGroupId: null,
-            bookmark.AddedAt)).ToArray();
-        var space = new BrowserDataSpace(source.Title, source.Symbol,
-            source.Accent, Branding: null, [.. ordered.Select(folder => byId[folder.Id])], tabs, Splits: [], ArchivedTabs: [], History: [],
-            StoredSessionCodec.DefaultBrowsingPreferences, SelectedTabId: null);
+        foreach (var bookmark in bookmarks)
+            read.Add(new BookmarkState(ids.Next(), bookmark.Folder is { } folder ? folderIds.GetValueOrDefault(folder) : null,
+                bookmark.Title, bookmark.Address.Spelling, ShowsInEverySpace: false));
+        var kept = BookmarkTree.Repaired(read);
+        cut = IsCut || kept.Count < read.Count;
+        var space = new BrowserDataSpace(source.Title, source.Symbol, source.Accent, Branding: null, Folders: [], Tabs: [], Splits: [],
+            ArchivedTabs: [], History: [], StoredSessionCodec.DefaultBrowsingPreferences, SelectedTabId: null);
         try {
-            return space.Materialize(ids, now);
+            return space.Materialize(ids, now) with { Bookmarks = kept };
         } catch (Rejected rejected) when (rejected.Rejection is ArchiveInvalid) {
             throw new Rejected(new BookmarksUnrecognized());
         }
