@@ -5,7 +5,7 @@ import SwiftUI
 /// The page itself is a platform type, so the shell passes its own web view in
 /// through `webContent` and answers `pageStatus` for the two states that are
 /// not a page: never arrived, and given up under memory pressure.
-struct BrowserTransientPageCard<WebContent: View>: View {
+struct BrowserTransientPageCard<WebContent: View, Header: View>: View {
     let arrangement: BrowserTransientCardArrangement
     let pageStatus: BrowserTransientPageStatus
     let vocabulary: BrowserTransientOverlayVocabulary
@@ -13,9 +13,32 @@ struct BrowserTransientPageCard<WebContent: View>: View {
     let reduceTransparency: Bool
     let restore: () -> Void
     @ViewBuilder let webContent: () -> WebContent
+    /// A bar along the card's top, which the loading cover and the states
+    /// that are not a page leave in view.
+    @ViewBuilder let header: () -> Header
     @State private var isWebContentVisible = false
 
     var body: some View {
+        VStack(spacing: 0) {
+            header()
+            page
+        }
+        .background {
+            if reduceTransparency {
+                Rectangle().fill(.background)
+            } else {
+                CrestSurfaceLayer(shape: Rectangle())
+            }
+        }
+        .modifier(
+            BrowserTransientPageCardStyle(
+                arrangement: arrangement,
+                reduceTransparency: reduceTransparency
+            )
+        )
+    }
+
+    private var page: some View {
         ZStack {
             pageContent
                 // Keep the native page mounted and loading, but hide its
@@ -39,19 +62,6 @@ struct BrowserTransientPageCard<WebContent: View>: View {
             guard !Task.isCancelled else { return }
             isWebContentVisible = true
         }
-        .background {
-            if reduceTransparency {
-                Rectangle().fill(.background)
-            } else {
-                CrestSurfaceLayer(shape: Rectangle())
-            }
-        }
-        .modifier(
-            BrowserTransientPageCardStyle(
-                arrangement: arrangement,
-                reduceTransparency: reduceTransparency
-            )
-        )
     }
 
     @ViewBuilder

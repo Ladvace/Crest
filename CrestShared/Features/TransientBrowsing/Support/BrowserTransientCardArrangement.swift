@@ -33,7 +33,8 @@ struct BrowserTransientCardArrangement: Hashable, Identifiable, Sendable {
     /// A card beside a window's reserved leading chrome, sized at the shared
     /// window fraction and dismissed with the pointer or a key.
     static let pointer = BrowserTransientCardArrangement(
-        name: "pointer", entranceTarget: .pageCard, placesControlsAboveCard: true, controlAlignment: .trailing,
+        name: "pointer", entranceTarget: .pageCard, placesControlsAboveCard: true, headsCard: true,
+        controlAlignment: .trailing,
         controlSpacing: 10, constrainsControlBarToMaximumWidth: false, controlBarPadding: 0,
         framesContent: { containerSize, reservedLeadingWidth, layoutDirection in
             let leadingWidth = min(
@@ -56,7 +57,8 @@ struct BrowserTransientCardArrangement: Hashable, Identifiable, Sendable {
     /// bar beneath it or by tapping the ground its insets leave showing. The
     /// card itself is all web page, so every gesture over it stays WebKit's.
     static let sheet = BrowserTransientCardArrangement(
-        name: "sheet", entranceTarget: .assembly, placesControlsAboveCard: false, controlAlignment: .center,
+        name: "sheet", entranceTarget: .assembly, placesControlsAboveCard: false, headsCard: false,
+        controlAlignment: .center,
         controlSpacing: 8, constrainsControlBarToMaximumWidth: true, controlBarPadding: 10,
         framesContent: nil,
         sizesCard: { _ in nil },
@@ -75,7 +77,8 @@ struct BrowserTransientCardArrangement: Hashable, Identifiable, Sendable {
     /// A card floating at a fraction of a large touch screen, with room left
     /// around it for the scrim to be a deliberate target.
     static let canvas = BrowserTransientCardArrangement(
-        name: "canvas", entranceTarget: .assembly, placesControlsAboveCard: false, controlAlignment: .trailing,
+        name: "canvas", entranceTarget: .assembly, placesControlsAboveCard: false, headsCard: false,
+        controlAlignment: .trailing,
         controlSpacing: 10, constrainsControlBarToMaximumWidth: true, controlBarPadding: 0,
         framesContent: nil,
         sizesCard: { contentSize in
@@ -106,6 +109,11 @@ struct BrowserTransientCardArrangement: Hashable, Identifiable, Sendable {
     /// Whether the controls sit above the card, as they do for a pointer.
     /// Touch arrangements put them within reach of a thumb instead.
     let placesControlsAboveCard: Bool
+
+    /// Whether the controls are the card's own header, a slim bar along its
+    /// top, as Arc and Zen draw a Peek, so nothing floats over the page
+    /// behind. The platform draws that bar into the card's content.
+    let headsCard: Bool
 
     let controlAlignment: HorizontalAlignment
     let controlSpacing: CGFloat
@@ -144,7 +152,7 @@ struct BrowserTransientCardArrangement: Hashable, Identifiable, Sendable {
     // MARK: - Initializers
 
     private init(
-        name: String, entranceTarget: BrowserTransientEntranceTarget, placesControlsAboveCard: Bool,
+        name: String, entranceTarget: BrowserTransientEntranceTarget, placesControlsAboveCard: Bool, headsCard: Bool,
         controlAlignment: HorizontalAlignment, controlSpacing: CGFloat, constrainsControlBarToMaximumWidth: Bool,
         controlBarPadding: CGFloat,
         framesContent: (@Sendable (CGSize, CGFloat, LayoutDirection) -> CGRect)?,
@@ -156,6 +164,7 @@ struct BrowserTransientCardArrangement: Hashable, Identifiable, Sendable {
         self.name = name
         self.entranceTarget = entranceTarget
         self.placesControlsAboveCard = placesControlsAboveCard
+        self.headsCard = headsCard
         self.controlAlignment = controlAlignment
         self.controlSpacing = controlSpacing
         self.constrainsControlBarToMaximumWidth = constrainsControlBarToMaximumWidth

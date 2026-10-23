@@ -8,7 +8,7 @@ import SwiftUI
 /// page alone and leaves its controls in place, a touch overlay grows the card
 /// and its controls together — and the state hands identity to whichever layer
 /// is not growing, so both run the same chain.
-struct BrowserTransientSurface<WebContent: View>: View {
+struct BrowserTransientSurface<WebContent: View, CardHeader: View>: View {
     let state: BrowserTransientPresentationState
     let pageStatus: BrowserTransientPageStatus
     let spaces: [BrowserSpaceIdentity]
@@ -16,6 +16,8 @@ struct BrowserTransientSurface<WebContent: View>: View {
     let vocabulary: BrowserTransientOverlayVocabulary
     let actions: BrowserTransientCardActions
     @ViewBuilder let webContent: () -> WebContent
+    /// A bar along the card's top, for an arrangement that heads its card.
+    @ViewBuilder var cardHeader: () -> CardHeader
 
     var body: some View {
         // The stack's insets keep the card clear of the safe area, so the
@@ -60,7 +62,8 @@ struct BrowserTransientSurface<WebContent: View>: View {
                     availableSize: proxy.size,
                     safeAreaInsets: safeAreaInsets,
                     actions: actions,
-                    webContent: webContent
+                    webContent: webContent,
+                    cardHeader: cardHeader
                 )
                 .scaleEffect(
                     x: assemblyScale.width,
@@ -75,5 +78,18 @@ struct BrowserTransientSurface<WebContent: View>: View {
 
     private var assemblyScale: CGSize {
         state.scale(for: .assembly)
+    }
+}
+
+extension BrowserTransientSurface where CardHeader == EmptyView {
+    /// A surface whose card has no header of its own.
+    init(
+        state: BrowserTransientPresentationState, pageStatus: BrowserTransientPageStatus,
+        spaces: [BrowserSpaceIdentity], selectedSpaceID: UUID, vocabulary: BrowserTransientOverlayVocabulary,
+        actions: BrowserTransientCardActions, @ViewBuilder webContent: @escaping () -> WebContent
+    ) {
+        self.init(
+            state: state, pageStatus: pageStatus, spaces: spaces, selectedSpaceID: selectedSpaceID,
+            vocabulary: vocabulary, actions: actions, webContent: webContent, cardHeader: { EmptyView() })
     }
 }

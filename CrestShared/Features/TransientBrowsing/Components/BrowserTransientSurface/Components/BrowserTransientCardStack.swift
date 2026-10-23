@@ -6,7 +6,7 @@ import SwiftUI
 /// the card the controls sit on and how large the card is allowed to be.
 /// Everything an arrangement does not use resolves to identity, so all three
 /// walk the same chain.
-struct BrowserTransientCardStack<WebContent: View>: View {
+struct BrowserTransientCardStack<WebContent: View, CardHeader: View>: View {
     let state: BrowserTransientPresentationState
     let pageStatus: BrowserTransientPageStatus
     let spaces: [BrowserSpaceIdentity]
@@ -16,13 +16,16 @@ struct BrowserTransientCardStack<WebContent: View>: View {
     let safeAreaInsets: EdgeInsets
     let actions: BrowserTransientCardActions
     @ViewBuilder let webContent: () -> WebContent
+    @ViewBuilder let cardHeader: () -> CardHeader
 
     var body: some View {
         VStack(
             alignment: arrangement.controlAlignment,
             spacing: arrangement.controlSpacing
         ) {
-            if arrangement.placesControlsAboveCard {
+            if arrangement.headsCard {
+                pageCard
+            } else if arrangement.placesControlsAboveCard {
                 actionBar
                 pageCard
             } else {
@@ -60,7 +63,8 @@ struct BrowserTransientCardStack<WebContent: View>: View {
             reduceMotion: state.reduceMotion,
             reduceTransparency: state.reduceTransparency,
             restore: actions.restore,
-            webContent: webContent
+            webContent: webContent,
+            header: cardHeader
         )
         .modifier(BrowserTransientCardSize(size: cardSize))
         .scaleEffect(

@@ -34,6 +34,14 @@ struct BrowserPeekUnlockedContent: View {
             actions: actions
         ) {
             webContent
+        } cardHeader: {
+            BrowserPeekHeader(
+                page: model.page,
+                spaces: model.availableSpaceModels.map(\.identity),
+                selectedSpaceID: model.request.spaceID,
+                dismiss: dismiss,
+                openInSpace: promote
+            )
         }
         .modifier(taskLifecycle)
         .allowsHitTesting(!model.isPullStaged)

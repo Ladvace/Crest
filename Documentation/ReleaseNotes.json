@@ -4413,6 +4413,10 @@
     "crestark-bar-logo": {
       "category": "improved",
       "message": "CrestArk has a new logo, a navy banner under a yellow bar, on its app icon, in setup, Getting Started and the Start Page."
+    },
+    "peek-header-bar": {
+      "category": "improved",
+      "message": "On Mac, a Peek has a slim bar along its top, as in Arc and Zen: close and its Space on one side, the site in the middle, and copy link and Open in Space on the other, instead of buttons floating over the page."
     }
   }
 }
