@@ -67,6 +67,12 @@ struct BrowserFolderHeaderControl: View {
                         )
                         .equatable()
 
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(.secondary)
+                            .rotationEffect(.degrees(interaction.isExpanded.wrappedValue ? 90 : 0))
+                            .accessibilityHidden(true)
+
                         Spacer(minLength: 8)
                         if showsTabCounts {
                             BrowserFolderTabCount(folder: folder, space: configuration.context.space).equatable()

@@ -4361,6 +4361,10 @@
     "readable-popovers-instant-hover": {
       "category": "fixed",
       "message": "Popovers are easy to read in light and dark, use your system accent color, and show every extension's icon with a clearer pin. Highlights follow the pointer instantly as you move across tabs."
+    },
+    "simpler-space-looks": {
+      "category": "improved",
+      "message": "Spaces start from simpler gradient looks, and the sidebar's surfaces and folders sit more softly on any Space's color."
     }
   }
 }

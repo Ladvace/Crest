@@ -24,14 +24,17 @@ struct BrowserTabAppearanceSurface: ViewModifier {
                     isHovering: isHovering, cornerRadius: radius, isPressed: false,
                     showsRestingSurface: isPinned,
                     selectedBorderColor: selectedAccent ? accent : CrestColor.selectedBorder,
-                    selectedBorderWidth: isPinned ? CrestLayout.pinnedAccentBorderWidth : 1,
+                    // A selected row is a soft pill: no outline unless the
+                    // person asks for one, and no shadow.
+                    selectedBorderWidth: isPinned ? CrestLayout.pinnedAccentBorderWidth : selectedAccent ? 1 : 0,
                     customSelectedFill: isPinned && fill > 0 && !reduceTransparency ? accent.opacity(fill * 0.5) : nil,
                     // Hover keeps its standard weight; the setting only decides how much of
                     // the accent is in it, from the neutral hover to the accent itself.
                     customHoverFill: hover > 0 && !reduceTransparency
                         ? Color.primary.mix(with: accent, by: hover).opacity(CrestOpacity.hover) : nil,
                     customRestingFill: isPinned && fill > 0 && !reduceTransparency ? accent.opacity(fill * 0.2) : nil,
-                    restingBorderColor: showsBorder ? accent : .clear)
+                    restingBorderColor: showsBorder ? accent : .clear,
+                    showsSelectionShadow: isPinned)
             )
             .background {
                 if isSelected, appearance.pinGlow > 0, !reduceTransparency {

@@ -91,15 +91,15 @@ struct BrowserInlineSpaceName: View {
         }
         .font(titleFont ?? CrestTypography.display(size))
         .frame(minHeight: size <= 18 ? 32 : 44)
-        .padding(.horizontal, size <= 18 ? 4 : 10)
+        .padding(.horizontal, horizontalInset)
         .padding(.vertical, 4)
         .background(
-            Color.primary.opacity(isEditing ? 0.08 : isHovering ? 0.045 : 0),
-            in: .rect(cornerRadius: 10)
+            isEditing || isHovering ? CrestColor.hover : .clear,
+            in: .rect(cornerRadius: CrestRadius.compact)
         )
         .overlay {
-            RoundedRectangle(cornerRadius: 10).strokeBorder(
-                Color.primary.opacity(isEditing ? 0.18 : isHovering ? 0.12 : 0))
+            RoundedRectangle(cornerRadius: CrestRadius.compact).strokeBorder(
+                isEditing ? CrestColor.selectedBorder : .clear)
         }
         .onHover { isHovering = $0 }
         .onChange(of: isFocused) { _, focused in if !focused { isEditing = false } }
@@ -109,9 +109,14 @@ struct BrowserInlineSpaceName: View {
             edit()
         }
         .background { PlatformInlineSpaceNameDismissal(isEditing: isEditing, finish: finish) }
-        .padding(.leading, size <= 18 ? -4 : -10)
+        // The text lines up with the content beside it; only the field's
+        // surface reaches out past it.
+        .padding(.leading, -horizontalInset)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+
+    /// The room between the field's edge and its text.
+    private var horizontalInset: CGFloat { size <= 18 ? 8 : 10 }
 
     private func edit() {
         draftName = name

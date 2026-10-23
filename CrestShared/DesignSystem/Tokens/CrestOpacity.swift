@@ -8,6 +8,9 @@ enum CrestOpacity {
     static let interactionSelectionShadow = 0.08
     static let selection = interactionSelection
     static let chromeSurface = 0.055
+    /// How far a sidebar layer lifts off the sidebar, in the sidebar's own
+    /// text tone: lighter on a dark sidebar, darker on a light one.
+    static let surfaceLift = 0.08
     static let selectedSurface = selection
     static let border = 0.12
     static let selectedBorder = interactionSelectionBorder

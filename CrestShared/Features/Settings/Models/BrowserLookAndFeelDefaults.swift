@@ -16,7 +16,7 @@ enum BrowserLookAndFeelDefaults {
     static let address = BrowserAddressAppearance()
     static let foldersAlwaysVisible = false
     static let foldersShowTabCounts = true
-    static let foldersShowBorders = true
+    static let foldersShowBorders = false
     static let foldersIconOnly = false
     static let foldersTintTitle = false
 

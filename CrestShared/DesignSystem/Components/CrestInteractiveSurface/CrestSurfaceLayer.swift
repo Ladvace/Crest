@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// One layer above the sidebar's base UI: the device's surface material in
-/// `shape`, with an accent tint and a hover tint laid over it.
+/// `shape`, lifted in the sidebar's text tone so it stands out from any
+/// sidebar color, with an accent tint and a hover tint laid over it.
 struct CrestSurfaceLayer<LayerShape: Shape>: View {
     let shape: LayerShape
     var tint: Color? = nil
@@ -12,6 +13,7 @@ struct CrestSurfaceLayer<LayerShape: Shape>: View {
     var body: some View {
         shape
             .fill(surfaceMaterial.material)
+            .overlay { shape.fill(.primary.opacity(CrestOpacity.surfaceLift)) }
             .overlay {
                 if let tint { shape.fill(tint) }
             }

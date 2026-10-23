@@ -1,56 +1,57 @@
 namespace CrestCore.Contracts;
 
-/// A look a Space can start from: a gradient of the house's colors down the
-/// sidebar, with its icon in the house's metal. Choosing one copies its
-/// look into the Space, so a Space keeps the look it was given when a house
-/// changes.
+/// A look a Space can start from: a gradient of its colors down the
+/// sidebar, with its icon in a light color of its own. Each keeps the name it
+/// had when looks were heraldic houses, which stored looks recorded. Choosing
+/// one copies its look into the Space, so a Space keeps the look it was given
+/// when a house changes.
 public sealed class SpaceHouse {
     #region Variables
 
-    /// Slate and steel, its icon in ice.
-    public static readonly SpaceHouse Winter = new("winter", "Winter", "CrestWinter", HouseLook(
-        [Tincture.WinterSlate, Tincture.WinterSteel, Tincture.WinterIce], SpaceThemeMode.Gradient,
-        Tincture.WinterWolf));
+    /// Midnight blue deepening to azure, its icon in starlight.
+    public static readonly SpaceHouse Winter = new("winter", "Midnight", "CrestWinter", HouseLook(
+        [Tincture.MidnightNight, Tincture.MidnightDeep, Tincture.MidnightAzure], SpaceThemeMode.Gradient,
+        Tincture.MidnightStar));
 
-    /// Oxblood and crimson, its icon in gold.
-    public static readonly SpaceHouse Lion = new("lion", "Lion", "CrestLion", HouseLook(
-        [Tincture.LionOxblood, Tincture.LionCrimson, Tincture.LionGold], SpaceThemeMode.Gradient,
-        Tincture.LionOr));
+    /// Plum through magenta to orange, its icon in apricot.
+    public static readonly SpaceHouse Lion = new("lion", "Sunset", "CrestLion", HouseLook(
+        [Tincture.SunsetPlum, Tincture.SunsetMagenta, Tincture.SunsetOrange], SpaceThemeMode.Gradient,
+        Tincture.SunsetApricot));
 
-    /// Midnight and gunmetal, its icon in gold.
-    public static readonly SpaceHouse Storm = new("storm", "Storm", "CrestStorm", HouseLook(
-        [Tincture.StormMidnight, Tincture.StormGunmetal, Tincture.StormBrass], SpaceThemeMode.Gradient,
-        Tincture.StormOr));
+    /// Deep sea through teal to green, its icon in mint.
+    public static readonly SpaceHouse Storm = new("storm", "Aurora", "CrestStorm", HouseLook(
+        [Tincture.AuroraDeep, Tincture.AuroraTeal, Tincture.AuroraGreen], SpaceThemeMode.Gradient,
+        Tincture.AuroraMint));
 
-    /// Char and blood, its icon in fire.
-    public static readonly SpaceHouse Dragon = new("dragon", "Dragon", "CrestDragon", HouseLook(
-        [Tincture.DragonChar, Tincture.DragonBlood, Tincture.DragonScarlet], SpaceThemeMode.Gradient,
-        Tincture.DragonFire));
+    /// Charcoal through red to flame, its icon in glow.
+    public static readonly SpaceHouse Dragon = new("dragon", "Ember", "CrestDragon", HouseLook(
+        [Tincture.EmberCoal, Tincture.EmberRed, Tincture.EmberFlame], SpaceThemeMode.Gradient,
+        Tincture.EmberGlow));
 
-    /// Forest and moss, its icon in rose.
-    public static readonly SpaceHouse Meadow = new("meadow", "Meadow", "CrestMeadow", HouseLook(
-        [Tincture.MeadowForest, Tincture.MeadowMoss, Tincture.MeadowWheat], SpaceThemeMode.Gradient,
-        Tincture.MeadowRose));
+    /// Pine through green to fern, its icon in spring.
+    public static readonly SpaceHouse Meadow = new("meadow", "Forest", "CrestMeadow", HouseLook(
+        [Tincture.ForestPine, Tincture.ForestGreen, Tincture.ForestFern], SpaceThemeMode.Gradient,
+        Tincture.ForestSpring));
 
-    /// Iron black and pewter, its icon in gold.
-    public static readonly SpaceHouse Iron = new("iron", "Iron", "CrestIron", HouseLook(
-        [Tincture.IronBlack, Tincture.IronPewter, Tincture.IronPatina], SpaceThemeMode.Gradient,
-        Tincture.IronOr));
+    /// Graphite through slate to steel, its icon in frost.
+    public static readonly SpaceHouse Iron = new("iron", "Graphite", "CrestIron", HouseLook(
+        [Tincture.GraphiteDark, Tincture.GraphiteSlate, Tincture.GraphiteSteel], SpaceThemeMode.Gradient,
+        Tincture.GraphiteFrost));
 
-    /// Navy and lapis, its icon in silver.
-    public static readonly SpaceHouse River = new("river", "River", "CrestRiver", HouseLook(
-        [Tincture.RiverNavy, Tincture.RiverLapis, Tincture.RiverRust], SpaceThemeMode.Gradient,
-        Tincture.RiverArgent));
+    /// Abyss through ocean blue to lagoon, its icon in foam.
+    public static readonly SpaceHouse River = new("river", "Ocean", "CrestRiver", HouseLook(
+        [Tincture.OceanAbyss, Tincture.OceanBlue, Tincture.OceanLagoon], SpaceThemeMode.Gradient,
+        Tincture.OceanFoam));
 
-    /// A gradient of umber and terracotta, its icon in gold.
-    public static readonly SpaceHouse Sun = new("sun", "Sun", "CrestSun", HouseLook(
-        [Tincture.SunUmber, Tincture.SunTerracotta, Tincture.SunDune], SpaceThemeMode.Gradient,
-        Tincture.SunOr, gradientAngle: 160));
+    /// Mulberry through coral to peach, its icon in cream.
+    public static readonly SpaceHouse Sun = new("sun", "Dawn", "CrestSun", HouseLook(
+        [Tincture.DawnMulberry, Tincture.DawnCoral, Tincture.DawnPeach], SpaceThemeMode.Gradient,
+        Tincture.DawnCream, gradientAngle: 160));
 
-    /// Onyx and charcoal, its icon in bone.
-    public static readonly SpaceHouse Vigil = new("vigil", "Vigil", "CrestVigil", HouseLook(
-        [Tincture.VigilOnyx, Tincture.VigilCharcoal, Tincture.VigilAsh], SpaceThemeMode.Gradient,
-        Tincture.VigilBone));
+    /// Aubergine through violet to lavender, its icon in lilac.
+    public static readonly SpaceHouse Vigil = new("vigil", "Grape", "CrestVigil", HouseLook(
+        [Tincture.GrapeAubergine, Tincture.GrapeViolet, Tincture.GrapeLavender], SpaceThemeMode.Gradient,
+        Tincture.GrapeLilac));
 
     public static IReadOnlyList<SpaceHouse> All { get; } = [Winter, Lion, Storm, Dragon, Meadow, Iron, River, Sun, Vigil];
 

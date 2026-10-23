@@ -61,13 +61,55 @@ public sealed class Tincture {
     public static readonly Tincture SunOr = new("sunOr", "Saffron", new(0.894, 0.718, 0.333));
     public static readonly Tincture VigilBone = new("vigilBone", "Bone", new(0.812, 0.820, 0.831));
 
+    // The gradients the templates are made of.
+    public static readonly Tincture MidnightNight = new("midnightNight", "Night", new(0.059, 0.086, 0.2));
+    public static readonly Tincture MidnightDeep = new("midnightDeep", "Deep Blue", new(0.122, 0.2, 0.471));
+    public static readonly Tincture MidnightAzure = new("midnightAzure", "Azure Glow", new(0.271, 0.42, 0.82));
+    public static readonly Tincture MidnightStar = new("midnightStar", "Starlight", new(0.78, 0.855, 1.0));
+    public static readonly Tincture SunsetPlum = new("sunsetPlum", "Plum", new(0.212, 0.067, 0.2));
+    public static readonly Tincture SunsetMagenta = new("sunsetMagenta", "Magenta", new(0.62, 0.165, 0.329));
+    public static readonly Tincture SunsetOrange = new("sunsetOrange", "Sunset Orange", new(0.945, 0.525, 0.267));
+    public static readonly Tincture SunsetApricot = new("sunsetApricot", "Apricot", new(1.0, 0.851, 0.663));
+    public static readonly Tincture AuroraDeep = new("auroraDeep", "Deep Sea", new(0.039, 0.118, 0.165));
+    public static readonly Tincture AuroraTeal = new("auroraTeal", "Aurora Teal", new(0.051, 0.408, 0.427));
+    public static readonly Tincture AuroraGreen = new("auroraGreen", "Aurora Green", new(0.384, 0.765, 0.478));
+    public static readonly Tincture AuroraMint = new("auroraMint", "Mint", new(0.776, 1.0, 0.871));
+    public static readonly Tincture EmberCoal = new("emberCoal", "Coal", new(0.141, 0.047, 0.039));
+    public static readonly Tincture EmberRed = new("emberRed", "Ember Red", new(0.565, 0.129, 0.086));
+    public static readonly Tincture EmberFlame = new("emberFlame", "Flame", new(0.957, 0.439, 0.196));
+    public static readonly Tincture EmberGlow = new("emberGlow", "Glow", new(1.0, 0.82, 0.588));
+    public static readonly Tincture ForestPine = new("forestPine", "Pine", new(0.035, 0.125, 0.086));
+    public static readonly Tincture ForestGreen = new("forestGreen", "Forest Green", new(0.11, 0.31, 0.196));
+    public static readonly Tincture ForestFern = new("forestFern", "Fern", new(0.443, 0.627, 0.302));
+    public static readonly Tincture ForestSpring = new("forestSpring", "Spring", new(0.863, 0.957, 0.718));
+    public static readonly Tincture GraphiteDark = new("graphiteDark", "Graphite", new(0.086, 0.094, 0.11));
+    public static readonly Tincture GraphiteSlate = new("graphiteSlate", "Slate Grey", new(0.22, 0.239, 0.271));
+    public static readonly Tincture GraphiteSteel = new("graphiteSteel", "Steel Grey", new(0.455, 0.482, 0.529));
+    public static readonly Tincture GraphiteFrost = new("graphiteFrost", "Frost", new(0.91, 0.922, 0.945));
+    public static readonly Tincture OceanAbyss = new("oceanAbyss", "Abyss", new(0.027, 0.098, 0.196));
+    public static readonly Tincture OceanBlue = new("oceanBlue", "Ocean Blue", new(0.039, 0.298, 0.502));
+    public static readonly Tincture OceanLagoon = new("oceanLagoon", "Lagoon", new(0.153, 0.62, 0.78));
+    public static readonly Tincture OceanFoam = new("oceanFoam", "Foam", new(0.765, 0.953, 1.0));
+    public static readonly Tincture DawnMulberry = new("dawnMulberry", "Mulberry", new(0.345, 0.118, 0.251));
+    public static readonly Tincture DawnCoral = new("dawnCoral", "Coral", new(0.851, 0.4, 0.404));
+    public static readonly Tincture DawnPeach = new("dawnPeach", "Peach", new(0.98, 0.749, 0.506));
+    public static readonly Tincture DawnCream = new("dawnCream", "Cream", new(1.0, 0.949, 0.859));
+    public static readonly Tincture GrapeAubergine = new("grapeAubergine", "Aubergine", new(0.106, 0.059, 0.204));
+    public static readonly Tincture GrapeViolet = new("grapeViolet", "Violet", new(0.325, 0.18, 0.553));
+    public static readonly Tincture GrapeLavender = new("grapeLavender", "Lavender", new(0.651, 0.502, 0.898));
+    public static readonly Tincture GrapeLilac = new("grapeLilac", "Lilac", new(0.906, 0.855, 1.0));
+
     public static IReadOnlyList<Tincture> All { get; } = [
         Ink, Indigo, Ocean, Sky, Teal, Sage, Gold, Ember, Rose, Sand, WinterSlate, WinterSteel, WinterIce, LionOxblood,
         LionCrimson, LionGold, StormMidnight, StormGunmetal, StormBrass, DragonChar, DragonBlood, DragonScarlet,
         MeadowForest, MeadowMoss, MeadowWheat, IronBlack, IronPewter, IronPatina, RiverNavy, RiverLapis, RiverRust,
         SunUmber, SunTerracotta, SunDune, VigilOnyx, VigilCharcoal, VigilAsh, WinterArgent, WinterWolf, LionGules, LionOr,
         StormOr, StormSable, DragonSable, DragonFire, MeadowVert, MeadowRose, IronOr, RiverAzure, RiverGules, RiverArgent,
-        SunTenne, SunGules, SunOr, VigilBone
+        SunTenne, SunGules, SunOr, VigilBone, MidnightNight, MidnightDeep, MidnightAzure, MidnightStar, SunsetPlum, SunsetMagenta,
+        SunsetOrange, SunsetApricot, AuroraDeep, AuroraTeal, AuroraGreen, AuroraMint, EmberCoal, EmberRed, EmberFlame, EmberGlow,
+        ForestPine, ForestGreen, ForestFern, ForestSpring, GraphiteDark, GraphiteSlate, GraphiteSteel, GraphiteFrost, OceanAbyss,
+        OceanBlue, OceanLagoon, OceanFoam, DawnMulberry, DawnCoral, DawnPeach, DawnCream, GrapeAubergine, GrapeViolet,
+        GrapeLavender, GrapeLilac
     ];
 
     public string Name { get; }

@@ -209,7 +209,7 @@ struct BrowserSpaceSetupWizard: View {
                     step = .appearance
                 } label: {
                     HStack(spacing: 16) {
-                        BrowserSpaceEditorIdentityPreview(
+                        BrowserCrestStudioMark(
                             branding: space.customization.branding,
                             symbol: space.customization.symbol, size: 44)
                         Text(space.shownName).font(.headline)

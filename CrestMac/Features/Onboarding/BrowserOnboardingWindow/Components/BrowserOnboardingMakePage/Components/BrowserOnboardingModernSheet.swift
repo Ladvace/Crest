@@ -5,7 +5,6 @@ import SwiftUI
 struct BrowserOnboardingModernSheet: View {
     @Binding var branding: SpaceBranding
     @Binding var symbol: String
-    @State private var choosesEmoji = false
 
     /// The color sets a modern Space may wear: the accents' own, then each
     /// template's sidebar colors.
@@ -62,32 +61,8 @@ struct BrowserOnboardingModernSheet: View {
 
     private var icon: some View {
         BrowserOnboardingMakeSection("Icon") {
-            HStack(spacing: 12) {
-                BrowserSystemSymbolPicker(
-                    selection: Binding(
-                        get: { BrowserIconSymbol.emoji(from: symbol) == nil ? symbol : "" },
-                        set: { symbol = $0 }))
-                BrowserArtworkPickerButton(
-                    title: "Emoji",
-                    detail: BrowserIconSymbol.emoji(from: symbol) == nil
-                        ? Text("Choose an emoji") : Text("Change emoji")
-                ) {
-                    choosesEmoji = true
-                } artwork: {
-                    if let emoji = BrowserIconSymbol.emoji(from: symbol) {
-                        Text(emoji)
-                    } else {
-                        Image(systemName: "face.smiling")
-                    }
-                }
-                .accessibilityLabel("Choose Emoji")
-                .browserIconCustomizationPopover(
-                    .init(
-                        isPresented: $choosesEmoji, title: "Space Icon",
-                        currentEmoji: BrowserIconSymbol.emoji(from: symbol),
-                        setEmoji: { symbol = BrowserIconSymbol.symbol(forEmoji: $0) }))
-            }
-            .frame(maxWidth: 520)
+            BrowserSpaceIconChoices(symbol: $symbol, arrangement: .sideBySide)
+                .frame(maxWidth: 520)
         }
     }
 

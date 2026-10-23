@@ -1,10 +1,7 @@
 import CoreGraphics
 
-/// Shared dimensions for the gradient dial, palette, and setup preview.
+/// Shared dimensions for the gradient dial and palette.
 enum BrowserSpaceForgeMetrics {
-
-    static let previewIdentitySize: CGFloat = 40
-
     static let gradientNeedleLengthRatio: CGFloat = 0.37
     static let gradientNeedleThicknessRatio: CGFloat = 0.035
     static let gradientNeedleOffsetRatio: CGFloat = 0.185

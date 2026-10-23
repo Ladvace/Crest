@@ -5,9 +5,6 @@ import Foundation
 extension SpaceBranding {
     // MARK: - Static Variables
 
-    /// The most colors a Space's banner holds, as the core enforces it.
-    static var maximumColorCount: Int { CapacityLimits.current.brandColors }
-
     /// The least contrast an icon keeps against its sidebar, as for any
     /// meaningful graphic.
     private static let minimumSymbolContrast = 3.0

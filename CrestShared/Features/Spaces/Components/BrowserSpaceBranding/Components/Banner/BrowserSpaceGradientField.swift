@@ -7,11 +7,13 @@ struct BrowserSpaceGradientField: View {
     var body: some View {
         let axis = gradientAxis
         let gradientColors = colors.count == 1 ? [colors[0], colors[0]] : colors
-        LinearGradient(
-            colors: gradientColors,
-            startPoint: axis.start,
-            endPoint: axis.end
-        )
+        // Mixing in a perceptual space keeps the colors between two stops as
+        // vivid as the stops, where sRGB mixing turns red and gold to brown.
+        Rectangle().fill(
+            .linearGradient(
+                Gradient(colors: gradientColors).colorSpace(.perceptual),
+                startPoint: axis.start,
+                endPoint: axis.end))
     }
 
     private var gradientAxis: (start: UnitPoint, end: UnitPoint) {

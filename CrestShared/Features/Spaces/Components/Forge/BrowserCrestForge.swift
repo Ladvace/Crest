@@ -19,7 +19,6 @@ struct BrowserCrestForge: View {
     @State private var editingStart: SpaceBranding?
     /// The look Undo put back, which is not itself a change to remember.
     @State private var restoredBranding: SpaceBranding?
-    @State private var choosesEmoji = false
 
     private var context: BrowserCrestStudioContext {
         BrowserCrestStudioContext(
@@ -115,7 +114,9 @@ struct BrowserCrestForge: View {
             BrowserCrestStudioChoice(title: house.title, selected: house.isWorn(by: branding), tint: .accentColor) {
                 branding = house.applying(to: branding)
             } artwork: {
-                houseArtwork(house.applying(to: editingStart ?? branding))
+                BrowserSpaceLookTile(
+                    look: house.applying(to: editingStart ?? branding), symbol: symbol,
+                    size: BrowserCrestForgeMetrics.tileIconSize)
             }
         }
     }
@@ -126,28 +127,7 @@ struct BrowserCrestForge: View {
 
     private var iconSections: some View {
         Section {
-            BrowserSystemSymbolPicker(
-                selection: Binding(
-                    get: { BrowserIconSymbol.emoji(from: symbol) == nil ? symbol : "" },
-                    set: { symbol = $0 }))
-            BrowserArtworkPickerButton(
-                title: "Emoji",
-                detail: BrowserIconSymbol.emoji(from: symbol) == nil ? Text("Choose an emoji") : Text("Change emoji")
-            ) {
-                choosesEmoji = true
-            } artwork: {
-                if let emoji = BrowserIconSymbol.emoji(from: symbol) {
-                    Text(emoji)
-                } else {
-                    Image(systemName: "face.smiling")
-                }
-            }
-            .accessibilityLabel("Choose Emoji")
-            .browserIconCustomizationPopover(
-                .init(
-                    isPresented: $choosesEmoji, title: "Space Icon",
-                    currentEmoji: BrowserIconSymbol.emoji(from: symbol),
-                    setEmoji: { symbol = BrowserIconSymbol.symbol(forEmoji: $0) }))
+            BrowserSpaceIconChoices(symbol: $symbol, arrangement: .stacked)
             let color = context.setting(\.symbolColor)
             CrestSettingRow("Follow Space color", setting: color.resettable("Icon color")) {
                 Toggle(
@@ -240,14 +220,6 @@ struct BrowserCrestForge: View {
         .padding(.bottom, 4)
     }
 
-    /// A house's tile: its sidebar field under the Space's icon in its colors.
-    private func houseArtwork(_ look: SpaceBranding) -> some View {
-        BrowserCrestStudioMark(branding: look, symbol: symbol, size: BrowserCrestForgeMetrics.tileIconSize * 0.7)
-            .frame(width: BrowserCrestForgeMetrics.tileIconSize, height: BrowserCrestForgeMetrics.tileIconSize)
-            .background { BrowserSpaceBannerBackground(branding: look) }
-            .clipShape(.rect(cornerRadius: 8))
-    }
-
     // MARK: - History
 
     private func remember(_ previous: SpaceBranding) {
@@ -267,20 +239,20 @@ struct BrowserCrestForge: View {
 
     // MARK: - Looks
 
-    /// A new sidebar and icon color, chosen afresh in the templates'
-    /// tinctures: dark ones for the sidebar's gradient, so its text stays
-    /// light, and a light one for the icon on it.
+    /// A new sidebar and icon color: one of the templates' gradients, its
+    /// first color always darkest so text stays light, its other two in
+    /// either order, at an angle that runs down the sidebar, with the
+    /// template's own icon color.
     static func shuffledLook(_ branding: SpaceBranding) -> SpaceBranding {
-        let tinctures = Tincture.all.map(\.color)
-        let darks = tinctures.filter { $0.luminance < 0.3 }.shuffled()
-        let lights = tinctures.filter { $0.luminance > 0.42 }.shuffled()
-        guard darks.count > 2, let light = lights.first else { return branding }
+        guard let house = SpaceHouse.all.randomElement() else { return branding }
+        var colors = Array(house.look.colors)
+        if colors.count == 3, Bool.random() { colors.swapAt(1, 2) }
 
         var look = branding
         look.themeMode = .gradient
-        look.gradientAngle = Double(Int.random(in: 0..<8) * 45)
-        look.colors = [darks[0], darks[1], darks[2]]
-        look.symbolColor = light
+        look.gradientAngle = Double.random(in: 45...135).rounded()
+        look.colors = ColorPalette(colors: colors)
+        look.symbolColor = house.look.symbolColor
         look.hasCustomAppearance = true
         return look.normalized()
     }

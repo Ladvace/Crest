@@ -12,7 +12,6 @@ struct BrowserSpaceBrandingEditor: View {
     @State private var initialAppearance: SpaceBranding?
     @State private var beforeShuffle: SpaceBranding?
     @State private var gesturePreview: SpaceBranding?
-    @State private var choosesIdentityEmoji = false
 
     private var defaults: SpaceBranding {
         SpaceHouse.startingPoint(of: branding)?.look ?? initialAppearance ?? branding
@@ -83,11 +82,8 @@ struct BrowserSpaceBrandingEditor: View {
                         branding = house.applying(to: branding)
                         beforeShuffle = nil
                     } artwork: {
-                        let look = house.applying(to: gesturePreview ?? branding)
-                        BrowserCrestStudioMark(branding: look, symbol: symbol, size: 36)
-                            .frame(width: 52, height: 52)
-                            .background { BrowserSpaceBannerBackground(branding: look) }
-                            .clipShape(.rect(cornerRadius: 8))
+                        BrowserSpaceLookTile(
+                            look: house.applying(to: gesturePreview ?? branding), symbol: symbol, size: 52)
                     }
                 }
             }
@@ -104,16 +100,7 @@ struct BrowserSpaceBrandingEditor: View {
                 BrowserCrestStudioTextField(
                     title: "Space name", symbol: "rectangle.and.pencil.and.ellipsis", text: editableName)
             }
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    identitySymbolPicker.frame(minWidth: 220)
-                    identityEmojiPicker.frame(minWidth: 220)
-                }
-                VStack(alignment: .leading, spacing: 12) {
-                    identitySymbolPicker
-                    identityEmojiPicker
-                }
-            }
+            BrowserSpaceIconChoices(symbol: $symbol)
             Toggle(
                 "Follow Space color",
                 isOn: Binding(
@@ -132,37 +119,6 @@ struct BrowserSpaceBrandingEditor: View {
                         }), supportsOpacity: false)
             }
         }
-    }
-
-    private var identitySymbolPicker: some View {
-        BrowserSystemSymbolPicker(
-            selection: Binding(
-                get: { BrowserIconSymbol.emoji(from: symbol) == nil ? symbol : "" },
-                set: { symbol = $0 }
-            ))
-    }
-
-    private var identityEmojiPicker: some View {
-        BrowserArtworkPickerButton(
-            title: "Emoji",
-            detail: BrowserIconSymbol.emoji(from: symbol) == nil ? Text("Choose an emoji") : Text("Change emoji")
-        ) {
-            choosesIdentityEmoji = true
-        } artwork: {
-            if let emoji = BrowserIconSymbol.emoji(from: symbol) {
-                Text(emoji)
-            } else {
-                Image(systemName: "face.smiling")
-            }
-        }
-        .accessibilityLabel("Choose Emoji")
-        .accessibilityValue(BrowserIconSymbol.emoji(from: symbol) ?? "")
-        .browserIconCustomizationPopover(
-            .init(
-                isPresented: $choosesIdentityEmoji, title: "Space Icon",
-                currentEmoji: BrowserIconSymbol.emoji(from: symbol),
-                setEmoji: { symbol = BrowserIconSymbol.symbol(forEmoji: $0) }
-            ))
     }
 
     private func shuffle() {
