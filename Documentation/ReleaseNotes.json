@@ -4397,6 +4397,10 @@
     "crestark-logo-in-app": {
       "category": "improved",
       "message": "CrestArk's logo appears throughout the app: in setup, Getting Started, the Start Page and Start Page tabs, in light and dark."
+    },
+    "onboarding-layout-fixes": {
+      "category": "fixed",
+      "message": "In setup, the ready page's Space previews no longer overlap its heading, and each browser to import from shows its logo and name centered."
     }
   }
 }

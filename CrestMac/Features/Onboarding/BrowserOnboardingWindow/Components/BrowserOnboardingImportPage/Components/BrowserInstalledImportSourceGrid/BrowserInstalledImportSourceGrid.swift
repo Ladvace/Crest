@@ -56,13 +56,20 @@ private struct BrowserInstalledImportSourceCard: View {
                     .font(CrestTypography.sans(15, weight: .semibold))
                     .foregroundStyle(CrestBrandTheme.textDisplay)
                     .lineLimit(1)
-                Text(accessLabel ?? "")
-                    .font(CrestTypography.sans(11, weight: .medium))
-                    .foregroundStyle(CrestBrandTheme.textDisplay.opacity(0.6))
-                    .lineLimit(1)
-                    .frame(height: 14)
             }
+            // The logo and name sit in the card's middle; an access note
+            // keeps to the foot, so it never pushes them up.
             .frame(width: 196, height: 176)
+            .overlay(alignment: .bottom) {
+                if let accessLabel {
+                    Text(accessLabel)
+                        .font(CrestTypography.sans(11, weight: .medium))
+                        .foregroundStyle(CrestBrandTheme.textDisplay.opacity(0.6))
+                        .lineLimit(1)
+                        .padding(.horizontal, 12)
+                        .padding(.bottom, 16)
+                }
+            }
             .contentShape(.rect(cornerRadius: CrestRadius.card, style: .continuous))
             .background {
                 RoundedRectangle(cornerRadius: CrestRadius.card, style: .continuous)

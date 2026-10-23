@@ -20,11 +20,17 @@ struct BrowserOnboardingCompletionPage: View {
                 Spacer()
                 HStack(alignment: .top, spacing: BrowserOnboardingCompletionMetrics.spacing) {
                     ForEach(shown) { space in
+                        // Drawn at one window size and scaled into its slot, as a
+                        // thumbnail is: the sidebar inside needs its own width
+                        // and height, which three slots side by side don't give.
+                        let design = BrowserOnboardingCompletionMetrics.previewSize
                         BrowserOnboardingWindowPreview(branding: space.branding, symbol: space.symbol, name: space.name)
                         {
-                            BrowserSpaceIdentityIcon(identity: space, size: size.height * 0.3)
-                                .frame(width: size.height * 0.3, height: size.height * 0.3)
+                            BrowserSpaceIdentityIcon(identity: space, size: design.height * 0.3)
+                                .frame(width: design.height * 0.3, height: design.height * 0.3)
                         }
+                        .frame(width: design.width, height: design.height)
+                        .scaleEffect(size.width / design.width)
                         .frame(width: size.width, height: size.height)
                     }
                 }
@@ -79,4 +85,6 @@ enum BrowserOnboardingCompletionMetrics {
     static let maximumWindowWidth: CGFloat = 720
     /// The browser window's own proportions, as it opens: 1440 by 900.
     static let windowAspect: CGFloat = 1.6
+    /// The size each window is drawn at before it is scaled into its slot.
+    static let previewSize = CGSize(width: 720, height: 720 / windowAspect)
 }
