@@ -15,9 +15,11 @@ private struct BrowserTabResidencyModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         let isDimmed = !isLoaded && BrowserDeviceAppearanceStore.shared.tabs.dimsUnloadedTabs
+        // Softly enough that a sleeping tab still reads on a light sidebar,
+        // where half opacity washed icons and titles into the color behind.
         content
-            .saturation(isDimmed ? 0.3 : 1)
-            .opacity(isDimmed ? 0.5 : 1)
+            .saturation(isDimmed ? 0.7 : 1)
+            .opacity(isDimmed ? 0.72 : 1)
     }
 }
 

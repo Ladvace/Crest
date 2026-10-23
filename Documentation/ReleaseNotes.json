@@ -4377,6 +4377,10 @@
     "imported-extensions-progress": {
       "category": "improved",
       "message": "After an import, the sidebar shows quietly how many extensions are still being added, until they are all installed."
+    },
+    "readable-sleeping-tabs": {
+      "category": "fixed",
+      "message": "Tabs that haven't loaded yet are dimmed more gently, so they stay readable on light sidebars."
     }
   }
 }
