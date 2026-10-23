@@ -4349,6 +4349,10 @@
     "bookmarks-bar-and-one-field": {
       "category": "improved",
       "message": "A bookmarks bar can sit above your pages: drag bookmarks to reorder them, and find the ones that don't fit behind the +N button. The bookmarks button opens on the page you're viewing: save it, type another address, or type folder/address to file it. Deleting a bookmark now asks first."
+    },
+    "clear-tabs-confirm-and-undo": {
+      "category": "improved",
+      "message": "Clearing a Space's open tabs asks first, and Command-Z brings the cleared tabs back."
     }
   }
 }

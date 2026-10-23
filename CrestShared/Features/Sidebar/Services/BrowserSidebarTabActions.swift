@@ -69,14 +69,25 @@ struct BrowserSidebarTabActions {
         )
     }
 
-    /// Closes the Space's current tabs, leaving its pinned and saved tabs be.
+    /// Closes the Space's current tabs, leaving its pinned and saved tabs be,
+    /// and lets `undoManager` bring them back from the archive in their order.
     @discardableResult
-    func clearCurrentTabs() -> Bool {
-        guard
-            browser.selectedUnlockedSpace(matching: assignment, accessController: spaceAccess) != nil,
-            browser.clearCurrentTabs(matching: assignment)
+    func clearCurrentTabs(undoManager: UndoManager? = nil) -> Bool {
+        guard let space = browser.selectedUnlockedSpace(matching: assignment, accessController: spaceAccess)
         else { return false }
+        let cleared = space.tabs.models.filter { $0.placement == .current }.map(\.id)
+        let shown = browser.selectedTabID(in: space.id)
+        guard browser.clearCurrentTabs(matching: assignment) else { return false }
         syncPagesAfterMutation()
+        let actions = self
+        undoManager?.registerUndo(withTarget: browser) { browser in
+            MainActor.assumeIsolated {
+                if browser.restoreArchivedTabs(cleared, showing: shown, matching: actions.assignment) {
+                    actions.syncPagesAfterMutation()
+                }
+            }
+        }
+        undoManager?.setActionName(String(localized: "Clear Tabs"))
         return true
     }
 

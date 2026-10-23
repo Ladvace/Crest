@@ -39,6 +39,9 @@ private struct BrowserCurrentTabsSeam: View {
     let isSavedTabsExpanded: Bool
     let showsClearAction: Bool
 
+    @Environment(\.undoManager) private var undoManager
+    @State private var isConfirmingClear = false
+
     var body: some View {
         let sidebar = context.space.sidebar
         BrowserCurrentTabsDivider(
@@ -47,8 +50,16 @@ private struct BrowserCurrentTabsSeam: View {
                 && (context.capabilities.showsRowDropIndicators || !sidebar.section(.saved).holdsTabRows),
             showsClearAction: showsClearAction,
             canClear: holdsCurrentTabs,
-            clear: { _ = context.tabActions.clearCurrentTabs() }
+            clear: { isConfirmingClear = true }
         )
+        .alert("Clear open tabs?", isPresented: $isConfirmingClear) {
+            Button("Clear Tabs", role: .destructive) {
+                _ = context.tabActions.clearCurrentTabs(undoManager: undoManager)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("They move to the Archive. Undo brings them back.")
+        }
     }
 
     /// Whether the current section holds a tab, at its top level or in one of

@@ -111,6 +111,20 @@ extension BrowserStore {
         return sendRecords(ReopenClosedTab(workspaceID: family.workspaceID, windowID: windowID, spaceID: space.id))
     }
 
+    /// Reopens the archived tabs `ids`, in that order at the top of the open
+    /// tabs, showing `shown` when it comes back: undoing a clear of the
+    /// Space's open tabs. False when the archive holds none of them.
+    @discardableResult
+    func restoreArchivedTabs(
+        _ ids: [UUID], showing shown: UUID?, matching assignment: BrowserSpaceRuntimeAssignment
+    ) -> Bool {
+        guard !ids.isEmpty, spaceModel(matching: assignment) != nil else { return false }
+        return sendRecords(
+            RestoreArchivedTabs(
+                workspaceID: family.workspaceID, windowID: windowID, spaceID: assignment.spaceID, tabIDs: ids,
+                shownTabID: shown))
+    }
+
     /// Runs a history, archive or retention intent from this window, and
     /// answers whether it changed the session.
     @discardableResult

@@ -189,6 +189,7 @@ public sealed partial class BrowserContractsTests {
         Assert.Equal(space.Tabs.First(tab => tab.Placement == TabPlacement.Current).Id, device.Tab(window, space.Id));
 
         var archived = core.Current.Spaces[0].ArchivedTabs.Count;
+        var open = core.Current.Spaces[0].Tabs.Where(tab => !tab.Placement.IsDurable).Select(tab => tab.Id).ToArray();
         device.Send(new ClearCurrentTabs(device.Workspace, window, space.Id));
         var cleared = core.Current.Spaces[0];
         Assert.All(cleared.Tabs, tab => Assert.True(tab.Placement.IsDurable));
@@ -197,6 +198,15 @@ public sealed partial class BrowserContractsTests {
         Assert.Equal(cleared.Tabs[0].Id, device.Tab(window, space.Id));
         Assert.Equal(space.Id, Assert.IsType<NoCurrentTabs>(Assert.Throws<Rejected>(() =>
             device.Send(new ClearCurrentTabs(device.Workspace, window, space.Id))).Rejection).SpaceId);
+
+        // Undoing the clear brings the archived tabs back in their order and
+        // shows the one asked for; a tab the archive never held is passed over.
+        var brought = open.Where(id => cleared.ArchivedTabs.Any(entry => entry.Tab.Id == id)).ToArray();
+        device.Send(new RestoreArchivedTabs(device.Workspace, window, space.Id, [.. brought, Guid.NewGuid()], brought[^1]));
+        var restored = core.Current.Spaces[0];
+        Assert.Equal(brought, restored.Tabs.Where(tab => !tab.Placement.IsDurable).Select(tab => tab.Id));
+        Assert.Equal(archived, restored.ArchivedTabs.Count);
+        Assert.Equal(brought[^1], device.Tab(window, space.Id));
     }
 
     [Fact]
