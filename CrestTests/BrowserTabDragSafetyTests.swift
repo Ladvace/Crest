@@ -634,8 +634,11 @@ final class BrowserTabDragSafetyTests: XCTestCase {
             section: currentSection,
             at: CGPoint(x: currentRow.midX, y: currentRow.midY)
         )
+        // The grid lays its tiles out itself: in a 374-point grid of compact
+        // tiles the first tile's center sits near x = 37 and the second's near
+        // x = 100, so a pointer between them aims at the second slot.
         state.update(
-            pointer: CGPoint(x: secondTile.midX, y: secondTile.midY)
+            pointer: CGPoint(x: 70, y: secondTile.midY)
         )
 
         XCTAssertEqual(
